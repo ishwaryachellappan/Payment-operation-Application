@@ -1,0 +1,119 @@
+<mvc:View
+    controllerName="paymentsapp.controller.ApprovalInbox"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    displayBlock="true">
+
+    <Page
+        title="Approval Inbox"
+        showNavButton="true"
+        navButtonPress=".onBack">
+
+        <content>
+
+            <VBox class="sapUiMediumMargin">
+
+                <Toolbar>
+
+                   <Title
+    id="approvalInboxTitle"
+    text="Pending Payments (0)"
+    level="H2"/>
+
+                    <ToolbarSpacer/>
+
+                    <Button
+                        text="Refresh"
+                        icon="sap-icon://refresh"
+                        press=".onRefresh"/>
+
+                </Toolbar>
+
+                <Table
+                    id="approvalTable"
+                items="{approval>/payments}"
+                    growing="true"
+                    class="sapUiSmallMarginTop">
+
+                    <columns>
+
+                        <Column>
+                            <Text text="Payment Reference"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Company Code"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Debtor Account"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Creditor Account"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Amount"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Currency"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Payment Date"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Actions"/>
+                        </Column>
+
+                    </columns>
+
+                    <items>
+
+                        <ColumnListItem>
+
+                            <cells>
+
+                               <Text text="{approval>paymentReference}"/>
+<Text text="{approval>companyCode}"/>
+<Text text="{approval>debtorAccount}"/>
+<Text text="{approval>creditorAccount}"/>
+<Text text="{approval>amount}"/>
+<Text text="{approval>currency}"/>
+<Text text="{approval>paymentDate}"/>
+
+                                <HBox>
+
+                                    <Button
+                                        text="Approve"
+                                        type="Accept"
+                                        icon="sap-icon://accept"
+                                        press=".onApprove"
+                                        class="sapUiTinyMarginEnd"/>
+
+                                    <Button
+                                        text="Reject"
+                                        type="Reject"
+                                        icon="sap-icon://decline"
+                                        press=".onReject"/>
+
+                                </HBox>
+
+                            </cells>
+
+                        </ColumnListItem>
+
+                    </items>
+
+                </Table>
+
+            </VBox>
+
+        </content>
+
+    </Page>
+
+</mvc:View>

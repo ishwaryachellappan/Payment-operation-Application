@@ -1,0 +1,4 @@
+ID,paymentReference,companyCode,debtorAccount,creditorAccount,amount,currency,paymentMethod,paymentDate,status,rejectionReason
+aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,PAY-001,1000,DE89370400440532013000,GB29NWBK60161331926819,5000.00,EUR,SEPA,2026-08-25,PENDING_APPROVAL,
+bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,PAY-002,2000,DE89370400440532013001,GB29NWBK60161331926820,2500.00,GBP,SEPA,2026-08-25,APPROVED,
+cccccccc-cccc-cccc-cccc-cccccccccccc,PAY-003,3000,DE89370400440532013002,US123456789,1250.00,USD,SWIFT,2026-08-25,REJECTED,Beneficiary details not verified

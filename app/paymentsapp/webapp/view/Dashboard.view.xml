@@ -1,0 +1,205 @@
+<mvc:View
+    controllerName="paymentsapp.controller.Dashboard"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    displayBlock="true">
+
+<Page
+    title="Payment Operations Admin"
+    showHeader="true">
+
+    <customHeader>
+        <Toolbar>
+
+            <Title
+                text="Payment Operations Admin"/>
+
+            <ToolbarSpacer/>
+
+            <Button
+                text="Logout"
+                icon="sap-icon://log"
+                type="Transparent"
+                press=".onLogout"/>
+
+        </Toolbar>
+    </customHeader>
+
+        <content>
+
+            <VBox class="sapUiMediumMargin">
+
+                <Title
+                    text="Welcome, Administrator"
+                    level="H2"
+                    class="sapUiSmallMarginBottom"/>
+
+                <Text
+                    text="SAP Banking Payment Operations"
+                    class="sapUiSmallMarginBottom"/>
+
+                <HBox
+                    wrap="Wrap"
+                    justifyContent="SpaceBetween"
+                    class="sapUiSmallMarginTop sapUiSmallMarginBottom">
+
+                  <GenericTile
+    header="Total Payments"
+    subheader="All Payments"
+    class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+     press=".onTotalPayments">
+
+                        <TileContent>
+                           <NumericContent
+    id="totalPayments"
+    value="{dashboard>/total}"
+    valueColor="Neutral"/>
+                        </TileContent>
+
+                    </GenericTile>
+
+                    <GenericTile
+                        header="Pending Approval"
+                        subheader="Awaiting Action"
+                        class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                           press=".onPendingPayments">
+
+                        <TileContent>
+                          <NumericContent
+    id="pendingPayments"
+    value="{dashboard>/pending}"
+    valueColor="Critical"/>
+                        </TileContent>
+
+                    </GenericTile>
+
+                    <GenericTile
+                        header="Approved"
+                        subheader="Approved Payments"
+                        class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                         press=".onApprovedPayments">
+
+                        <TileContent>
+                       <NumericContent
+    id="approvedPayments"
+    value="{dashboard>/approved}"
+    valueColor="Good"/>
+                        </TileContent>
+
+                    </GenericTile>
+
+                    <GenericTile
+                        header="Rejected"
+                        subheader="Rejected Payments"
+                        class="sapUiSmallMarginBottom"
+                         press=".onRejectedPayments">
+
+                        <TileContent>
+                         <NumericContent
+    id="rejectedPayments"
+    value="{dashboard>/rejected}"
+    valueColor="Error"/>
+                        </TileContent>
+
+                    </GenericTile>
+
+                </HBox>
+
+                <Title
+                    text="Quick Actions"
+                    level="H3"
+                    class="sapUiMediumMarginTop sapUiSmallMarginBottom"/>
+
+                <HBox
+                    wrap="Wrap"
+                    class="sapUiSmallMarginBottom">
+
+                    <Button
+                        text="View Payments"
+                        type="Emphasized"
+                        press=".onViewPayments"
+                        class="sapUiSmallMarginEnd"/>
+
+     <Button
+    id="approvalInboxButton"
+    text="Approval Inbox ({dashboard>/pending})"
+    press=".onApprovalInbox"
+    class="sapUiSmallMarginEnd"/>
+
+                    <Button
+                        text="User Management"
+                        press=".onUserManagement"/>
+
+                </HBox>
+
+                <Title
+    text="Recent Payments"
+    level="H3"
+    class="sapUiMediumMarginTop sapUiSmallMarginBottom"/>
+
+<Table
+    id="recentPaymentsTable"
+    items="{dashboard>/recentPayments}"
+    growing="false"
+    width="100%">
+
+    <columns>
+
+        <Column>
+            <Text text="Reference"/>
+        </Column>
+
+        <Column>
+            <Text text="Company"/>
+        </Column>
+
+        <Column>
+            <Text text="Amount"/>
+        </Column>
+
+        <Column>
+            <Text text="Currency"/>
+        </Column>
+
+        <Column>
+            <Text text="Status"/>
+        </Column>
+
+    </columns>
+
+    <items>
+
+        <ColumnListItem>
+
+            <cells>
+
+                <Text
+                    text="{dashboard>paymentReference}"/>
+
+                <Text
+                    text="{dashboard>companyCode}"/>
+
+                <Text
+                    text="{dashboard>amount}"/>
+
+                <Text
+                    text="{dashboard>currency}"/>
+
+                <ObjectStatus
+                    text="{dashboard>status}"/>
+
+            </cells>
+
+        </ColumnListItem>
+
+    </items>
+
+</Table>
+
+            </VBox>
+
+        </content>
+
+    </Page>
+
+</mvc:View>

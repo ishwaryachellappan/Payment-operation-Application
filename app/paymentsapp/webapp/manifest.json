@@ -1,0 +1,153 @@
+{
+  "_version": "1.86.0",
+
+  "sap.app": {
+    "id": "paymentsapp",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+
+    "title": "Payment Operations",
+    "description": "Payment Operations Application",
+
+    "dataSources": {
+      "mainService": {
+        "uri": "/payment-service/",
+        "type": "OData",
+        "settings": {
+          "odataVersion": "4.0"
+        }
+      }
+    }
+  },
+
+  "sap.ui": {
+    "technology": "UI5",
+
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+
+  "sap.ui5": {
+
+   "rootView": {
+    "viewName": "paymentsapp.view.App",
+    "type": "XML",
+    "async": true,
+    "id": "app"
+},
+
+    "dependencies": {
+      "minUI5Version": "1.151.0",
+
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+
+    "models": {
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "paymentsapp.i18n.i18n"
+        }
+      }
+    },
+
+    "routing": {
+
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "viewType": "XML",
+        "viewPath": "paymentsapp.view",
+        "controlId": "app",
+        "controlAggregation": "pages",
+        "async": true
+      },
+
+      "routes": [
+     {
+            "pattern": "",
+            "name": "Login",
+            "target": "Login"
+        },
+        {
+            "pattern": "dashboard",
+            "name": "Dashboard",
+            "target": "Dashboard"
+        },
+        {
+            "pattern": "payments:?query:",
+            "name": "Payments",
+            "target": "Payments"
+        },
+        {
+            "pattern": "approval-inbox",
+            "name": "ApprovalInbox",
+            "target": "ApprovalInbox"
+        },
+        {
+            "pattern": "user-management",
+            "name": "UserManagement",
+            "target": "UserManagement"
+        }
+],
+
+      "targets": {
+
+        "Login": {
+            "viewName": "Login",
+            "viewType": "XML"
+        },
+
+        "Dashboard": {
+            "viewName": "Dashboard",
+            "viewType": "XML"
+        },
+
+        "Payments": {
+            "viewName": "Payments",
+            "viewType": "XML"
+        },
+
+        "ApprovalInbox": {
+            "viewName": "ApprovalInbox",
+            "viewType": "XML"
+        },
+
+        "UserManagement": {
+            "viewName": "UserManagement",
+            "viewType": "XML"
+        }
+    
+
+      }
+    }
+  },
+
+  "sap.fiori": {
+    "archeType": "transactional"
+  }
+}

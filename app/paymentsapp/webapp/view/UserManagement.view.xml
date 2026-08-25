@@ -1,0 +1,143 @@
+<mvc:View
+    controllerName="paymentsapp.controller.UserManagement"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    displayBlock="true">
+
+    <Page
+        title="User Management"
+        showNavButton="true"
+        navButtonPress=".onBack">
+
+        <content>
+
+            <VBox
+                class="sapUiMediumMargin">
+
+                <!-- ========================================= -->
+                <!-- HEADER -->
+                <!-- ========================================= -->
+
+                <Toolbar>
+
+                    <Title
+                        text="Users"
+                        level="H2"/>
+
+                    <ToolbarSpacer/>
+
+                    <Button
+                        text="Create User"
+                        type="Emphasized"
+                        icon="sap-icon://add"
+                        press=".onCreateUser"/>
+
+                </Toolbar>
+
+
+                <!-- ========================================= -->
+                <!-- USER TABLE -->
+                <!-- ========================================= -->
+
+                <Table
+                    id="usersTable"
+                    items="{/Users}"
+                    growing="true"
+                    class="sapUiSmallMarginTop">
+
+                    <columns>
+
+                        <Column>
+                            <Text text="User ID"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Full Name"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Email"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Role"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Active"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Actions"/>
+                        </Column>
+
+                    </columns>
+
+
+                    <items>
+
+                        <ColumnListItem>
+
+                            <cells>
+
+                                <Text
+                                    text="{userName}"/>
+
+                                <Text
+                                    text="{fullName}"/>
+
+                                <Text
+                                    text="{email}"/>
+
+                                <Text
+                                    text="{role}"/>
+
+                                <ObjectStatus
+                                    text="{
+                                        = ${isActive}
+                                        ? 'Active'
+                                        : 'Inactive'
+                                    }"
+                                    state="{
+                                        = ${isActive}
+                                        ? 'Success'
+                                        : 'Error'
+                                    }"/>
+
+
+                                <!-- ======================= -->
+                                <!-- ACTIONS -->
+                                <!-- ======================= -->
+
+                                <HBox>
+
+                                    <Button
+                                        text="Edit"
+                                        icon="sap-icon://edit"
+                                        type="Transparent"
+                                        press=".onEditUser"
+                                        class="sapUiTinyMarginEnd"/>
+
+                                    <Button
+                                        text="Delete"
+                                        icon="sap-icon://delete"
+                                        type="Transparent"
+                                        press=".onDeleteUser"/>
+
+                                </HBox>
+
+                            </cells>
+
+                        </ColumnListItem>
+
+                    </items>
+
+                </Table>
+
+            </VBox>
+
+        </content>
+
+    </Page>
+
+</mvc:View>

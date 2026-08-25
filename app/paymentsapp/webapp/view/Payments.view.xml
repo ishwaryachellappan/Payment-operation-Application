@@ -1,0 +1,135 @@
+<mvc:View
+    controllerName="paymentsapp.controller.Payments"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    displayBlock="true">
+
+  <Page
+    title="Payments"
+    showNavButton="true"
+    navButtonPress=".onBack">
+
+    <customHeader>
+
+        <Toolbar>
+
+            <Button
+                icon="sap-icon://nav-back"
+                type="Transparent"
+                press=".onBack"/>
+
+            <Title
+                text="Payments"/>
+
+            <ToolbarSpacer/>
+
+            <Button
+                text="Logout"
+                icon="sap-icon://log"
+                type="Transparent"
+                press=".onLogout"/>
+
+        </Toolbar>
+
+    </customHeader>
+
+        <content>
+
+            <VBox class="sapUiMediumMargin">
+
+              <Toolbar>
+
+    <Title
+        text="Payment List"
+        level="H2"/>
+
+    <ToolbarSpacer/>
+
+    <Button
+        text="Copy Payment"
+        icon="sap-icon://copy"
+        press=".onCopyPayment"
+        class="sapUiSmallMarginEnd"/>
+
+    <Button
+        text="Create Payment"
+        type="Emphasized"
+        icon="sap-icon://add"
+        press=".onCreatePayment"/>
+
+</Toolbar>
+
+                <SearchField
+                    id="paymentSearch"
+                    width="100%"
+                    placeholder="Search payments..."
+                    liveChange=".onSearch"
+                    class="sapUiSmallMarginBottom"/>
+
+                <Table
+                    id="paymentsTable"
+                  items="{payments>/payments}"
+                    growing="true"
+                    growingScrollToLoad="true"
+                    mode="None">
+
+                    <columns>
+
+                        <Column>
+                            <Text text="Payment Reference"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Company Code"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Amount"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Currency"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Payment Date"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Status"/>
+                        </Column>
+
+                    </columns>
+
+                    <items>
+
+                        <ColumnListItem
+                            type="Active"
+                            press=".onPaymentPress">
+
+                            <cells>
+
+                                <Text text="{payments>paymentReference}"/>
+<Text text="{payments>companyCode}"/>
+<Text text="{payments>amount}"/>
+<Text text="{payments>currency}"/>
+<Text text="{payments>paymentDate}"/>
+<ObjectStatus text="{payments>status}"/>
+
+                                
+
+                            </cells>
+
+                        </ColumnListItem>
+
+                    </items>
+
+                </Table>
+
+            </VBox>
+
+        </content>
+
+    </Page>
+
+</mvc:View>

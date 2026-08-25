@@ -1,0 +1,73 @@
+<mvc:View
+    controllerName="paymentsapp.controller.Login"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    displayBlock="true">
+
+    <Page
+        title="Payment Operations">
+
+        <content>
+
+            <VBox
+                width="100%"
+                alignItems="Center"
+                class="sapUiMediumMarginTop">
+
+                <VBox
+                    width="400px"
+                    class="sapUiMediumMargin">
+
+                    <Title
+                        text="Payment Operations"
+                        level="H1"
+                        class="sapUiSmallMarginBottom"/>
+
+                    <Text
+                        text="Sign in to continue"
+                        class="sapUiSmallMarginBottom"/>
+
+                    <Label
+                        text="User ID"
+                        labelFor="userName"/>
+
+                    <Input
+                        id="userName"
+                        placeholder="Enter User ID"
+                        width="100%"
+                        class="sapUiSmallMarginBottom"/>
+
+                    <Label
+                        text="Password"
+                        labelFor="password"/>
+
+                    <Input
+                        id="password"
+                        type="Password"
+                        placeholder="Enter Password"
+                        width="100%"
+                        class="sapUiSmallMarginBottom"/>
+
+                    <MessageStrip
+                        id="errorMessage"
+                        visible="false"
+                        type="Error"
+                        showIcon="true"
+                        class="sapUiSmallMarginBottom"/>
+
+                   <Button
+    id="loginButton"
+    text="Login"
+    type="Emphasized"
+    press=".onLogin"
+    class="sapUiSmallMarginTop"/>
+
+                </VBox>
+
+            </VBox>
+
+        </content>
+
+    </Page>
+
+</mvc:View>

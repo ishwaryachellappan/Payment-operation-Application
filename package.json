@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "@cap-js/sqlite": "^3.0.2",
+    "@sap/cds": "^10.0.6",
+    "node.js": "^0.0.1-security"
+  },
+  "cds": {
+    "requires": {
+      "[production]": {
+        "db": "hana"
+      }
+    }
+  },
+  "workspaces": [
+    "app/*"
+  ],
+  "devDependencies": {
+    "cds-plugin-ui5": "^0.17.0"
+  },
+  "scripts": {
+    "watch-paymentsapp": "cds watch --open paymentsapp/index.html?sap-ui-xx-viewCache=false --livereload false"
+  },
+  "sapux": [
+    "app/paymentsapp"
+  ]
+}
