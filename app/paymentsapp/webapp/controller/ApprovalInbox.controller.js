@@ -2,12 +2,22 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageBox",
-    "sap/m/MessageToast"
+    "sap/m/MessageToast",
+    "sap/m/Dialog",
+    "sap/m/Input",
+    "sap/m/Label",
+    "sap/m/VBox",
+    "sap/m/Button"
 ], function (
     Controller,
     JSONModel,
     MessageBox,
-    MessageToast
+    MessageToast,
+    Dialog,
+    Input,
+    Label,
+    VBox,
+    Button
 ) {
     "use strict";
 
@@ -234,112 +244,286 @@ await this._loadPendingPayments();
 
             onReject: function (oEvent) {
 
-                const payment =
-                    oEvent
-                        .getSource()
-                        .getBindingContext("approval")
-                        .getObject();
+    console.log("========== REJECT CLICKED ==========");
 
-                MessageBox.prompt(
-                    "Enter rejection reason:",
-                    {
-                        title: "Reject Payment",
+    const context =
+        oEvent
+            .getSource()
+            .getBindingContext("approval");
 
-                        onClose: function (
-                            action,
-                            value
-                        ) {
+    if (!context) {
 
-                            if (
-                                action ===
-                                MessageBox.Action.OK
-                            ) {
+        console.error(
+            "No approval binding context found"
+        );
 
-                                if (
-                                    !value ||
-                                    !value.trim()
-                                ) {
+        MessageBox.error(
+            "Unable to identify the selected payment."
+        );
 
-                                    MessageBox.error(
-                                        "Rejection reason is required"
-                                    );
+        return;
+    }
 
-                                    return;
-                                }
+    const payment =
+        context.getObject();
 
-                                this._rejectPayment(
-                                    payment.ID,
-                                    value.trim()
+    console.log(
+        "Payment selected for rejection:",
+        payment
+    );
+
+
+    // =========================================
+    // INPUT FOR REJECTION REASON
+    // =========================================
+
+    const reasonInput =
+        new Input({
+            width: "100%",
+            placeholder: "Enter rejection reason"
+        });
+
+
+    const form =
+        new VBox({
+            class: "sapUiMediumMargin",
+
+            items: [
+
+                new Label({
+                    text:
+                        "Payment: " +
+                        payment.paymentReference
+                }),
+
+                reasonInput
+
+            ]
+        });
+
+
+    // =========================================
+    // REJECT DIALOG
+    // =========================================
+
+    const dialog =
+        new Dialog({
+
+            title: "Reject Payment",
+
+            contentWidth: "450px",
+
+            content: form,
+
+
+            beginButton:
+                new Button({
+
+                    text: "Reject",
+
+                    type: "Reject",
+
+                    press:
+                        async function () {
+
+                            const reason =
+                                reasonInput
+                                    .getValue()
+                                    .trim();
+
+
+                            if (!reason) {
+
+                                MessageBox.error(
+                                    "Rejection reason is required."
                                 );
+
+                                return;
                             }
 
+
+                            console.log(
+                                "Reject reason:",
+                                reason
+                            );
+
+
+                            dialog.close();
+
+
+                            await this._rejectPayment(
+                                payment.ID,
+                                reason
+                            );
+
                         }.bind(this)
-                    }
-                );
-            },
+                }),
+
+
+            endButton:
+                new Button({
+
+                    text: "Cancel",
+
+                    press:
+                        function () {
+
+                            dialog.close();
+
+                        }
+                }),
+
+
+            afterClose:
+                function () {
+
+                    dialog.destroy();
+
+                }
+
+        });
+
+
+    dialog.open();
+},
 
 
             _rejectPayment: async function (
-                paymentId,
-                reason
-            ) {
+    paymentId,
+    reason
+) {
 
-                try {
+    console.log(
+        "========== REJECT PAYMENT =========="
+    );
 
-                    const response = await fetch(
-                        "/payment-service/rejectPayment",
-                        {
-                            method: "POST",
+    console.log(
+        "Payment ID:",
+        paymentId
+    );
 
-                            headers: {
-                                "Content-Type":
-                                    "application/json",
+    console.log(
+        "Reason:",
+        reason
+    );
 
-                                "Accept":
-                                    "application/json"
-                            },
 
-                            body: JSON.stringify({
-                                paymentId: paymentId,
-                                reason: reason
-                            })
-                        }
-                    );
+    try {
 
-                    const result =
-                        await response.json();
+        const response =
+            await fetch(
+                "/payment-service/rejectPayment",
+                {
+                    method: "POST",
 
-                    if (
-                        !response.ok ||
-                        !result.success
-                    ) {
+                    headers: {
+                        "Content-Type":
+                            "application/json",
 
-                        MessageBox.error(
-                            result.message ||
-                            "Unable to reject payment"
-                        );
+                        "Accept":
+                            "application/json"
+                    },
 
-                        return;
-                    }
+                    body: JSON.stringify({
 
-                    MessageToast.show(
-                        "Payment rejected successfully"
-                    );
+                        paymentId:
+                            paymentId,
 
-                    this._loadPendingPayments();
+                        reason:
+                            reason
 
-                } catch (error) {
-
-                    console.error(
-                        "Reject payment error:",
-                        error
-                    );
-
-                    MessageBox.error(
-                        "Unable to connect to payment service"
-                    );
+                    })
                 }
-            }
+            );
+
+
+        console.log(
+            "Reject response status:",
+            response.status
+        );
+
+
+        const text =
+            await response.text();
+
+
+        console.log(
+            "Reject response:",
+            text
+        );
+
+
+        let result = {};
+
+        try {
+
+            result =
+                text
+                    ? JSON.parse(text)
+                    : {};
+
+        } catch (e) {
+
+            console.error(
+                "Response is not JSON:",
+                e
+            );
+
+        }
+
+
+        if (!response.ok) {
+
+            MessageBox.error(
+                result?.error?.message ||
+                result?.message ||
+                "Unable to reject payment."
+            );
+
+            return;
+        }
+
+
+        if (result.success === false) {
+
+            MessageBox.error(
+                result.message ||
+                "Unable to reject payment."
+            );
+
+            return;
+        }
+
+
+        // =========================================
+        // SUCCESS
+        // =========================================
+
+        MessageToast.show(
+            "Payment rejected successfully"
+        );
+
+
+        // Reload inbox immediately
+        await this._loadPendingPayments();
+
+
+        console.log(
+            "Approval Inbox refreshed."
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Reject payment error:",
+            error
+        );
+
+        MessageBox.error(
+            "Unable to connect to payment service."
+        );
+    }
+},
 
         }
     );

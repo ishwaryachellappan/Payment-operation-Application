@@ -11,12 +11,7 @@
 
         <content>
 
-            <VBox
-                class="sapUiMediumMargin">
-
-                <!-- ========================================= -->
-                <!-- HEADER -->
-                <!-- ========================================= -->
+            <VBox class="sapUiMediumMargin">
 
                 <Toolbar>
 
@@ -33,11 +28,6 @@
                         press=".onCreateUser"/>
 
                 </Toolbar>
-
-
-                <!-- ========================================= -->
-                <!-- USER TABLE -->
-                <!-- ========================================= -->
 
                 <Table
                     id="usersTable"
@@ -73,7 +63,6 @@
 
                     </columns>
 
-
                     <items>
 
                         <ColumnListItem>
@@ -92,22 +81,8 @@
                                 <Text
                                     text="{role}"/>
 
-                                <ObjectStatus
-                                    text="{
-                                        = ${isActive}
-                                        ? 'Active'
-                                        : 'Inactive'
-                                    }"
-                                    state="{
-                                        = ${isActive}
-                                        ? 'Success'
-                                        : 'Error'
-                                    }"/>
-
-
-                                <!-- ======================= -->
-                                <!-- ACTIONS -->
-                                <!-- ======================= -->
+                                <Text
+                                    text="{isActive}"/>
 
                                 <HBox>
 
