@@ -57,7 +57,13 @@ action deleteUser(
     userId : UUID
 ) returns ActionResponse;
 
+action bulkUploadPayments(
+        csvData : LargeString
+    ) returns BulkUploadResponse;
+
 }
+
+    
 
 type LoginResponse {
     success  : Boolean;
@@ -76,4 +82,13 @@ type PaymentResponse {
     success       : Boolean;
     paymentId     : UUID;
     message       : String;
+}
+
+type BulkUploadResponse {
+    success       : Boolean;
+    totalRows     : Integer;
+    successfulRows : Integer;
+    failedRows    : Integer;
+    message       : String;
+    errors        : String;
 }

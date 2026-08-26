@@ -1,6 +1,9 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator",
+
     "sap/m/MessageBox",
     "sap/m/MessageToast",
     "sap/m/Dialog",
@@ -9,10 +12,19 @@ sap.ui.define([
     "sap/m/Button",
     "sap/m/VBox",
     "sap/m/Label",
-    "sap/m/Input"
+    "sap/m/Input",
+    "sap/m/Select",
+    "sap/m/DatePicker",
+    "sap/m/TextArea",
+
+    "sap/ui/core/Item"
+
 ], function (
     Controller,
     JSONModel,
+    Filter,
+    FilterOperator,
+
     MessageBox,
     MessageToast,
     Dialog,
@@ -21,11 +33,19 @@ sap.ui.define([
     Button,
     VBox,
     Label,
-    Input
+    Input,
+    Select,
+    DatePicker,
+    TextArea,
+
+    Item
+
 ) {
     "use strict";
 
-    return Controller.extend("paymentsapp.controller.Payments", {
+    return Controller.extend(
+        "paymentsapp.controller.Payments",
+        {
 
         // =====================================================
         // INIT
@@ -1332,6 +1352,366 @@ formatPaymentStatusState: function (status) {
 
         default:
             return "None";
+    }
+},
+
+onBulkUpload: function () {
+
+    const fileInput =
+        document.createElement("input");
+
+    fileInput.type = "file";
+    fileInput.accept = ".csv";
+
+    fileInput.style.display = "none";
+
+    document.body.appendChild(fileInput);
+
+    fileInput.addEventListener(
+        "change",
+        async function (event) {
+
+            const file =
+                event.target.files[0];
+
+            if (!file) {
+                document.body.removeChild(fileInput);
+                return;
+            }
+
+            if (
+                !file.name
+                    .toLowerCase()
+                    .endsWith(".csv")
+            ) {
+
+                MessageBox.error(
+                    "Please select a CSV file."
+                );
+
+                document.body.removeChild(fileInput);
+                return;
+            }
+
+            try {
+
+                const csvData =
+                    await file.text();
+
+                this._showBulkUploadPreview(
+                    csvData,
+                    file.name
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "CSV read error:",
+                    error
+                );
+
+                MessageBox.error(
+                    "Unable to read the CSV file."
+                );
+
+            } finally {
+
+                document.body.removeChild(
+                    fileInput
+                );
+            }
+
+        }.bind(this)
+    );
+
+    fileInput.click();
+},
+
+_showBulkUploadPreview: function (
+    csvData,
+    fileName
+) {
+
+    const lines =
+        csvData
+            .trim()
+            .split(/\r?\n/)
+            .filter(line => line.trim());
+
+    if (lines.length < 2) {
+
+        MessageBox.error(
+            "The CSV file does not contain any payments."
+        );
+
+        return;
+    }
+
+    const previewText =
+        lines
+            .slice(0, 6)
+            .join("\n");
+
+    const moreRows =
+        lines.length > 6
+            ? "\n..."
+            : "";
+
+    const textArea =
+        new TextArea({
+
+            value:
+                previewText +
+                moreRows,
+
+            editable: false,
+
+            width: "100%",
+
+            height: "250px"
+
+        });
+
+
+    const dialog =
+        new Dialog({
+
+            title:
+                "Bulk Payment Upload",
+
+            contentWidth:
+                "700px",
+
+            content: [
+
+                new VBox({
+
+                    class:
+                        "sapUiMediumMargin",
+
+                    items: [
+
+                        new Label({
+                            text:
+                                "Selected File"
+                        }),
+
+                        new TextArea({
+
+                            value:
+                                fileName,
+
+                            editable:
+                                false,
+
+                            width:
+                                "100%",
+
+                            height:
+                                "50px"
+
+                        }),
+
+                        new Label({
+
+                            text:
+                                "Payment Preview"
+
+                        }),
+
+                        textArea,
+
+                        new Label({
+
+                            text:
+                                (lines.length - 1) +
+                                " payment(s) detected."
+
+                        })
+
+                    ]
+
+                })
+
+            ],
+
+            beginButton:
+
+                new Button({
+
+                    text:
+                        "Upload Payments",
+
+                    type:
+                        "Emphasized",
+
+                    press:
+                        function () {
+
+                            this._uploadBulkPayments(
+                                csvData,
+                                dialog
+                            );
+
+                        }.bind(this)
+
+                }),
+
+            endButton:
+
+                new Button({
+
+                    text:
+                        "Cancel",
+
+                    press:
+                        function () {
+
+                            dialog.close();
+
+                        }
+
+                }),
+
+            afterClose:
+
+                function () {
+
+                    dialog.destroy();
+
+                }
+
+        });
+
+
+    dialog.open();
+},
+
+_uploadBulkPayments: async function (
+    csvData,
+    dialog
+) {
+
+    try {
+
+        console.log(
+            "Uploading bulk payments..."
+        );
+
+
+        const response =
+            await fetch(
+                "/payment-service/bulkUploadPayments",
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            csvData:
+                                csvData
+
+                        })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        console.log(
+            "Bulk upload response:",
+            result
+        );
+
+
+        if (!response.ok) {
+
+            MessageBox.error(
+
+                result?.error?.message ||
+                result?.message ||
+                "Bulk upload failed."
+
+            );
+
+            return;
+        }
+
+
+        dialog.close();
+
+
+        // =========================================
+        // SUCCESS
+        // =========================================
+
+        if (result.success) {
+
+            let message =
+                result.message;
+
+
+            if (result.errors) {
+
+                message +=
+                    "\n\nErrors:\n" +
+                    result.errors;
+
+            }
+
+
+            MessageBox.success(
+                message,
+                {
+                    title:
+                        "Bulk Upload Completed"
+                }
+            );
+
+
+            // Refresh Payments table
+
+            await this._loadPayments(
+                this._currentStatus ||
+                "ALL"
+            );
+
+        } else {
+
+            MessageBox.warning(
+
+                result.message ||
+                "No payments were uploaded."
+
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Bulk upload error:",
+            error
+        );
+
+        MessageBox.error(
+            "Unable to connect to payment service."
+        );
     }
 },
 

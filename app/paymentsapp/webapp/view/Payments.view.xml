@@ -92,12 +92,21 @@
                         press=".onCopyPayment"
                         class="copyPaymentButton"/>
 
-                    <Button
-                        text="Create Payment"
-                        icon="sap-icon://add"
-                        type="Emphasized"
-                        press=".onCreatePayment"
-                        class="createPaymentButton"/>
+                  <HBox>
+
+    <Button
+        text="Bulk Upload"
+        icon="sap-icon://upload"
+        press=".onBulkUpload"
+        class="sapUiTinyMarginEnd"/>
+
+    <Button
+        text="Create Payment"
+        type="Emphasized"
+        icon="sap-icon://add"
+        press=".onCreatePayment"/>
+
+</HBox>
 
                 </Toolbar>
 

@@ -217,9 +217,7 @@ sap.ui.define([
                     );
 
 
-                    MessageToast.show(
-                        "Login successful"
-                    );
+                   
 
 
                     // =================================================
