@@ -2,112 +2,377 @@
     controllerName="paymentsapp.controller.UserManagement"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
+    xmlns:core="sap.ui.core"
     displayBlock="true">
 
     <Page
-        title="User Management"
-        showNavButton="true"
-        navButtonPress=".onBack">
+        showHeader="false"
+        class="userManagementPage">
 
         <content>
 
-            <VBox class="sapUiMediumMargin">
+            <VBox
+                width="100%"
+                class="userManagementContainer">
 
-                <Toolbar>
+                <!-- ================================================= -->
+                <!-- TOP HEADER -->
+                <!-- ================================================= -->
 
-                    <Title
-                        text="Users"
-                        level="H2"/>
+                <HBox
+                    width="100%"
+                    alignItems="Center"
+                    justifyContent="SpaceBetween"
+                    class="userManagementHeader">
 
-                    <ToolbarSpacer/>
+                    <VBox>
+
+                        <Title
+                            text="User Management"
+                            level="H1"
+                            class="userManagementTitle"/>
+
+                        <Text
+                            text="Manage users, roles and access to Payment Operations."
+                            class="userManagementSubtitle"/>
+
+                    </VBox>
+
+                    <HBox
+                        alignItems="Center">
+
+                        <Button
+                            text="Back"
+                            icon="sap-icon://nav-back"
+                            type="Transparent"
+                            press=".onBack"
+                            class="userBackButton"/>
+
+                    </HBox>
+
+                </HBox>
+
+
+                <!-- ================================================= -->
+                <!-- SUMMARY CARDS -->
+                <!-- ================================================= -->
+
+                <HBox
+                    width="100%"
+                    class="userSummaryContainer">
+
+                    <!-- TOTAL -->
+
+                    <VBox
+                        class="userSummaryCard">
+
+                        <HBox
+                            alignItems="Center"
+                            class="userSummaryHeader">
+
+                            <core:Icon
+                                src="sap-icon://group"
+                                size="1.2rem"
+                                class="userSummaryIcon"/>
+
+                            <Text
+                                text="Total Users"
+                                class="userSummaryLabel"/>
+
+                        </HBox>
+
+                        <Text
+                            id="totalUsers"
+                            text="0"
+                            class="userSummaryNumber"/>
+
+                        <Text
+                            text="All registered users"
+                            class="userSummaryDescription"/>
+
+                    </VBox>
+
+
+                    <!-- ACTIVE -->
+
+                    <VBox
+                        class="userSummaryCard">
+
+                        <HBox
+                            alignItems="Center"
+                            class="userSummaryHeader">
+
+                            <core:Icon
+                                src="sap-icon://accept"
+                                size="1.2rem"
+                                class="userActiveIcon"/>
+
+                            <Text
+                                text="Active Users"
+                                class="userSummaryLabel"/>
+
+                        </HBox>
+
+                        <Text
+                            id="activeUsers"
+                            text="0"
+                            class="userSummaryNumber userActiveNumber"/>
+
+                        <Text
+                            text="Users with active access"
+                            class="userSummaryDescription"/>
+
+                    </VBox>
+
+
+                    <!-- INACTIVE -->
+
+                    <VBox
+                        class="userSummaryCard">
+
+                        <HBox
+                            alignItems="Center"
+                            class="userSummaryHeader">
+
+                            <core:Icon
+                                src="sap-icon://decline"
+                                size="1.2rem"
+                                class="userInactiveIcon"/>
+
+                            <Text
+                                text="Inactive Users"
+                                class="userSummaryLabel"/>
+
+                        </HBox>
+
+                        <Text
+                            id="inactiveUsers"
+                            text="0"
+                            class="userSummaryNumber userInactiveNumber"/>
+
+                        <Text
+                            text="Users without active access"
+                            class="userSummaryDescription"/>
+
+                    </VBox>
+
+                </HBox>
+
+
+                <!-- ================================================= -->
+                <!-- USER LIST CARD -->
+                <!-- ================================================= -->
+
+                <VBox
+                    class="userListCard">
+
+                    <!-- TOOLBAR -->
+
+                    <HBox
+                        width="100%"
+                        alignItems="Center"
+                        justifyContent="SpaceBetween"
+                        class="userListToolbar">
+
+                        <VBox>
+
+                            <Title
+                                text="Users"
+                                level="H2"
+                                class="userListTitle"/>
+
+                            <Text
+                                text="View and manage application users."
+                                class="userListSubtitle"/>
+
+                        </VBox>
+
+
+                        <HBox
+                            alignItems="Center"
+                            class="userToolbarActions">
+
+                            <Button
+                                text="Refresh"
+                                icon="sap-icon://refresh"
+                                type="Transparent"
+                                press=".onRefreshUsers"
+                                class="userRefreshButton"/>
+
+                            <Button
+                                text="Create User"
+                                icon="sap-icon://add"
+                                type="Emphasized"
+                                press=".onCreateUser"
+                                class="createUserButton"/>
+
+                        </HBox>
+
+                    </HBox>
+
+
+                    <!-- SEARCH -->
+
+                    <HBox
+                        width="100%"
+                        alignItems="Center"
+                        class="userSearchContainer">
+
+                        <SearchField
+                            id="userSearch"
+                            width="100%"
+                            placeholder="Search by User ID, name or email..."
+                            liveChange=".onSearchUsers"
+                            search=".onSearchUsers"/>
+
+                    </HBox>
+
+
+                    <!-- TABLE -->
+
+                    <Table
+    id="usersTable"
+    items="{/Users}"
+    growing="true"
+    growingThreshold="10"
+    growingScrollToLoad="true"
+    noDataText="No users found"
+    class="usersTable">
+
+    <columns>
+
+        <Column width="16%">
+            <Text text="User"/>
+        </Column>
+
+        <Column width="21%">
+            <Text text="Full Name"/>
+        </Column>
+
+        <Column width="24%">
+            <Text text="Email"/>
+        </Column>
+
+        <Column width="15%">
+            <Text text="Role"/>
+        </Column>
+
+        <Column width="12%">
+            <Text text="Status"/>
+        </Column>
+
+        <Column
+            width="12%"
+            hAlign="Center">
+
+            <Text text="Actions"/>
+
+        </Column>
+
+    </columns>
+
+
+    <items>
+
+        <ColumnListItem
+            vAlign="Middle"
+            class="userTableRow">
+
+            <cells>
+
+                <!-- USER -->
+
+                <VBox>
+
+                    <Text
+                        text="{userName}"
+                        class="userIdText"/>
+
+                    <Text
+                        text="Payment Operations"
+                        class="userSecondaryText"/>
+
+                </VBox>
+
+
+                <!-- FULL NAME -->
+
+                <Text
+                    text="{fullName}"
+                    class="userNameText"/>
+
+
+                <!-- EMAIL -->
+
+                <Text
+                    text="{email}"
+                    class="userEmailText"/>
+
+
+                <!-- ROLE -->
+
+                <ObjectStatus
+                    text="{= ${role} === 'ADMIN'
+                        ? 'Administrator'
+                        : 'Payment User' }"
+                    state="{= ${role} === 'ADMIN'
+                        ? 'Information'
+                        : 'None' }"
+                    class="userRoleStatus"/>
+
+
+                <!-- STATUS -->
+
+                <ObjectStatus
+                    text="{= ${isActive}
+                        ? 'Active'
+                        : 'Inactive' }"
+                    state="{= ${isActive}
+                        ? 'Success'
+                        : 'Error' }"
+                    class="userStatus"/>
+
+
+                <!-- ACTIONS -->
+
+                <HBox
+                    justifyContent="Center"
+                    alignItems="Center">
 
                     <Button
-                        text="Create User"
-                        type="Emphasized"
-                        icon="sap-icon://add"
-                        press=".onCreateUser"/>
+                        icon="sap-icon://edit"
+                        tooltip="Edit User"
+                        type="Transparent"
+                        press=".onEditUser"
+                        class="userActionButton"/>
 
-                </Toolbar>
+                    <Button
+                        icon="sap-icon://delete"
+                        tooltip="Delete User"
+                        type="Transparent"
+                        press=".onDeleteUser"
+                        class="userDeleteButton"/>
 
-                <Table
-                    id="usersTable"
-                    items="{/Users}"
-                    growing="true"
-                    class="sapUiSmallMarginTop">
+                </HBox>
 
-                    <columns>
+            </cells>
 
-                        <Column>
-                            <Text text="User ID"/>
-                        </Column>
+        </ColumnListItem>
 
-                        <Column>
-                            <Text text="Full Name"/>
-                        </Column>
+    </items>
 
-                        <Column>
-                            <Text text="Email"/>
-                        </Column>
+</Table>
 
-                        <Column>
-                            <Text text="Role"/>
-                        </Column>
+                </VBox>
 
-                        <Column>
-                            <Text text="Active"/>
-                        </Column>
 
-                        <Column>
-                            <Text text="Actions"/>
-                        </Column>
+                <!-- ================================================= -->
+                <!-- FOOTER -->
+                <!-- ================================================= -->
 
-                    </columns>
-
-                    <items>
-
-                        <ColumnListItem>
-
-                            <cells>
-
-                                <Text
-                                    text="{userName}"/>
-
-                                <Text
-                                    text="{fullName}"/>
-
-                                <Text
-                                    text="{email}"/>
-
-                                <Text
-                                    text="{role}"/>
-
-                                <Text
-                                    text="{isActive}"/>
-
-                                <HBox>
-
-                                    <Button
-                                        text="Edit"
-                                        icon="sap-icon://edit"
-                                        type="Transparent"
-                                        press=".onEditUser"
-                                        class="sapUiTinyMarginEnd"/>
-
-                                    <Button
-                                        text="Delete"
-                                        icon="sap-icon://delete"
-                                        type="Transparent"
-                                        press=".onDeleteUser"/>
-
-                                </HBox>
-
-                            </cells>
-
-                        </ColumnListItem>
-
-                    </items>
-
-                </Table>
+                <Text
+                    text="Payment Operations • User Administration"
+                    class="userManagementFooter"/>
 
             </VBox>
 

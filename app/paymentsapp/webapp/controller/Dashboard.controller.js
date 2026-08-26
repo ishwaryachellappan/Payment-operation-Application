@@ -597,20 +597,44 @@ sap.ui.define([
 
             onLogout: function () {
 
-                console.log(
-                    "========== LOGOUT =========="
-                );
+    console.log("========== LOGOUT ==========");
 
-                sessionStorage.clear();
+    // Clear all login information
+    sessionStorage.clear();
 
-                this.getOwnerComponent()
-                    .getRouter()
-                    .navTo(
-                        "Login",
-                        {},
-                        true
-                    );
-            }
+    // Clear any browser cache state used by the application
+    localStorage.removeItem("username");
+    localStorage.removeItem("fullName");
+    localStorage.removeItem("userRole");
+
+    console.log(
+        "Session after logout:",
+        sessionStorage.getItem("userRole")
+    );
+
+    // Completely reload application
+    window.location.replace(
+        window.location.pathname
+    );
+},
+
+formatPaymentStatusState: function (status) {
+
+    switch (status) {
+
+        case "APPROVED":
+            return "Success";
+
+        case "PENDING_APPROVAL":
+            return "Warning";
+
+        case "REJECTED":
+            return "Error";
+
+        default:
+            return "None";
+    }
+},
 
         }
     );

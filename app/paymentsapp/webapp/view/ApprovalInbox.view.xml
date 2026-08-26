@@ -2,113 +2,406 @@
     controllerName="paymentsapp.controller.ApprovalInbox"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
+    xmlns:core="sap.ui.core"
     displayBlock="true">
 
     <Page
-        title="Approval Inbox"
-        showNavButton="true"
-        navButtonPress=".onBack">
+        showHeader="true"
+        class="approvalPage">
+
+        <!-- ===================================================== -->
+        <!-- HEADER -->
+        <!-- ===================================================== -->
+
+        <customHeader>
+
+            <Toolbar class="approvalHeader">
+
+                <Button
+                    icon="sap-icon://nav-back"
+                    type="Transparent"
+                    tooltip="Back"
+                    press=".onBack"/>
+
+                <HBox
+                    alignItems="Center"
+                    class="approvalBrand">
+
+                    <core:Icon
+                        src="sap-icon://task"
+                        size="1.25rem"
+                        class="approvalBrandIcon"/>
+
+                    <Title
+                        text="Approval Inbox"
+                        level="H2"
+                        class="approvalHeaderTitle"/>
+
+                </HBox>
+
+                <ToolbarSpacer/>
+
+                <Button
+                    text="Refresh"
+                    icon="sap-icon://refresh"
+                    type="Transparent"
+                    press=".onRefresh"
+                    class="approvalRefresh"/>
+
+            </Toolbar>
+
+        </customHeader>
+
+
+        <!-- ===================================================== -->
+        <!-- CONTENT -->
+        <!-- ===================================================== -->
 
         <content>
 
-            <VBox class="sapUiMediumMargin">
+            <VBox
+                class="approvalContent">
 
-                <Toolbar>
 
-                   <Title
-    id="approvalInboxTitle"
-    text="Pending Payments (0)"
-    level="H2"/>
+                <!-- ================================================= -->
+                <!-- PAGE INTRO -->
+                <!-- ================================================= -->
 
-                    <ToolbarSpacer/>
+                <VBox
+                    class="approvalIntro">
 
-                    <Button
-                        text="Refresh"
-                        icon="sap-icon://refresh"
-                        press=".onRefresh"/>
+                    <Title
+                        text="Payment Approvals"
+                        level="H1"
+                        class="approvalTitle"/>
 
-                </Toolbar>
+                    <Text
+                        text="Review and process payments awaiting approval."
+                        class="approvalSubtitle"/>
 
-                <Table
-                    id="approvalTable"
-                items="{approval>/payments}"
-                    growing="true"
-                    class="sapUiSmallMarginTop">
+                </VBox>
 
-                    <columns>
 
-                        <Column>
-                            <Text text="Payment Reference"/>
-                        </Column>
+                <!-- ================================================= -->
+                <!-- SUMMARY CARD -->
+                <!-- ================================================= -->
 
-                        <Column>
-                            <Text text="Company Code"/>
-                        </Column>
+                <HBox
+                    class="approvalSummary"
+                    alignItems="Center"
+                    justifyContent="SpaceBetween">
 
-                        <Column>
-                            <Text text="Debtor Account"/>
-                        </Column>
+                    <HBox
+                        alignItems="Center">
 
-                        <Column>
-                            <Text text="Creditor Account"/>
-                        </Column>
+                        <HBox
+                            class="approvalSummaryIcon"
+                            justifyContent="Center"
+                            alignItems="Center">
 
-                        <Column>
-                            <Text text="Amount"/>
-                        </Column>
+                            <core:Icon
+                                src="sap-icon://pending"
+                                size="1.4rem"/>
 
-                        <Column>
-                            <Text text="Currency"/>
-                        </Column>
+                        </HBox>
 
-                        <Column>
-                            <Text text="Payment Date"/>
-                        </Column>
+                        <VBox
+                            class="approvalSummaryText">
 
-                        <Column>
-                            <Text text="Actions"/>
-                        </Column>
+                            <Text
+                                text="Pending Payments"
+                                class="approvalSummaryLabel"/>
 
-                    </columns>
+                            <Text
+                                id="approvalInboxTitle"
+                                text="Pending Payments (0)"
+                                class="approvalSummaryCount"/>
 
-                    <items>
+                        </VBox>
 
-                        <ColumnListItem>
+                    </HBox>
 
-                            <cells>
 
-                               <Text text="{approval>paymentReference}"/>
-<Text text="{approval>companyCode}"/>
-<Text text="{approval>debtorAccount}"/>
-<Text text="{approval>creditorAccount}"/>
-<Text text="{approval>amount}"/>
-<Text text="{approval>currency}"/>
-<Text text="{approval>paymentDate}"/>
+                    <Text
+                        text="Requires your attention"
+                        class="approvalAttention"/>
 
-                                <HBox>
+                </HBox>
 
-                                    <Button
-                                        text="Approve"
-                                        type="Accept"
-                                        icon="sap-icon://accept"
-                                        press=".onApprove"
-                                        class="sapUiTinyMarginEnd"/>
 
-                                    <Button
-                                        text="Reject"
-                                        type="Reject"
-                                        icon="sap-icon://decline"
-                                        press=".onReject"/>
+                <!-- ================================================= -->
+                <!-- TABLE CARD -->
+                <!-- ================================================= -->
 
-                                </HBox>
+                <VBox
+                    class="approvalTableCard">
 
-                            </cells>
 
-                        </ColumnListItem>
+                    <!-- TABLE HEADER -->
 
-                    </items>
+                    <HBox
+                        class="approvalTableHeader"
+                        justifyContent="SpaceBetween"
+                        alignItems="Center">
 
-                </Table>
+                        <VBox>
+
+                            <Title
+                                text="Pending Approval Queue"
+                                level="H2"
+                                class="approvalTableTitle"/>
+
+                            <Text
+                                text="Payments currently awaiting review"
+                                class="approvalTableSubtitle"/>
+
+                        </VBox>
+
+                    </HBox>
+
+
+                    <!-- ================================================= -->
+                    <!-- TABLE -->
+                    <!-- ================================================= -->
+
+                    <Table
+                        id="approvalTable"
+                        items="{approval>/payments}"
+                        growing="true"
+                        growingThreshold="20"
+                        growingScrollToLoad="false"
+                        noDataText="No payments are currently awaiting approval."
+                        class="approvalTable">
+
+
+                        <!-- ================================================= -->
+                        <!-- COLUMNS -->
+                        <!-- ================================================= -->
+
+                        <columns>
+
+
+                            <!-- PAYMENT REFERENCE -->
+
+                            <Column
+                                width="17%">
+
+                                <Text
+                                    text="Payment Reference"
+                                    class="approvalColumnHeader"/>
+
+                            </Column>
+
+
+                            <!-- COMPANY -->
+
+                            <Column
+                                width="10%">
+
+                                <Text
+                                    text="Company"
+                                    class="approvalColumnHeader"/>
+
+                            </Column>
+
+
+                            <!-- DEBTOR -->
+
+                            <Column
+                                width="16%">
+
+                                <Text
+                                    text="Debtor Account"
+                                    class="approvalColumnHeader"/>
+
+                            </Column>
+
+
+                            <!-- CREDITOR -->
+
+                            <Column
+                                width="16%">
+
+                                <Text
+                                    text="Creditor Account"
+                                    class="approvalColumnHeader"/>
+
+                            </Column>
+
+
+                            <!-- AMOUNT -->
+
+                            <Column
+                                width="12%"
+                                hAlign="End">
+
+                                <Text
+                                    text="Amount"
+                                    class="approvalColumnHeader"/>
+
+                            </Column>
+
+
+                            <!-- CURRENCY -->
+
+                            <Column
+                                width="8%">
+
+                                <Text
+                                    text="Currency"
+                                    class="approvalColumnHeader"/>
+
+                            </Column>
+
+
+                            <!-- PAYMENT DATE -->
+
+                            <Column
+                                width="11%">
+
+                                <Text
+                                    text="Payment Date"
+                                    class="approvalColumnHeader"/>
+
+                            </Column>
+
+
+                            <!-- ACTIONS -->
+
+                            <Column
+                                width="17%"
+                                hAlign="Center">
+
+                                <Text
+                                    text="Actions"
+                                    class="approvalColumnHeader"/>
+
+                            </Column>
+
+                        </columns>
+
+
+                        <!-- ================================================= -->
+                        <!-- ROWS -->
+                        <!-- ================================================= -->
+
+                        <items>
+
+                            <ColumnListItem
+                                class="approvalRow">
+
+                                <cells>
+
+
+                                    <!-- PAYMENT REFERENCE -->
+
+                                    <VBox>
+
+                                        <Text
+                                            text="{approval>paymentReference}"
+                                            class="approvalReference"/>
+
+                                        <ObjectStatus
+                                            text="Pending Approval"
+                                            state="Warning"
+                                            icon="sap-icon://pending"
+                                            class="approvalStatus"/>
+
+                                    </VBox>
+
+
+                                    <!-- COMPANY -->
+
+                                    <Text
+                                        text="{approval>companyCode}"
+                                        class="approvalCell"/>
+
+
+                                    <!-- DEBTOR -->
+
+                                    <Text
+                                        text="{approval>debtorAccount}"
+                                        class="approvalAccount"/>
+
+
+                                    <!-- CREDITOR -->
+
+                                    <Text
+                                        text="{approval>creditorAccount}"
+                                        class="approvalAccount"/>
+
+
+                                    <!-- AMOUNT -->
+
+                                    <ObjectNumber
+                                        number="{approval>amount}"
+                                        emphasized="true"
+                                        class="approvalAmount"/>
+
+
+                                    <!-- CURRENCY -->
+
+                                    <Text
+                                        text="{approval>currency}"
+                                        class="approvalCurrency"/>
+
+
+                                    <!-- PAYMENT DATE -->
+
+                                    <Text
+                                        text="{approval>paymentDate}"
+                                        class="approvalCell"/>
+
+
+                                    <!-- ACTIONS -->
+
+                                    <HBox
+                                        justifyContent="Center"
+                                        alignItems="Center"
+                                        class="approvalActions">
+
+
+                                        <Button
+                                            text="Approve"
+                                            icon="sap-icon://accept"
+                                            type="Accept"
+                                            press=".onApprove"
+                                            class="approveButton"/>
+
+
+                                        <Button
+                                            text="Reject"
+                                            icon="sap-icon://decline"
+                                            type="Reject"
+                                            press=".onReject"
+                                            class="rejectButton"/>
+
+                                    </HBox>
+
+                                </cells>
+
+                            </ColumnListItem>
+
+                        </items>
+
+                    </Table>
+
+                </VBox>
+
+
+                <!-- ================================================= -->
+                <!-- FOOTER -->
+                <!-- ================================================= -->
+
+                <HBox
+                    justifyContent="End"
+                    class="approvalFooter">
+
+                    <Text
+                        text="Payment Operations"
+                        class="approvalFooterText"/>
+
+                </HBox>
 
             </VBox>
 

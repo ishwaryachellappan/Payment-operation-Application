@@ -1,0 +1,1783 @@
+/* =========================================================
+   LOGIN PAGE
+   ========================================================= */
+
+.loginPage {
+    background: #f3f6f9 !important;
+}
+
+.loginBackground {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+
+    padding: 20px;
+}
+
+
+/* =========================================================
+   LOGIN CARD
+   ========================================================= */
+
+.loginCard {
+    width: 420px !important;
+
+    box-sizing: border-box;
+
+    background: #ffffff !important;
+
+    border: 1px solid #d8e0e8;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.08);
+
+    padding: 38px 38px 30px 38px;
+
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.loginLogoContainer {
+    width: 100%;
+
+    margin-bottom: 14px;
+}
+
+.loginLogoCircle {
+    width: 52px;
+    height: 52px;
+
+    border-radius: 50%;
+
+    background: #eaf3ff;
+
+    color: #0a6ed1;
+
+    margin-bottom: 4px;
+}
+
+
+/* =========================================================
+   APPLICATION TITLE
+   ========================================================= */
+
+.loginTitle {
+    width: 100%;
+
+    margin: 0 0 5px 0 !important;
+
+    text-align: center;
+
+    font-size: 26px !important;
+
+    font-weight: 700 !important;
+
+    color: #17212b !important;
+}
+
+.loginSubtitle {
+    width: 100%;
+
+    text-align: center;
+
+    font-size: 13px;
+
+    color: #607080;
+
+    margin-bottom: 30px;
+}
+
+
+/* =========================================================
+   WELCOME SECTION
+   ========================================================= */
+
+.loginWelcome {
+    width: 100%;
+
+    margin-bottom: 25px;
+}
+
+.loginWelcomeTitle {
+    margin: 0 0 6px 0 !important;
+
+    font-size: 20px !important;
+
+    font-weight: 600 !important;
+
+    color: #17212b !important;
+}
+
+.loginWelcomeText {
+    font-size: 13px;
+
+    color: #607080;
+
+    line-height: 19px;
+}
+
+
+/* =========================================================
+   FORM FIELD
+   ========================================================= */
+
+.loginField {
+    width: 100%;
+
+    margin-bottom: 18px;
+}
+
+.loginLabel {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #465563;
+}
+
+.loginInput {
+    width: 100%;
+}
+
+
+/* Input box */
+
+.loginInput .sapMInputBaseContentWrapper {
+    height: 44px !important;
+
+    border-radius: 6px !important;
+
+    box-sizing: border-box;
+}
+
+.loginInput .sapMInputBaseInner {
+    height: 42px !important;
+
+    font-size: 14px;
+
+    padding-left: 12px !important;
+}
+
+
+/* =========================================================
+   SIGN IN BUTTON
+   ========================================================= */
+
+.loginButton {
+    width: 100% !important;
+
+    margin-top: 4px !important;
+
+    margin-bottom: 22px !important;
+}
+
+.loginButton .sapMBtnInner {
+    height: 44px !important;
+
+    min-height: 44px !important;
+
+    border-radius: 6px !important;
+
+    font-size: 14px !important;
+
+    font-weight: 600 !important;
+}
+
+
+/* =========================================================
+   SECURITY MESSAGE
+   ========================================================= */
+
+.loginSecurity {
+    width: 100%;
+
+    min-height: 24px;
+
+    box-sizing: border-box;
+
+    padding-top: 2px;
+}
+
+.loginSecurityIcon {
+    color: #6b7785 !important;
+
+    margin-right: 7px;
+}
+
+.loginSecurityText {
+    font-size: 12px;
+
+    color: #6b7785;
+
+    line-height: 18px;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.loginFooter {
+    margin-top: 20px;
+
+    font-size: 12px;
+
+    color: #6b7785;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   PAYMENTS PAGE
+   ========================================================= */
+
+.paymentsPage {
+    background: #f4f6f8 !important;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.paymentsHeader {
+    height: 54px !important;
+
+    background: #ffffff !important;
+
+    border-bottom: 1px solid #d9e1e8 !important;
+
+    padding: 0 18px !important;
+
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.paymentsHeaderTitle {
+    margin-left: 8px !important;
+
+    font-size: 19px !important;
+
+    font-weight: 600 !important;
+
+    color: #17212b !important;
+}
+
+.logoutButton {
+    color: #0a6ed1 !important;
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+
+.paymentsContent {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 28px 32px 40px 32px;
+}
+
+
+/* =========================================================
+   INTRO
+   ========================================================= */
+
+.paymentsIntro {
+    margin-bottom: 22px;
+}
+
+.paymentsPageTitle {
+    margin: 0 0 5px 0 !important;
+
+    font-size: 23px !important;
+
+    font-weight: 600 !important;
+
+    color: #17212b !important;
+}
+
+.paymentsPageSubtitle {
+    font-size: 13px;
+
+    color: #687887;
+}
+
+
+/* =========================================================
+   ACTION BAR
+   ========================================================= */
+
+.paymentsActionBar {
+    width: 100%;
+
+    min-height: 58px !important;
+
+    box-sizing: border-box;
+
+    background: #ffffff !important;
+
+    border: 1px solid #d9e1e8;
+
+    border-radius: 8px 8px 0 0;
+
+    padding: 8px 10px !important;
+
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.paymentSearch {
+    width: 420px !important;
+}
+
+.paymentSearch .sapMSFF {
+    height: 38px !important;
+
+    border-radius: 6px !important;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+.copyPaymentButton {
+    margin-left: 10px;
+
+    color: #0a6ed1 !important;
+}
+
+.createPaymentButton {
+    margin-left: 8px;
+}
+
+
+/* =========================================================
+   TABLE CARD
+   ========================================================= */
+
+.paymentsTableCard {
+    width: 100%;
+
+    background: #ffffff;
+
+    border: 1px solid #d9e1e8;
+
+    border-top: none;
+
+    border-radius: 0 0 8px 8px;
+
+    overflow: hidden;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.paymentsTable {
+    width: 100%;
+}
+
+.paymentsTable .sapMListTblHeaderCell {
+    background: #f7f9fb !important;
+
+    border-bottom: 1px solid #d9e1e8 !important;
+
+    padding-top: 12px !important;
+
+    padding-bottom: 12px !important;
+}
+
+.tableHeaderText {
+    font-size: 12px !important;
+
+    font-weight: 600 !important;
+
+    color: #455463 !important;
+}
+
+
+/* =========================================================
+   TABLE ROW
+   ========================================================= */
+
+.paymentRow {
+    min-height: 52px;
+}
+
+.paymentRow .sapMListTblCell {
+    padding-top: 12px !important;
+
+    padding-bottom: 12px !important;
+
+    border-bottom: 1px solid #edf0f2 !important;
+}
+
+.paymentReference {
+    font-weight: 600 !important;
+
+    color: #0a6ed1 !important;
+}
+
+
+/* =========================================================
+   OBJECT NUMBER
+   ========================================================= */
+
+.paymentRow .sapMObjectNumberText {
+    font-weight: 600 !important;
+
+    color: #17212b;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.paymentRow .sapMObjStatus {
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.paymentsFooter {
+    padding-top: 16px;
+
+    padding-right: 4px;
+}
+
+.paymentsFooterText {
+    font-size: 11px;
+
+    color: #7a8793;
+}
+
+
+/* =========================================================
+Dashboard page
+   ========================================================= */
+
+   /* =========================================================
+   DASHBOARD
+   ========================================================= */
+
+.dashboardPage {
+    background: #f4f6f8 !important;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.dashboardHeader {
+    height: 58px !important;
+
+    background: #ffffff !important;
+
+    border-bottom: 1px solid #d9e1e8 !important;
+
+    padding: 0 24px !important;
+
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.dashboardBrand {
+    gap: 10px;
+}
+
+.dashboardBrandIcon {
+    color: #0a6ed1 !important;
+}
+
+.dashboardHeaderTitle {
+    font-size: 18px !important;
+
+    font-weight: 600 !important;
+
+    color: #17212b !important;
+}
+
+.dashboardUser {
+    gap: 8px;
+}
+
+.dashboardUserIcon {
+    color: #647587 !important;
+}
+
+.dashboardUserText {
+    color: #455463;
+
+    font-size: 13px;
+}
+
+.dashboardLogout {
+    margin-left: 12px;
+
+    color: #0a6ed1 !important;
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+
+.dashboardContent {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 32px 34px 45px 34px;
+}
+
+
+/* =========================================================
+   INTRO
+   ========================================================= */
+
+.dashboardIntro {
+    margin-bottom: 26px;
+}
+
+.dashboardWelcome {
+    margin: 0 0 6px 0 !important;
+
+    font-size: 25px !important;
+
+    font-weight: 600 !important;
+
+    color: #17212b !important;
+}
+
+.dashboardSubtitle {
+    font-size: 14px;
+
+    color: #687887;
+}
+
+
+/* =========================================================
+   KPI CONTAINER
+   ========================================================= */
+
+.kpiContainer {
+    width: 100%;
+
+    margin-bottom: 32px;
+}
+
+
+/* =========================================================
+   KPI CARDS
+   ========================================================= */
+
+.kpiCard {
+    min-height: 158px;
+
+    box-sizing: border-box;
+
+    padding: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #dce3e8;
+
+    border-radius: 10px;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.kpiCard:hover {
+    transform: translateY(-2px);
+
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.09);
+}
+
+
+/* =========================================================
+   KPI ACCENTS
+   ========================================================= */
+
+.kpiTotal {
+    border-top: 4px solid #0a6ed1;
+}
+
+.kpiPending {
+    border-top: 4px solid #e9730c;
+}
+
+.kpiApproved {
+    border-top: 4px solid #188918;
+}
+
+.kpiRejected {
+    border-top: 4px solid #bb0000;
+}
+
+
+/* =========================================================
+   KPI TEXT
+   ========================================================= */
+
+.kpiTitle {
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: #17212b;
+}
+
+.kpiSubtitle {
+    margin-top: 3px;
+
+    font-size: 12px;
+
+    color: #687887;
+}
+
+
+/* =========================================================
+   KPI ICON
+   ========================================================= */
+
+.kpiIcon {
+    width: 38px;
+
+    height: 38px;
+
+    border-radius: 8px;
+}
+
+.kpiIconTotal {
+    background: #eaf3ff;
+
+    color: #0a6ed1;
+}
+
+.kpiIconPending {
+    background: #fff3e8;
+
+    color: #e9730c;
+}
+
+.kpiIconApproved {
+    background: #ebf7eb;
+
+    color: #188918;
+}
+
+.kpiIconRejected {
+    background: #ffebeb;
+
+    color: #bb0000;
+}
+
+
+/* =========================================================
+   KPI NUMBER
+   ========================================================= */
+
+.kpiNumber {
+    display: block;
+
+    margin-top: 18px;
+}
+
+.kpiNumber .sapMObjectNumberText {
+    font-size: 30px !important;
+
+    font-weight: 500 !important;
+
+    color: #17212b;
+}
+
+
+/* =========================================================
+   KPI FOOTER
+   ========================================================= */
+
+.kpiActionText {
+    margin-top: 6px;
+
+    font-size: 11px;
+
+    color: #687887;
+}
+
+
+/* =========================================================
+   SECTIONS
+   ========================================================= */
+
+.dashboardSection {
+    margin-bottom: 28px;
+}
+
+.sectionHeader {
+    margin-bottom: 14px;
+}
+
+.sectionTitle {
+    margin: 0 !important;
+
+    font-size: 17px !important;
+
+    font-weight: 600 !important;
+
+    color: #17212b !important;
+}
+
+.sectionSubtitle {
+    margin-top: 3px;
+
+    font-size: 12px;
+
+    color: #687887;
+}
+
+
+/* =========================================================
+   QUICK ACTIONS
+   ========================================================= */
+
+.quickActions {
+    gap: 10px;
+
+    padding: 18px;
+
+    background: #ffffff;
+
+    border: 1px solid #dce3e8;
+
+    border-radius: 8px;
+
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.quickActionPrimary {
+    min-width: 145px;
+}
+
+.quickActionButton {
+    min-width: 145px;
+
+    border: 1px solid #d3dce4 !important;
+
+    border-radius: 6px !important;
+
+    background: #ffffff !important;
+}
+
+
+/* =========================================================
+   RECENT PAYMENTS CARD
+   ========================================================= */
+
+.recentPaymentsCard {
+    background: #ffffff;
+
+    border: 1px solid #dce3e8;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.recentPaymentsHeader {
+    padding: 20px 20px 16px 20px;
+
+    border-bottom: 1px solid #e7ebee;
+}
+
+
+/* =========================================================
+   RECENT PAYMENTS TABLE
+   ========================================================= */
+
+.recentPaymentsTable {
+    width: 100%;
+}
+
+.recentPaymentsTable .sapMListTblHeaderCell {
+    background: #f7f9fb !important;
+
+    border-bottom: 1px solid #dce3e8 !important;
+
+    padding-top: 11px !important;
+
+    padding-bottom: 11px !important;
+}
+
+.tableHeader {
+    font-size: 12px !important;
+
+    font-weight: 600 !important;
+
+    color: #526272 !important;
+}
+
+.recentPaymentsTable .sapMListTblCell {
+    padding-top: 13px !important;
+
+    padding-bottom: 13px !important;
+
+    border-bottom: 1px solid #edf0f2 !important;
+}
+
+.recentReference {
+    font-weight: 600 !important;
+
+    color: #0a6ed1 !important;
+}
+
+
+/* =========================================================
+   TABLE STATUS
+   ========================================================= */
+
+.recentPaymentsTable .sapMObjStatus {
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.dashboardFooter {
+    padding-top: 18px;
+
+    padding-right: 4px;
+}
+
+.dashboardFooterText {
+    font-size: 11px;
+
+    color: #7a8793;
+}
+
+
+/* =========================================================
+   Approval inbox
+   ========================================================= */
+
+   /* =========================================================
+   APPROVAL INBOX PAGE
+   ========================================================= */
+
+.approvalPage {
+    background: #f4f6f8 !important;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.approvalHeader {
+    height: 58px !important;
+
+    background: #ffffff !important;
+
+    border-bottom: 1px solid #d9e1e8 !important;
+
+    padding: 0 24px !important;
+
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.approvalBrand {
+    gap: 10px;
+}
+
+.approvalBrandIcon {
+    color: #0a6ed1 !important;
+}
+
+.approvalHeaderTitle {
+    font-size: 18px !important;
+
+    font-weight: 600 !important;
+
+    color: #17212b !important;
+}
+
+.approvalRefresh {
+    color: #0a6ed1 !important;
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+
+.approvalContent {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 30px 34px 45px 34px;
+}
+
+
+/* =========================================================
+   INTRO
+   ========================================================= */
+
+.approvalIntro {
+    margin-bottom: 24px;
+}
+
+.approvalTitle {
+    margin: 0 0 5px 0 !important;
+
+    font-size: 25px !important;
+
+    font-weight: 600 !important;
+
+    color: #17212b !important;
+}
+
+.approvalSubtitle {
+    font-size: 14px;
+
+    color: #687887;
+}
+
+
+/* =========================================================
+   SUMMARY CARD
+   ========================================================= */
+
+.approvalSummary {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 18px 22px;
+
+    margin-bottom: 22px;
+
+    background: #ffffff;
+
+    border: 1px solid #dce3e8;
+
+    border-left: 4px solid #e9730c;
+
+    border-radius: 9px;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.approvalSummaryIcon {
+    width: 44px;
+
+    height: 44px;
+
+    border-radius: 9px;
+
+    background: #fff3e8;
+
+    color: #e9730c;
+}
+
+.approvalSummaryText {
+    margin-left: 14px;
+}
+
+.approvalSummaryLabel {
+    font-size: 12px;
+
+    color: #687887;
+}
+
+.approvalSummaryCount {
+    margin-top: 3px;
+
+    font-size: 18px;
+
+    font-weight: 600;
+
+    color: #17212b;
+}
+
+.approvalAttention {
+    font-size: 12px;
+
+    color: #e9730c;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   TABLE CARD
+   ========================================================= */
+
+.approvalTableCard {
+    width: 100%;
+
+    background: #ffffff;
+
+    border: 1px solid #dce3e8;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+.approvalTableHeader {
+    padding: 20px 22px 16px 22px;
+
+    border-bottom: 1px solid #e7ebee;
+}
+
+.approvalTableTitle {
+    margin: 0 !important;
+
+    font-size: 17px !important;
+
+    font-weight: 600 !important;
+
+    color: #17212b !important;
+}
+
+.approvalTableSubtitle {
+    margin-top: 3px;
+
+    font-size: 12px;
+
+    color: #687887;
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.approvalTable {
+    width: 100%;
+}
+
+.approvalTable .sapMListTblHeaderCell {
+    background: #f7f9fb !important;
+
+    border-bottom: 1px solid #dce3e8 !important;
+
+    padding-top: 12px !important;
+
+    padding-bottom: 12px !important;
+}
+
+.approvalColumnHeader {
+    font-size: 11px !important;
+
+    font-weight: 600 !important;
+
+    color: #526272 !important;
+}
+
+.approvalTable .sapMListTblCell {
+    padding-top: 14px !important;
+
+    padding-bottom: 14px !important;
+
+    border-bottom: 1px solid #edf0f2 !important;
+
+    vertical-align: middle !important;
+}
+
+
+/* =========================================================
+   PAYMENT REFERENCE
+   ========================================================= */
+
+.approvalReference {
+    font-size: 13px !important;
+
+    font-weight: 600 !important;
+
+    color: #0a6ed1 !important;
+
+    margin-bottom: 4px;
+}
+
+.approvalStatus {
+    font-size: 11px !important;
+}
+
+
+/* =========================================================
+   TABLE DATA
+   ========================================================= */
+
+.approvalCell {
+    font-size: 12px !important;
+
+    color: #263746 !important;
+}
+
+.approvalAccount {
+    font-size: 11px !important;
+
+    color: #526272 !important;
+
+    word-break: break-all;
+}
+
+.approvalAmount {
+    font-size: 13px !important;
+
+    font-weight: 600 !important;
+}
+
+.approvalCurrency {
+    font-size: 12px !important;
+
+    font-weight: 600 !important;
+
+    color: #526272 !important;
+}
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.approvalActions {
+    gap: 7px;
+}
+
+.approveButton {
+    min-width: 88px;
+}
+
+.rejectButton {
+    min-width: 78px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.approvalFooter {
+    padding-top: 18px;
+
+    padding-right: 4px;
+}
+
+.approvalFooterText {
+    font-size: 11px;
+
+    color: #7a8793;
+}
+
+
+/* =========================================================
+   EMPTY TABLE
+   ========================================================= */
+
+.approvalTable .sapMListNoData {
+    padding: 35px !important;
+
+    color: #687887 !important;
+}
+
+/* =========================================================
+   REJECT PAYMENT DIALOG
+   ========================================================= */
+
+.rejectPaymentDialog {
+    border-radius: 12px !important;
+}
+
+
+/* =========================================================
+   DIALOG CONTENT
+   ========================================================= */
+
+.rejectDialogContent {
+    padding: 22px 24px 18px 24px;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.rejectDialogHeader {
+    width: 100%;
+
+    padding: 14px 16px;
+
+    margin-bottom: 22px;
+
+    box-sizing: border-box;
+
+    background: #fff5f5;
+
+    border: 1px solid #f1c7c7;
+
+    border-left: 4px solid #bb0000;
+
+    border-radius: 8px;
+}
+
+
+.rejectDialogIcon {
+    color: #bb0000 !important;
+
+    margin-right: 14px;
+}
+
+
+/* =========================================================
+   PAYMENT INFO
+   ========================================================= */
+
+.rejectPaymentInfo {
+    gap: 3px;
+}
+
+
+.rejectPaymentReference {
+    font-size: 14px !important;
+
+    font-weight: 600 !important;
+
+    color: #17212b !important;
+}
+
+
+.rejectPaymentAmount {
+    font-size: 12px !important;
+
+    color: #687887 !important;
+}
+
+
+/* =========================================================
+   REASON LABEL
+   ========================================================= */
+
+.rejectReasonLabel {
+    font-size: 13px !important;
+
+    font-weight: 600 !important;
+
+    color: #263746 !important;
+
+    margin-bottom: 7px;
+}
+
+
+/* =========================================================
+   REASON INPUT
+   ========================================================= */
+
+.rejectReasonInput {
+    width: 100% !important;
+
+    min-height: 105px !important;
+
+    box-sizing: border-box;
+
+    border-radius: 6px !important;
+}
+
+
+.rejectReasonInput textarea {
+    min-height: 95px !important;
+
+    padding: 10px !important;
+
+    font-size: 13px !important;
+}
+
+
+/* =========================================================
+   HELPER TEXT
+   ========================================================= */
+
+.rejectHelperText {
+    margin-top: 7px;
+
+    font-size: 11px !important;
+
+    color: #687887 !important;
+}
+
+
+/* =========================================================
+   DIALOG BUTTONS
+   ========================================================= */
+
+.rejectPaymentDialog .sapMDialogActions {
+
+    padding: 12px 18px;
+
+    border-top: 1px solid #e5e9ec;
+
+    background: #fafbfc;
+}
+
+
+.rejectPaymentDialog .sapMBtnReject {
+    min-width: 125px;
+}
+
+
+.rejectPaymentDialog .sapMBtnTransparent {
+    min-width: 80px;
+}
+
+
+/* =========================================================
+  user managment screen 
+   ========================================================= */
+
+   /* =========================================================
+   USER MANAGEMENT PAGE
+   ========================================================= */
+
+.userManagementPage {
+    background: #f5f7f9 !important;
+}
+
+.userManagementPage .sapMPageEnableScrolling {
+    background: #f5f7f9 !important;
+}
+
+
+/* =========================================================
+   MAIN CONTAINER
+   ========================================================= */
+
+.userManagementContainer {
+    width: 100%;
+    max-width: 1400px;
+
+    margin: 0 auto;
+
+    padding: 32px 48px 40px 48px;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.userManagementHeader {
+    margin-bottom: 28px;
+}
+
+.userManagementTitle {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+
+    color: #17212b !important;
+}
+
+.userManagementSubtitle {
+    margin-top: 6px;
+
+    font-size: 14px !important;
+
+    color: #687887 !important;
+}
+
+.userBackButton {
+    margin-left: 20px;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+   ========================================================= */
+
+.userSummaryContainer {
+    gap: 18px;
+
+    margin-bottom: 28px;
+}
+
+.userSummaryCard {
+    width: 240px;
+
+    min-height: 135px;
+
+    padding: 20px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 1px solid #e1e6eb;
+
+    border-radius: 10px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.userSummaryHeader {
+    gap: 9px;
+
+    margin-bottom: 14px;
+}
+
+.userSummaryIcon {
+    color: #1673d1 !important;
+}
+
+.userActiveIcon {
+    color: #18864b !important;
+}
+
+.userInactiveIcon {
+    color: #bb0000 !important;
+}
+
+.userSummaryLabel {
+    font-size: 13px !important;
+
+    font-weight: 600 !important;
+
+    color: #526575 !important;
+}
+
+.userSummaryNumber {
+    font-size: 30px !important;
+
+    font-weight: 700 !important;
+
+    color: #17212b !important;
+
+    line-height: 1.1 !important;
+}
+
+.userActiveNumber {
+    color: #18864b !important;
+}
+
+.userInactiveNumber {
+    color: #bb0000 !important;
+}
+
+.userSummaryDescription {
+    margin-top: 5px;
+
+    font-size: 11px !important;
+
+    color: #7a8996 !important;
+}
+
+
+/* =========================================================
+   USER LIST CARD
+   ========================================================= */
+
+.userListCard {
+    width: 100%;
+
+    background: #ffffff;
+
+    border: 1px solid #e1e6eb;
+
+    border-radius: 10px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.userListToolbar {
+    padding: 22px 24px 18px 24px;
+
+    box-sizing: border-box;
+
+    border-bottom: 1px solid #edf0f2;
+}
+
+.userListTitle {
+    font-size: 19px !important;
+
+    font-weight: 700 !important;
+
+    color: #17212b !important;
+}
+
+.userListSubtitle {
+    margin-top: 4px;
+
+    font-size: 12px !important;
+
+    color: #7a8996 !important;
+}
+
+.userToolbarActions {
+    gap: 10px;
+}
+
+.userRefreshButton {
+    min-width: 95px;
+}
+
+.createUserButton {
+    min-width: 130px;
+}
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.userSearchContainer {
+    padding: 16px 24px;
+
+    box-sizing: border-box;
+
+    background: #fafbfc;
+
+    border-bottom: 1px solid #edf0f2;
+}
+
+.userSearchContainer .sapMSF {
+    width: 100% !important;
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.usersTable {
+    width: 100%;
+
+    background: #ffffff;
+}
+
+.usersTable .sapMListTblHeaderCell {
+    background: #f7f9fa;
+
+    border-bottom: 1px solid #dfe4e8;
+
+    padding-top: 13px;
+    padding-bottom: 13px;
+}
+
+.usersTable .sapMListTblHeaderCell .sapMText {
+    font-size: 11px !important;
+
+    font-weight: 700 !important;
+
+    color: #526575 !important;
+}
+
+.userTableRow {
+    min-height: 70px;
+}
+
+.usersTable .sapMListTblCell {
+    padding-top: 13px;
+    padding-bottom: 13px;
+
+    border-bottom: 1px solid #edf0f2;
+}
+
+.userIdText {
+    font-size: 13px !important;
+
+    font-weight: 700 !important;
+
+    color: #1673d1 !important;
+}
+
+.userNameText {
+    font-size: 13px !important;
+
+    font-weight: 600 !important;
+
+    color: #263746 !important;
+}
+
+.userSecondaryText {
+    margin-top: 3px;
+
+    font-size: 10px !important;
+
+    color: #8a98a5 !important;
+}
+
+.userEmailText {
+    font-size: 12px !important;
+
+    color: #526575 !important;
+}
+
+.userRoleStatus {
+    font-size: 11px !important;
+}
+
+.userStatus {
+    font-size: 11px !important;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+.userActionButton {
+    margin-right: 4px;
+}
+
+.userActionButton .sapUiIcon {
+    color: #1673d1 !important;
+}
+
+.userDeleteButton .sapUiIcon {
+    color: #bb0000 !important;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.userManagementFooter {
+    width: 100%;
+
+    text-align: center;
+
+    margin-top: 24px;
+
+    font-size: 11px !important;
+
+    color: #8a98a5 !important;
+}
+
+/* =========================================================
+   CREATE USER DIALOG
+   ========================================================= */
+
+.createUserDialog {
+    border-radius: 12px !important;
+}
+
+.createUserForm {
+    padding: 24px 28px 22px 28px;
+}
+
+.createUserSectionTitle {
+    font-size: 16px !important;
+
+    font-weight: 700 !important;
+
+    color: #17212b !important;
+
+    margin-bottom: 14px;
+}
+
+.createUserSection {
+    margin-bottom: 26px;
+}
+
+.createUserLabel {
+    font-size: 12px !important;
+
+    font-weight: 600 !important;
+
+    color: #526575 !important;
+
+    margin-top: 12px;
+
+    margin-bottom: 6px;
+}
+
+.createUserInput {
+    width: 100% !important;
+}
+
+.createUserInput .sapMInputBaseInner {
+    height: 38px;
+
+    border-radius: 6px;
+}
+
+.createUserInput .sapMSlt {
+    height: 38px;
+
+    border-radius: 6px;
+}
+
+.createUserStatusRow {
+    margin-top: 4px;
+
+    gap: 10px;
+}
+
+.createUserActiveText {
+    font-size: 12px !important;
+
+    color: #18864b !important;
+
+    font-weight: 600 !important;
+}
+
+.createUserDialog .sapMDialogActions {
+    padding: 12px 20px;
+
+    border-top: 1px solid #e5e9ec;
+
+    background: #fafbfc;
+}

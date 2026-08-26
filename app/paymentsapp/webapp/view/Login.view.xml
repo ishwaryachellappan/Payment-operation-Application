@@ -2,67 +2,158 @@
     controllerName="paymentsapp.controller.Login"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
+    xmlns:core="sap.ui.core"
     displayBlock="true">
 
     <Page
-        title="Payment Operations">
+        showHeader="false"
+        class="loginPage">
 
         <content>
 
             <VBox
+                class="loginBackground"
                 width="100%"
-                alignItems="Center"
-                class="sapUiMediumMarginTop">
+                height="100%"
+                justifyContent="Center"
+                alignItems="Center">
+
+                <!-- LOGIN CARD -->
 
                 <VBox
-                    width="400px"
-                    class="sapUiMediumMargin">
+                    class="loginCard"
+                    width="420px">
+
+                    <!-- Logo -->
+
+                    <VBox
+                        class="loginLogoContainer"
+                        alignItems="Center">
+
+                        <HBox
+                            class="loginLogoCircle"
+                            justifyContent="Center"
+                            alignItems="Center">
+
+                            <core:Icon
+                                src="sap-icon://money-bills"
+                                size="2rem"/>
+
+                        </HBox>
+
+                    </VBox>
+
+
+                    <!-- Application title -->
 
                     <Title
                         text="Payment Operations"
                         level="H1"
-                        class="sapUiSmallMarginBottom"/>
+                        class="loginTitle"/>
 
                     <Text
-                        text="Sign in to continue"
-                        class="sapUiSmallMarginBottom"/>
+                        text="SAP Banking Payment Operations"
+                        class="loginSubtitle"/>
 
-                    <Label
-                        text="User ID"
-                        labelFor="userName"/>
 
-                    <Input
-                        id="userName"
-                        placeholder="Enter User ID"
+                    <!-- Welcome -->
+
+                    <VBox
+                        class="loginWelcome">
+
+                        <Title
+                            text="Welcome back"
+                            level="H2"
+                            class="loginWelcomeTitle"/>
+
+                        <Text
+                            text="Sign in to continue to your workspace."
+                            class="loginWelcomeText"/>
+
+                    </VBox>
+
+
+                    <!-- User ID -->
+
+                    <VBox
+                        class="loginField">
+
+                        <Label
+                            text="User ID"
+                            labelFor="userNameInput"
+                            class="loginLabel"/>
+
+                        <Input
+                            id="userNameInput"
+                            width="100%"
+                            placeholder="Enter your User ID"
+                            type="Text"
+                            autocomplete= "false"
+                            class="loginInput"/>
+
+                    </VBox>
+
+
+                    <!-- Password -->
+
+                    <VBox
+                        class="loginField">
+
+                        <Label
+                            text="Password"
+                            labelFor="passwordInput"
+                            class="loginLabel"/>
+
+                        <Input
+                            id="passwordInput"
+                            width="100%"
+                            placeholder="Enter your password"
+                            type="Password"
+                            autocomplete="false"
+                            class="loginInput"/>
+
+                    </VBox>
+
+
+                    <!-- Login -->
+
+                    <Button
+                        id="loginButton"
+                        text="Sign In"
                         width="100%"
-                        class="sapUiSmallMarginBottom"/>
+                        type="Emphasized"
+                        icon="sap-icon://log"
+                        press=".onLogin"
+                        class="loginButton"/>
 
-                    <Label
-                        text="Password"
-                        labelFor="password"/>
 
-                    <Input
-                        id="password"
-                        type="Password"
-                        placeholder="Enter Password"
-                        width="100%"
-                        class="sapUiSmallMarginBottom"/>
+                    <!-- Security -->
 
-                    <MessageStrip
-                        id="errorMessage"
-                        visible="false"
-                        type="Error"
-                        showIcon="true"
-                        class="sapUiSmallMarginBottom"/>
+                    <HBox
+    class="loginSecurity"
+    width="100%"
+    justifyContent="Center"
+    alignItems="Center">
 
-                   <Button
-    id="loginButton"
-    text="Login"
-    type="Emphasized"
-    press=".onLogin"
-    class="sapUiSmallMarginTop"/>
+    <core:Icon
+        src="sap-icon://locked"
+        size="0.8rem"
+        class="loginSecurityIcon"/>
+
+    <Text
+        text="Secure access to Payment Operations"
+        class="loginSecurityText"/>
+
+</HBox>
 
                 </VBox>
+
+
+                <!-- Footer -->
+
+                <Text
+                    text="SAP Banking Payment Operations"
+                    class="loginFooter"/>
 
             </VBox>
 

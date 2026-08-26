@@ -4,20 +4,22 @@ sap.ui.define([
     "sap/m/MessageBox",
     "sap/m/MessageToast",
     "sap/m/Dialog",
-    "sap/m/Input",
+    "sap/m/TextArea",
     "sap/m/Label",
     "sap/m/VBox",
-    "sap/m/Button"
+    "sap/m/HBox",
+    "sap/ui/core/Icon"
 ], function (
     Controller,
     JSONModel,
     MessageBox,
     MessageToast,
     Dialog,
-    Input,
+    TextArea,
     Label,
     VBox,
-    Button
+    HBox,
+    Icon
 ) {
     "use strict";
 
@@ -150,37 +152,48 @@ onInit: function () {
             },
 
 
-            onApprove: function (oEvent) {
+           onApprove: function (oEvent) {
 
-                const payment =
-                    oEvent
-                        .getSource()
-                        .getBindingContext("approval")
-                        .getObject();
+    const payment =
+        oEvent
+            .getSource()
+            .getBindingContext("approval")
+            .getObject();
 
-                MessageBox.confirm(
-                    "Approve payment " +
-                    payment.paymentReference +
-                    "?",
-                    {
-                        title: "Approve Payment",
+    MessageBox.confirm(
+        "Are you sure you want to approve this payment?\n\n" +
+        "Payment Reference: " +
+        payment.paymentReference +
+        "\nAmount: " +
+        payment.amount +
+        " " +
+        payment.currency,
 
-                        onClose: function (action) {
+        {
+            title: "Approve Payment",
 
-                            if (
-                                action ===
-                                MessageBox.Action.OK
-                            ) {
+            icon: MessageBox.Icon.SUCCESS,
 
-                                this._approvePayment(
-                                    payment.ID
-                                );
-                            }
+            actions: [
+                "Approve Payment",
+                MessageBox.Action.CANCEL
+            ],
 
-                        }.bind(this)
-                    }
-                );
-            },
+            emphasizedAction: "Approve Payment",
+
+            onClose: function (action) {
+
+                if (action === "Approve Payment") {
+
+                    this._approvePayment(
+                        payment.ID
+                    );
+                }
+
+            }.bind(this)
+        }
+    );
+},
 
 
             _approvePayment: async function (paymentId) {
@@ -242,146 +255,209 @@ await this._loadPendingPayments();
             },
 
 
-            onReject: function (oEvent) {
-
-    console.log("========== REJECT CLICKED ==========");
-
-    const context =
-        oEvent
-            .getSource()
-            .getBindingContext("approval");
-
-    if (!context) {
-
-        console.error(
-            "No approval binding context found"
-        );
-
-        MessageBox.error(
-            "Unable to identify the selected payment."
-        );
-
-        return;
-    }
+         onReject: function (oEvent) {
 
     const payment =
-        context.getObject();
-
-    console.log(
-        "Payment selected for rejection:",
-        payment
-    );
+        oEvent
+            .getSource()
+            .getBindingContext("approval")
+            .getObject();
 
 
-    // =========================================
-    // INPUT FOR REJECTION REASON
-    // =========================================
+    // =====================================================
+    // ICON
+    // =====================================================
 
-    const reasonInput =
-        new Input({
-            width: "100%",
-            placeholder: "Enter rejection reason"
-        });
-
-
-    const form =
-        new VBox({
-            class: "sapUiMediumMargin",
-
-            items: [
-
-                new Label({
-                    text:
-                        "Payment: " +
-                        payment.paymentReference
-                }),
-
-                reasonInput
-
-            ]
-        });
+    const rejectIcon = new Icon({
+        src: "sap-icon://decline",
+        size: "1.5rem"
+    }).addStyleClass("rejectDialogIcon");
 
 
-    // =========================================
-    // REJECT DIALOG
-    // =========================================
+    // =====================================================
+    // PAYMENT INFORMATION
+    // =====================================================
 
-    const dialog =
-        new Dialog({
-
-            title: "Reject Payment",
-
-            contentWidth: "450px",
-
-            content: form,
+    const paymentReference = new sap.m.Text({
+        text: payment.paymentReference
+    }).addStyleClass("rejectPaymentReference");
 
 
-            beginButton:
-                new Button({
-
-                    text: "Reject",
-
-                    type: "Reject",
-
-                    press:
-                        async function () {
-
-                            const reason =
-                                reasonInput
-                                    .getValue()
-                                    .trim();
+    const paymentAmount = new sap.m.Text({
+        text:
+            "Amount: " +
+            payment.amount +
+            " " +
+            payment.currency
+    }).addStyleClass("rejectPaymentAmount");
 
 
-                            if (!reason) {
-
-                                MessageBox.error(
-                                    "Rejection reason is required."
-                                );
-
-                                return;
-                            }
+    const paymentInfo = new VBox({
+        items: [
+            paymentReference,
+            paymentAmount
+        ]
+    }).addStyleClass("rejectPaymentInfo");
 
 
-                            console.log(
-                                "Reject reason:",
-                                reason
-                            );
+    const header = new HBox({
+        alignItems: "Center",
+        items: [
+            rejectIcon,
+            paymentInfo
+        ]
+    }).addStyleClass("rejectDialogHeader");
 
 
-                            dialog.close();
+    // =====================================================
+    // REASON LABEL
+    // =====================================================
+
+    const reasonLabel = new Label({
+        text: "Rejection Reason",
+        required: true
+    }).addStyleClass("rejectReasonLabel");
 
 
-                            await this._rejectPayment(
-                                payment.ID,
-                                reason
-                            );
+    // =====================================================
+    // REASON INPUT
+    // =====================================================
 
-                        }.bind(this)
-                }),
-
-
-            endButton:
-                new Button({
-
-                    text: "Cancel",
-
-                    press:
-                        function () {
-
-                            dialog.close();
-
-                        }
-                }),
+    const reasonInput = new TextArea({
+        width: "100%",
+        rows: 5,
+        maxLength: 500,
+        placeholder: "Enter the reason for rejecting this payment..."
+    }).addStyleClass("rejectReasonInput");
 
 
-            afterClose:
-                function () {
+    // =====================================================
+    // HELPER TEXT
+    // =====================================================
 
-                    dialog.destroy();
+    const helperText = new sap.m.Text({
+        text: "Please provide a clear reason for audit purposes."
+    }).addStyleClass("rejectHelperText");
 
+
+    // =====================================================
+    // FORM
+    // =====================================================
+
+    const form = new VBox({
+        items: [
+            header,
+
+            reasonLabel,
+
+            reasonInput,
+
+            helperText
+        ]
+    }).addStyleClass("rejectDialogContent");
+
+
+    // =====================================================
+    // DIALOG
+    // =====================================================
+
+    const dialog = new Dialog({
+
+        title: "Reject Payment",
+
+        contentWidth: "480px",
+
+        content: [
+            form
+        ],
+
+        beginButton: new sap.m.Button({
+
+            text: "Reject Payment",
+
+            icon: "sap-icon://decline",
+
+            type: "Reject",
+
+            press: async function () {
+
+                const reason =
+                    reasonInput
+                        .getValue()
+                        .trim();
+
+
+                // =============================================
+                // VALIDATION
+                // =============================================
+
+                if (!reason) {
+
+                    reasonInput.setValueState(
+                        "Error"
+                    );
+
+                    reasonInput.setValueStateText(
+                        "Rejection reason is required"
+                    );
+
+                    reasonInput.focus();
+
+                    return;
                 }
 
-        });
+
+                // =============================================
+                // CLEAR ERROR
+                // =============================================
+
+                reasonInput.setValueState(
+                    "None"
+                );
+
+
+                // =============================================
+                // CLOSE
+                // =============================================
+
+                dialog.close();
+
+
+                // =============================================
+                // REJECT PAYMENT
+                // =============================================
+
+                await this._rejectPayment(
+                    payment.ID,
+                    reason
+                );
+
+            }.bind(this)
+        }),
+
+
+        endButton: new sap.m.Button({
+
+            text: "Cancel",
+
+            type: "Transparent",
+
+            press: function () {
+
+                dialog.close();
+
+            }
+
+        }),
+
+
+        afterClose: function () {
+
+            dialog.destroy();
+
+        }
+
+    }).addStyleClass("rejectPaymentDialog");
 
 
     dialog.open();

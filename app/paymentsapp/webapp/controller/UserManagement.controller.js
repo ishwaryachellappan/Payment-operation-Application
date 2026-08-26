@@ -34,25 +34,12 @@ sap.ui.define([
             // INIT
             // =====================================================
 
-            onInit: function () {
-
-    console.log(
-        "========== USER MANAGEMENT INIT =========="
-    );
+           onInit: function () {
 
     const role =
         sessionStorage.getItem("userRole");
 
-    console.log(
-        "USER MANAGEMENT ROLE:",
-        role
-    );
-
     if (role !== "ADMIN") {
-
-        console.log(
-            "Not authorized for User Management"
-        );
 
         this.getOwnerComponent()
             .getRouter()
@@ -65,10 +52,6 @@ sap.ui.define([
         return;
     }
 
-    console.log(
-        "User Management authorized"
-    );
-
     this._loadUsers();
 },
 
@@ -77,33 +60,85 @@ sap.ui.define([
             // LOAD USERS
             // =====================================================
 
-            _loadUsers: function () {
+        _loadUsers: async function () {
 
-    console.log(
-        "Refreshing Users table..."
-    );
+    try {
 
-    const table =
-        this.byId("usersTable");
+        const response =
+            await fetch(
+                "/payment-service/Users"
+            );
 
-    if (!table) {
+        if (!response.ok) {
+
+            throw new Error(
+                "HTTP " + response.status
+            );
+        }
+
+        const result =
+            await response.json();
+
+        const users =
+            Array.isArray(result.value)
+                ? result.value
+                : [];
+
+
+        // =====================================================
+        // TABLE MODEL
+        // =====================================================
+
+        const model =
+            new sap.ui.model.json.JSONModel({
+                Users: users
+            });
+
+        this.getView()
+            .setModel(model);
+
+
+        // =====================================================
+        // SUMMARY
+        // =====================================================
+
+        const total =
+            users.length;
+
+        const active =
+            users.filter(function (user) {
+                return user.isActive === true;
+            }).length;
+
+        const inactive =
+            total - active;
+
+
+        this.byId("totalUsers")
+            .setText(total);
+
+        this.byId("activeUsers")
+            .setText(active);
+
+        this.byId("inactiveUsers")
+            .setText(inactive);
+
 
         console.log(
-            "Users table not found yet"
+            "Users loaded:",
+            users
         );
 
-        return;
-    }
 
-    const binding =
-        table.getBinding("items");
+    } catch (error) {
 
-    if (binding) {
+        console.error(
+            "Unable to load users:",
+            error
+        );
 
-        binding.refresh();
-
-        console.log(
-            "Users table refreshed"
+        sap.m.MessageBox.error(
+            "Unable to load users."
         );
     }
 },
@@ -127,303 +162,361 @@ sap.ui.define([
             // CREATE USER
             // =====================================================
 
-            onCreateUser: function () {
+           onCreateUser: function () {
 
-                const userNameInput =
-                    new Input({
-                        placeholder:
-                            "User ID"
-                    });
+    const userNameInput = new sap.m.Input({
+        width: "100%",
+        placeholder: "e.g. john.smith"
+    });
 
-                const fullNameInput =
-                    new Input({
-                        placeholder:
-                            "Full Name"
-                    });
+    const fullNameInput = new sap.m.Input({
+        width: "100%",
+        placeholder: "Enter full name"
+    });
 
-                const emailInput =
-                    new Input({
-                        placeholder:
-                            "Email"
-                    });
+    const emailInput = new sap.m.Input({
+        width: "100%",
+        type: "Email",
+        placeholder: "user@company.com"
+    });
 
-                const passwordInput =
-                    new Input({
-                        placeholder:
-                            "Initial Password",
-                        type:
-                            "Password"
-                    });
+    const passwordInput = new sap.m.Input({
+        width: "100%",
+        placeholder: "Enter initial password",
+        type: "Password"
+    });
 
-                const roleSelect =
-                    new Select({
+    const roleSelect = new sap.m.Select({
+        width: "100%",
+        selectedKey: "PAYMENT_USER",
 
-                        width: "100%",
+        items: [
+            new sap.ui.core.Item({
+                key: "ADMIN",
+                text: "Administrator"
+            }),
 
-                        selectedKey:
-                            "PAYMENT_USER",
+            new sap.ui.core.Item({
+                key: "PAYMENT_USER",
+                text: "Payment User"
+            })
+        ]
+    });
 
-                        items: [
-
-                            new Item({
-                                key:
-                                    "ADMIN",
-                                text:
-                                    "Admin"
-                            }),
-
-                            new Item({
-                                key:
-                                    "PAYMENT_USER",
-                                text:
-                                    "Payment User"
-                            })
-
-                        ]
-                    });
-
-                const activeSwitch =
-                    new Switch({
-                        state: true
-                    });
+    const activeSwitch = new sap.m.Switch({
+        state: true
+    });
 
 
-                const form =
-                    new VBox({
+    // =====================================================
+    // SECTION 1
+    // =====================================================
 
-                        class:
-                            "sapUiMediumMargin",
+    const userInformationTitle =
+        new sap.m.Title({
+            text: "User Information",
+            level: "H3"
+        }).addStyleClass("createUserSectionTitle");
 
-                        items: [
 
-                            new Label({
-                                text:
-                                    "User ID"
-                            }),
+    const userInformation =
+        new sap.m.VBox({
 
-                            userNameInput,
+            items: [
 
-                            new Label({
-                                text:
-                                    "Full Name"
-                            }),
+                new sap.m.Label({
+                    text: "User ID",
+                    required: true
+                }).addStyleClass("createUserLabel"),
 
-                            fullNameInput,
+                userNameInput
+                    .addStyleClass("createUserInput"),
 
-                            new Label({
-                                text:
-                                    "Email"
-                            }),
+                new sap.m.Label({
+                    text: "Full Name",
+                    required: true
+                }).addStyleClass("createUserLabel"),
 
-                            emailInput,
+                fullNameInput
+                    .addStyleClass("createUserInput"),
 
-                            new Label({
-                                text:
-                                    "Initial Password"
-                            }),
+                new sap.m.Label({
+                    text: "Email Address",
+                    required: true
+                }).addStyleClass("createUserLabel"),
 
-                            passwordInput,
+                emailInput
+                    .addStyleClass("createUserInput")
+            ]
 
-                            new Label({
-                                text:
-                                    "Role"
-                            }),
+        }).addStyleClass("createUserSection");
 
-                            roleSelect,
 
-                            new Label({
-                                text:
-                                    "Active"
-                            }),
+    // =====================================================
+    // SECTION 2
+    // =====================================================
 
+    const accessTitle =
+        new sap.m.Title({
+            text: "Access & Security",
+            level: "H3"
+        }).addStyleClass("createUserSectionTitle");
+
+
+    const accessSection =
+        new sap.m.VBox({
+
+            items: [
+
+                new sap.m.Label({
+                    text: "Initial Password",
+                    required: true
+                }).addStyleClass("createUserLabel"),
+
+                passwordInput
+                    .addStyleClass("createUserInput"),
+
+                new sap.m.Label({
+                    text: "Role",
+                    required: true
+                }).addStyleClass("createUserLabel"),
+
+                roleSelect
+                    .addStyleClass("createUserInput"),
+
+                new sap.m.Label({
+                    text: "Account Status"
+                }).addStyleClass("createUserLabel"),
+
+                new sap.m.HBox({
+
+                    alignItems: "Center",
+
+                    items: [
+
+                        activeSwitch,
+
+                        new sap.m.Text({
+                            text: "Active"
+                        }).addStyleClass("createUserActiveText")
+
+                    ]
+
+                }).addStyleClass("createUserStatusRow")
+
+            ]
+
+        }).addStyleClass("createUserSection");
+
+
+    // =====================================================
+    // MAIN FORM
+    // =====================================================
+
+    const form =
+        new sap.m.VBox({
+
+            items: [
+
+                userInformationTitle,
+
+                userInformation,
+
+                accessTitle,
+
+                accessSection
+
+            ]
+
+        }).addStyleClass("createUserForm");
+
+
+    // =====================================================
+    // DIALOG
+    // =====================================================
+
+    const dialog =
+        new sap.m.Dialog({
+
+            title: "Create New User",
+
+            contentWidth: "520px",
+
+            contentHeight: "auto",
+
+            verticalScrolling: true,
+
+            content: [
+                form
+            ],
+
+            beginButton:
+
+                new sap.m.Button({
+
+                    text: "Create User",
+
+                    icon: "sap-icon://add",
+
+                    type: "Emphasized",
+
+                    press: async function () {
+
+                        const userName =
+                            userNameInput
+                                .getValue()
+                                .trim();
+
+                        const fullName =
+                            fullNameInput
+                                .getValue()
+                                .trim();
+
+                        const email =
+                            emailInput
+                                .getValue()
+                                .trim();
+
+                        const password =
+                            passwordInput
+                                .getValue();
+
+                        const role =
+                            roleSelect
+                                .getSelectedKey();
+
+                        const isActive =
                             activeSwitch
-
-                        ]
-                    });
+                                .getState();
 
 
-                const dialog =
-                    new Dialog({
+                        // =====================================
+                        // VALIDATION
+                        // =====================================
 
-                        title:
-                            "Create New User",
+                        if (
+                            !userName ||
+                            !fullName ||
+                            !email ||
+                            !password ||
+                            !role
+                        ) {
 
-                        contentWidth:
-                            "450px",
+                            sap.m.MessageBox.error(
+                                "Please complete all mandatory fields."
+                            );
 
-                        content:
-                            form,
-
-
-                        beginButton:
-                            new Button({
-
-                                text:
-                                    "Create User",
-
-                                type:
-                                    "Emphasized",
-
-                                press:
-                                    async function () {
-
-                                        const userName =
-                                            userNameInput
-                                                .getValue()
-                                                .trim();
-
-                                        const fullName =
-                                            fullNameInput
-                                                .getValue()
-                                                .trim();
-
-                                        const email =
-                                            emailInput
-                                                .getValue()
-                                                .trim();
-
-                                        const password =
-                                            passwordInput
-                                                .getValue();
-
-                                        const role =
-                                            roleSelect
-                                                .getSelectedKey();
-
-                                        const isActive =
-                                            activeSwitch
-                                                .getState();
+                            return;
+                        }
 
 
-                                        if (
-                                            !userName ||
-                                            !fullName ||
-                                            !email ||
-                                            !password ||
-                                            !role
-                                        ) {
+                        try {
 
-                                            MessageBox.error(
-                                                "All mandatory fields are required"
-                                            );
+                            const response =
+                                await fetch(
+                                    "/payment-service/createUser",
+                                    {
+                                        method: "POST",
 
-                                            return;
-                                        }
+                                        headers: {
+                                            "Content-Type":
+                                                "application/json",
 
+                                            "Accept":
+                                                "application/json"
+                                        },
 
-                                        try {
+                                        body:
+                                            JSON.stringify({
 
-                                            const response =
-                                                await fetch(
-                                                    "/payment-service/createUser",
-                                                    {
-                                                        method:
-                                                            "POST",
+                                                userName,
+                                                fullName,
+                                                email,
+                                                password,
+                                                role,
+                                                isActive
 
-                                                        headers: {
-
-                                                            "Content-Type":
-                                                                "application/json",
-
-                                                            "Accept":
-                                                                "application/json"
-                                                        },
-
-                                                        body:
-                                                            JSON.stringify({
-
-                                                                userName,
-
-                                                                fullName,
-
-                                                                email,
-
-                                                                password,
-
-                                                                role,
-
-                                                                isActive
-
-                                                            })
-                                                    }
-                                                );
-
-
-                                            const result =
-                                                await response.json();
-
-
-                                            if (
-                                                !response.ok ||
-                                                !result.success
-                                            ) {
-
-                                                MessageBox.error(
-                                                    result.message ||
-                                                    "Unable to create user"
-                                                );
-
-                                                return;
-                                            }
-
-
-                                            MessageToast.show(
-                                                "User created successfully"
-                                            );
-
-
-                                            dialog.close();
-
-
-                                            this._loadUsers();
-
-                                        }
-                                        catch (error) {
-
-                                            console.error(
-                                                "Create user error:",
-                                                error
-                                            );
-
-                                            MessageBox.error(
-                                                "Unable to connect to payment service"
-                                            );
-                                        }
-
-                                    }.bind(this)
-
-                            }),
-
-
-                        endButton:
-                            new Button({
-
-                                text:
-                                    "Cancel",
-
-                                press:
-                                    function () {
-
-                                        dialog.close();
-
+                                            })
                                     }
+                                );
 
-                            }),
+
+                            const result =
+                                await response.json();
 
 
-                        afterClose:
-                            function () {
+                            if (
+                                !response.ok ||
+                                !result.success
+                            ) {
 
-                                dialog.destroy();
+                                sap.m.MessageBox.error(
+                                    result.message ||
+                                    "Unable to create user."
+                                );
 
+                                return;
                             }
 
-                    });
+
+                            sap.m.MessageToast.show(
+                                "User created successfully."
+                            );
 
 
-                dialog.open();
-            },
+                            dialog.close();
 
+
+                            // Refresh user list
+
+                            this._loadUsers();
+
+                        } catch (error) {
+
+                            console.error(
+                                "Create user error:",
+                                error
+                            );
+
+                            sap.m.MessageBox.error(
+                                "Unable to connect to payment service."
+                            );
+
+                        }
+
+                    }.bind(this)
+
+                }),
+
+
+            endButton:
+
+                new sap.m.Button({
+
+                    text: "Cancel",
+
+                    type: "Transparent",
+
+                    press: function () {
+
+                        dialog.close();
+
+                    }
+
+                }),
+
+
+            afterClose: function () {
+
+                dialog.destroy();
+
+            }
+
+        }).addStyleClass("createUserDialog");
+
+
+    dialog.open();
+},
 
             // =====================================================
             // EDIT USER
@@ -904,7 +997,74 @@ sap.ui.define([
                         "Unable to connect to payment service"
                     );
                 }
-            }
+            },
+
+            onRefreshUsers: function () {
+
+    this._loadUsers();
+
+},
+
+onSearchUsers: function (oEvent) {
+
+    const query =
+        oEvent
+            .getParameter("query") ||
+        oEvent
+            .getParameter("newValue") ||
+        "";
+
+    const binding =
+        this.byId("usersTable")
+            .getBinding("items");
+
+    if (!binding) {
+        return;
+    }
+
+    const filters = [];
+
+    if (query.trim()) {
+
+        const search =
+            query.trim();
+
+        filters.push(
+
+            new sap.ui.model.Filter({
+
+                filters: [
+
+                    new sap.ui.model.Filter(
+                        "userName",
+                        sap.ui.model.FilterOperator.Contains,
+                        search
+                    ),
+
+                    new sap.ui.model.Filter(
+                        "fullName",
+                        sap.ui.model.FilterOperator.Contains,
+                        search
+                    ),
+
+                    new sap.ui.model.Filter(
+                        "email",
+                        sap.ui.model.FilterOperator.Contains,
+                        search
+                    )
+
+                ],
+
+                and: false
+
+            })
+
+        );
+    }
+
+    binding.filter(filters);
+
+},
 
         }
     );

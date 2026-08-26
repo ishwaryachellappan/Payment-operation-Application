@@ -1317,6 +1317,24 @@ _reloadPaymentsTable: async function () {
     }
 },
 
+formatPaymentStatusState: function (status) {
+
+    switch (status) {
+
+        case "APPROVED":
+            return "Success";
+
+        case "PENDING_APPROVAL":
+            return "Warning";
+
+        case "REJECTED":
+            return "Error";
+
+        default:
+            return "None";
+    }
+},
+
     });
 
 });

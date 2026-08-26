@@ -4,127 +4,256 @@
     xmlns="sap.m"
     displayBlock="true">
 
-  <Page
-    title="Payments"
-    showNavButton="true"
-    navButtonPress=".onBack">
+    <Page
+        showHeader="true"
+        class="paymentsPage">
 
-    <customHeader>
+        <!-- ================================================= -->
+        <!-- HEADER -->
+        <!-- ================================================= -->
 
-        <Toolbar>
+        <customHeader>
 
-            <Button
-                icon="sap-icon://nav-back"
-                type="Transparent"
-                press=".onBack"/>
+            <Toolbar class="paymentsHeader">
 
-            <Title
-                text="Payments"/>
+                <Button
+                    icon="sap-icon://nav-back"
+                    type="Transparent"
+                    tooltip="Back"
+                    press=".onBack"/>
 
-            <ToolbarSpacer/>
+                <Title
+                    text="Payments"
+                    level="H2"
+                    class="paymentsHeaderTitle"/>
 
-            <Button
-                text="Logout"
-                icon="sap-icon://log"
-                type="Transparent"
-                press=".onLogout"/>
+                <ToolbarSpacer/>
 
-        </Toolbar>
+                <Button
+                    text="Logout"
+                    icon="sap-icon://log"
+                    type="Transparent"
+                    press=".onLogout"
+                    class="logoutButton"/>
 
-    </customHeader>
+            </Toolbar>
+
+        </customHeader>
+
+
+        <!-- ================================================= -->
+        <!-- CONTENT -->
+        <!-- ================================================= -->
 
         <content>
 
-            <VBox class="sapUiMediumMargin">
+            <VBox
+                class="paymentsContent">
 
-              <Toolbar>
 
-    <Title
-        text="Payment List"
-        level="H2"/>
+                <!-- ========================================= -->
+                <!-- PAGE TITLE -->
+                <!-- ========================================= -->
 
-    <ToolbarSpacer/>
+                <VBox class="paymentsIntro">
 
-    <Button
-        text="Copy Payment"
-        icon="sap-icon://copy"
-        press=".onCopyPayment"
-        class="sapUiSmallMarginEnd"/>
+                    <Title
+                        text="Payment List"
+                        level="H2"
+                        class="paymentsPageTitle"/>
 
-    <Button
-        text="Create Payment"
-        type="Emphasized"
-        icon="sap-icon://add"
-        press=".onCreatePayment"/>
+                    <Text
+                        text="View, create and manage payment transactions."
+                        class="paymentsPageSubtitle"/>
 
-</Toolbar>
+                </VBox>
 
-                <SearchField
-                    id="paymentSearch"
-                    width="100%"
-                    placeholder="Search payments..."
-                    liveChange=".onSearch"
-                    class="sapUiSmallMarginBottom"/>
 
-                <Table
-                    id="paymentsTable"
-                  items="{payments>/payments}"
-                    growing="true"
-                    growingScrollToLoad="true"
-                    mode="None">
+                <!-- ========================================= -->
+                <!-- ACTION BAR -->
+                <!-- ========================================= -->
 
-                    <columns>
+                <Toolbar
+                    class="paymentsActionBar">
 
-                        <Column>
-                            <Text text="Payment Reference"/>
-                        </Column>
+                    <SearchField
+                        id="paymentSearch"
+                        width="100%"
+                        placeholder="Search payments..."
+                        liveChange=".onSearch"
+                        class="paymentSearch"/>
 
-                        <Column>
-                            <Text text="Company Code"/>
-                        </Column>
+                    <ToolbarSpacer/>
 
-                        <Column>
-                            <Text text="Amount"/>
-                        </Column>
+                    <Button
+                        text="Copy Payment"
+                        icon="sap-icon://copy"
+                        type="Transparent"
+                        press=".onCopyPayment"
+                        class="copyPaymentButton"/>
 
-                        <Column>
-                            <Text text="Currency"/>
-                        </Column>
+                    <Button
+                        text="Create Payment"
+                        icon="sap-icon://add"
+                        type="Emphasized"
+                        press=".onCreatePayment"
+                        class="createPaymentButton"/>
 
-                        <Column>
-                            <Text text="Payment Date"/>
-                        </Column>
+                </Toolbar>
 
-                        <Column>
-                            <Text text="Status"/>
-                        </Column>
 
-                    </columns>
+                <!-- ========================================= -->
+                <!-- PAYMENT TABLE CARD -->
+                <!-- ========================================= -->
 
-                    <items>
+                <VBox
+                    class="paymentsTableCard">
 
-                        <ColumnListItem
-                            type="Active"
-                            press=".onPaymentPress">
+                    <Table
+                        id="paymentsTable"
+                        items="{payments>/payments}"
+                        growing="true"
+                        growingThreshold="20"
+                        growingScrollToLoad="true"
+                        mode="None"
+                        class="paymentsTable">
 
-                            <cells>
+                        <!-- ================================ -->
+                        <!-- COLUMNS -->
+                        <!-- ================================ -->
 
-                                <Text text="{payments>paymentReference}"/>
-<Text text="{payments>companyCode}"/>
-<Text text="{payments>amount}"/>
-<Text text="{payments>currency}"/>
-<Text text="{payments>paymentDate}"/>
-<ObjectStatus text="{payments>status}"/>
+                        <columns>
 
-                                
+                            <Column
+                                width="16rem">
 
-                            </cells>
+                                <Text
+                                    text="Payment Reference"
+                                    class="tableHeaderText"/>
 
-                        </ColumnListItem>
+                            </Column>
 
-                    </items>
 
-                </Table>
+                            <Column
+                                width="10rem">
+
+                                <Text
+                                    text="Company Code"
+                                    class="tableHeaderText"/>
+
+                            </Column>
+
+
+                            <Column
+                                hAlign="End"
+                                width="10rem">
+
+                                <Text
+                                    text="Amount"
+                                    class="tableHeaderText"/>
+
+                            </Column>
+
+
+                            <Column
+                                width="8rem">
+
+                                <Text
+                                    text="Currency"
+                                    class="tableHeaderText"/>
+
+                            </Column>
+
+
+                            <Column
+                                width="11rem">
+
+                                <Text
+                                    text="Payment Date"
+                                    class="tableHeaderText"/>
+
+                            </Column>
+
+
+                            <Column
+                                width="13rem">
+
+                                <Text
+                                    text="Status"
+                                    class="tableHeaderText"/>
+
+                            </Column>
+
+                        </columns>
+
+
+                        <!-- ================================ -->
+                        <!-- ROWS -->
+                        <!-- ================================ -->
+
+                        <items>
+
+                            <ColumnListItem
+                                type="Active"
+                                press=".onPaymentPress"
+                                class="paymentRow">
+
+                                <cells>
+
+                                    <Text
+                                        text="{payments>paymentReference}"
+                                        class="paymentReference"/>
+
+
+                                    <Text
+                                        text="{payments>companyCode}"/>
+
+
+                                    <ObjectNumber
+                                        number="{payments>amount}"
+                                        unit="{payments>currency}"
+                                        emphasized="true"/>
+
+
+                                    <Text
+                                        text="{payments>currency}"/>
+
+
+                                    <Text
+                                        text="{payments>paymentDate}"/>
+
+
+                                    <ObjectStatus
+                                        text="{payments>status}"
+                                        state="{
+                                            path: 'payments>status',
+                                            formatter: '.formatPaymentStatusState'
+                                        }"/>
+
+                                </cells>
+
+                            </ColumnListItem>
+
+                        </items>
+
+                    </Table>
+
+                </VBox>
+
+
+                <!-- ========================================= -->
+                <!-- FOOTER INFORMATION -->
+                <!-- ========================================= -->
+
+                <HBox
+                    justifyContent="End"
+                    class="paymentsFooter">
+
+                    <Text
+                        text="Payment Operations"
+                        class="paymentsFooterText"/>
+
+                </HBox>
 
             </VBox>
 
