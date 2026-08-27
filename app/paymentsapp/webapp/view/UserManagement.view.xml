@@ -205,6 +205,11 @@
                                 type="Emphasized"
                                 press=".onCreateUser"
                                 class="createUserButton"/>
+  <Button
+        text="Export"
+        icon="sap-icon://download"
+        type="Transparent"
+        press=".onExportUsers"/>
 
                         </HBox>
 

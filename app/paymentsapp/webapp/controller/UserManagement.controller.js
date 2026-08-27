@@ -1066,6 +1066,193 @@ onSearchUsers: function (oEvent) {
 
 },
 
+// =========================================================
+// EXPORT USERS
+// =========================================================
+
+onExportUsers: function () {
+
+    const oTable =
+        this.byId("usersTable");
+
+    if (!oTable) {
+
+        sap.m.MessageBox.error(
+            "Users table could not be found."
+        );
+
+        return;
+    }
+
+
+    const oBinding =
+        oTable.getBinding("items");
+
+
+    if (!oBinding) {
+
+        sap.m.MessageBox.error(
+            "User data is not available."
+        );
+
+        return;
+    }
+
+
+    const aContexts =
+        oBinding.getContexts();
+
+
+    if (!aContexts || aContexts.length === 0) {
+
+        sap.m.MessageToast.show(
+            "There are no users to export."
+        );
+
+        return;
+    }
+
+
+    const aUsers =
+        aContexts.map(function (oContext) {
+
+            return oContext.getObject();
+
+        });
+
+
+    // ---------------------------------------------------------
+    // CSV HEADER
+    // ---------------------------------------------------------
+
+    const aRows = [];
+
+    aRows.push([
+
+        "User ID",
+        "Full Name",
+        "Email Address",
+        "Role",
+        "Status"
+
+    ]);
+
+
+    // ---------------------------------------------------------
+    // USER DATA
+    // ---------------------------------------------------------
+
+    aUsers.forEach(function (user) {
+
+        aRows.push([
+
+            user.userName || "",
+
+            user.fullName || "",
+
+            user.email || "",
+
+            user.role || "",
+
+            user.isActive
+                ? "Active"
+                : "Inactive"
+
+        ]);
+
+    });
+
+
+    // ---------------------------------------------------------
+    // CONVERT TO CSV
+    // ---------------------------------------------------------
+
+    const sCsv =
+        aRows.map(function (row) {
+
+            return row.map(function (value) {
+
+                const sValue =
+                    String(value);
+
+                return '"' +
+                    sValue.replace(
+                        /"/g,
+                        '""'
+                    ) +
+                    '"';
+
+            }).join(",");
+
+        }).join("\r\n");
+
+
+    // ---------------------------------------------------------
+    // CREATE FILE
+    // ---------------------------------------------------------
+
+    const oBlob =
+        new Blob(
+            [sCsv],
+            {
+                type:
+                    "text/csv;charset=utf-8;"
+            }
+        );
+
+
+    const sUrl =
+        URL.createObjectURL(oBlob);
+
+
+    const oLink =
+        document.createElement("a");
+
+
+    const oNow =
+        new Date();
+
+
+    const sDate =
+        oNow
+            .toISOString()
+            .slice(0, 10);
+
+
+    oLink.href =
+        sUrl;
+
+
+    oLink.download =
+        "users_" +
+        sDate +
+        ".csv";
+
+
+    document.body.appendChild(
+        oLink
+    );
+
+
+    oLink.click();
+
+
+    document.body.removeChild(
+        oLink
+    );
+
+
+    URL.revokeObjectURL(
+        sUrl
+    );
+
+
+    sap.m.MessageToast.show(
+        aUsers.length +
+        " user(s) exported successfully."
+    );
+},
+
         }
     );
 });

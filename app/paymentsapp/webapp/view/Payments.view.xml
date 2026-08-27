@@ -92,6 +92,8 @@
                         press=".onCopyPayment"
                         class="copyPaymentButton"/>
 
+                           
+
                   <HBox>
 
     <Button
@@ -105,6 +107,12 @@
         type="Emphasized"
         icon="sap-icon://add"
         press=".onCreatePayment"/>
+
+         <Button
+        text="Export"
+        icon="sap-icon://download"
+        type="Transparent"
+        press=".onExportPayments"/>
 
 </HBox>
 

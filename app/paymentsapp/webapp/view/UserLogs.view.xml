@@ -186,6 +186,7 @@
                         icon="sap-icon://refresh"
                         type="Transparent"
                         press=".onRefresh"/>
+                      
 
                 </HBox>
 

@@ -1715,6 +1715,204 @@ _uploadBulkPayments: async function (
     }
 },
 
+// =========================================================
+// EXPORT PAYMENTS
+// =========================================================
+
+onExportPayments: function () {
+
+    const oTable =
+        this.byId("paymentsTable");
+
+    if (!oTable) {
+
+        sap.m.MessageBox.error(
+            "Payments table could not be found."
+        );
+
+        return;
+    }
+
+
+    const oBinding =
+        oTable.getBinding("items");
+
+
+    if (!oBinding) {
+
+        sap.m.MessageBox.error(
+            "Payment data is not available."
+        );
+
+        return;
+    }
+
+
+    const aContexts =
+        oBinding.getContexts();
+
+
+    if (!aContexts || aContexts.length === 0) {
+
+        sap.m.MessageToast.show(
+            "There are no payments to export."
+        );
+
+        return;
+    }
+
+
+    const aPayments =
+        aContexts.map(function (oContext) {
+
+            return oContext.getObject();
+
+        });
+
+
+    // ---------------------------------------------------------
+    // CSV HEADER
+    // ---------------------------------------------------------
+
+    const aRows = [];
+
+    aRows.push([
+
+        "Payment Reference",
+        "Company Code",
+        "Debtor Account",
+        "Creditor Account",
+        "Amount",
+        "Currency",
+        "Payment Method",
+        "Payment Date",
+        "Status"
+
+    ]);
+
+
+    // ---------------------------------------------------------
+    // PAYMENT DATA
+    // ---------------------------------------------------------
+
+    aPayments.forEach(function (payment) {
+
+        aRows.push([
+
+            payment.paymentReference || "",
+
+            payment.companyCode || "",
+
+            payment.debtorAccount || "",
+
+            payment.creditorAccount || "",
+
+            payment.amount !== undefined &&
+            payment.amount !== null
+                ? payment.amount
+                : "",
+
+            payment.currency || "",
+
+            payment.paymentMethod || "",
+
+            payment.paymentDate || "",
+
+            payment.status || ""
+
+        ]);
+
+    });
+
+
+    // ---------------------------------------------------------
+    // CONVERT TO CSV
+    // ---------------------------------------------------------
+
+    const sCsv =
+        aRows.map(function (row) {
+
+            return row.map(function (value) {
+
+                const sValue =
+                    String(value);
+
+                return '"' +
+                    sValue
+                        .replace(/"/g, '""') +
+                    '"';
+
+            }).join(",");
+
+        }).join("\r\n");
+
+
+    // ---------------------------------------------------------
+    // CREATE DOWNLOAD
+    // ---------------------------------------------------------
+
+    const oBlob =
+        new Blob(
+            [sCsv],
+            {
+                type:
+                    "text/csv;charset=utf-8;"
+            }
+        );
+
+
+    const sUrl =
+        URL.createObjectURL(oBlob);
+
+
+    const oLink =
+        document.createElement("a");
+
+
+    const oNow =
+        new Date();
+
+
+    const sDate =
+        oNow
+            .toISOString()
+            .slice(0, 10);
+
+
+    oLink.href =
+        sUrl;
+
+
+    oLink.download =
+        "payments_" +
+        sDate +
+        ".csv";
+
+
+    document.body.appendChild(
+        oLink
+    );
+
+
+    oLink.click();
+
+
+    document.body.removeChild(
+        oLink
+    );
+
+
+    URL.revokeObjectURL(
+        sUrl
+    );
+
+
+    sap.m.MessageToast.show(
+        aPayments.length +
+        " payment(s) exported successfully."
+    );
+},
+
     });
 
 });
