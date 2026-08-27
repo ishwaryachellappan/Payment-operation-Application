@@ -2681,3 +2681,132 @@
 .notificationIcon {
     flex-shrink: 0;
 }
+/* =========================================================
+   TOP BAR NOTIFICATIONS
+   ========================================================= */
+
+.notificationArea {
+    gap: 4px;
+    margin-right: 8px;
+}
+
+.notificationItem {
+    position: relative;
+    height: 40px;
+}
+
+.notificationButton {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+
+
+/* =========================================================
+   NOTIFICATION BADGE
+   ========================================================= */
+
+.notificationBadge {
+    min-width: 17px;
+    height: 17px;
+
+    padding: 0 4px;
+
+    margin-left: -13px;
+    margin-top: -18px;
+
+    border-radius: 10px;
+
+    background: #d92d20;
+
+    color: #ffffff !important;
+
+    font-size: 10px !important;
+
+    font-weight: 700;
+
+    line-height: 17px;
+
+    text-align: center;
+
+    z-index: 10;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   APPROVAL POPOVER
+   ========================================================= */
+
+.notificationPopoverContent {
+    padding: 18px;
+    gap: 14px;
+}
+
+.notificationPopoverTitle {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+.notificationMessageRow {
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.notificationMessage {
+    flex: 1;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #344054;
+}
+
+.notificationIcon {
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   MESSAGE POPOVER
+   ========================================================= */
+
+.messagePopoverContent {
+    padding: 16px;
+    gap: 10px;
+}
+
+.messagePopoverContent .sapMList {
+    border: 1px solid #eaecf0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.messagePopoverContent .sapMSLI {
+    min-height: 70px;
+}
+
+.messagePopoverContent .sapMSLITitleOnly,
+.messagePopoverContent .sapMSLITitle {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.messagePopoverContent .sapMSLIDescription {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.messagePopoverContent .sapMSLIInfo {
+    font-size: 11px;
+}
+
+.notificationHint {
+    font-size: 11px;
+    color: #667085;
+}
+
+.notificationEmpty {
+    padding: 12px 0;
+    font-size: 13px;
+    color: #667085;
+}

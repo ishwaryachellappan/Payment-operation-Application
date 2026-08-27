@@ -36,19 +36,62 @@
              <ToolbarSpacer/>
 
 <!-- Notification -->
-<Button
-    id="notificationButton"
-    icon="sap-icon://bell"
-    type="Transparent"
-    tooltip="Notifications"
-    press=".onNotificationsPress"
-    class="notificationButton"/>
+<!-- =====================================================
+     NOTIFICATIONS
+     ===================================================== -->
 
-<Text
-    id="notificationCount"
-    text="0"
-    visible="false"
-    class="notificationBadge"/>
+<HBox
+    id="notificationArea"
+    alignItems="Center"
+    class="notificationArea">
+
+    <!-- Pending approvals - ADMIN only -->
+    <HBox
+        id="approvalNotificationArea"
+        alignItems="Center"
+        visible="{appView>/isAdmin}"
+        class="notificationItem">
+
+        <Button
+            id="approvalNotificationButton"
+            icon="sap-icon://bell"
+            type="Transparent"
+            tooltip="Pending Approvals"
+            press=".onApprovalNotificationsPress"
+            class="notificationButton"/>
+
+        <Text
+            id="approvalNotificationCount"
+            text="0"
+            visible="false"
+            class="notificationBadge"/>
+
+    </HBox>
+
+
+    <!-- Unread messages - ALL USERS -->
+    <HBox
+        id="messageNotificationArea"
+        alignItems="Center"
+        class="notificationItem">
+
+        <Button
+            id="messageNotificationButton"
+            icon="sap-icon://discussion"
+            type="Transparent"
+            tooltip="Messages"
+            press=".onMessageNotificationsPress"
+            class="notificationButton"/>
+
+        <Text
+            id="messageNotificationCount"
+            text="0"
+            visible="false"
+            class="notificationBadge messageBadge"/>
+
+    </HBox>
+
+</HBox>
 
             </tnt:ToolHeader>
 

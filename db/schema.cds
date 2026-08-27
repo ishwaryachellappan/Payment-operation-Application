@@ -34,7 +34,10 @@ entity Payments : cuid, managed {
 
     status           : PaymentStatus not null default 'PENDING_APPROVAL';
 
+
     rejectionReason  : String(500);
+
+     createdByUserName : String(100);
 }
 
 type PaymentStatus : String enum {
@@ -59,5 +62,23 @@ entity UserLogs {
     details       : String(500);
 
     createdAt     : Timestamp;
+
+}
+
+entity Messages {
+
+    key ID : UUID;
+
+    senderUserName   : String(100);
+    receiverUserName : String(100);
+
+    subject          : String(200);
+    message          : LargeString;
+
+    messageType      : String(50);
+
+    isRead           : Boolean default false;
+
+    createdAt        : Timestamp;
 
 }

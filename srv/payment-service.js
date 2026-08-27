@@ -287,15 +287,15 @@ module.exports = cds.service.impl(function () {
 
     this.on('createUser', async (req) => {
 
-        const {
-            userName,
-            fullName,
-            email,
-            password,
-            role,
-            isActive,
-            performedBy
-        } = req.data;
+      const {
+    userName,
+    fullName,
+    email,
+    password,
+    role,
+    isActive,
+    performedBy
+} = req.data;
 
 
         // -----------------------------------------------------
@@ -481,6 +481,31 @@ module.exports = cds.service.impl(function () {
                     paymentId
 
             });
+
+            await createInternalMessage({
+
+    senderUserName:
+        actor.userName,
+
+    receiverUserName:
+        payment.createdByUserName,
+
+    subject:
+        `Payment ${payment.paymentReference} rejected`,
+
+    message:
+        `Your payment ${payment.paymentReference} `
+        + `has been rejected.`
+        + (
+            reason
+                ? ` Reason: ${reason}`
+                : ''
+        ),
+
+    messageType:
+        'PAYMENT_REJECTED'
+
+});
 
 
         // -----------------------------------------------------
@@ -1238,7 +1263,7 @@ module.exports = cds.service.impl(function () {
 
         const headersValid =
             headers.length ===
-                expectedHeaders.length &&
+            expectedHeaders.length &&
 
             headers.every(
                 function (
@@ -1350,7 +1375,9 @@ module.exports = cds.service.impl(function () {
 
                     paymentMethod,
 
-                    paymentDate
+                    paymentDate,
+
+                    performedBy
 
                 ] = values;
 
@@ -1508,7 +1535,10 @@ module.exports = cds.service.impl(function () {
                         paymentDate,
 
                         status:
-                            'PENDING_APPROVAL'
+                            'PENDING_APPROVAL',
+
+                        createdByUserName:
+                            performedBy
 
                     });
 
@@ -1601,5 +1631,56 @@ module.exports = cds.service.impl(function () {
         };
 
     });
+
+
+    // =========================================================
+    // HELPER: CREATE INTERNAL MESSAGE
+    // =========================================================
+
+    async function createInternalMessage({
+        senderUserName,
+        receiverUserName,
+        subject,
+        message,
+        messageType
+    }) {
+
+        try {
+
+            await INSERT.into(Messages).entries({
+
+                ID: cds.utils.uuid(),
+
+                senderUserName:
+                    senderUserName || 'SYSTEM',
+
+                receiverUserName:
+                    receiverUserName,
+
+                subject:
+                    subject,
+
+                message:
+                    message,
+
+                messageType:
+                    messageType || 'SYSTEM',
+
+                isRead:
+                    false,
+
+                createdAt:
+                    new Date()
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                'MESSAGE CREATION ERROR:',
+                error
+            );
+        }
+    }
 
 });
