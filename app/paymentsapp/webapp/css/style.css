@@ -480,117 +480,117 @@
 
 
 /* =========================================================
-Dashboard page
+   APP SHELL (persistent sidebar + toggle, all pages)
    ========================================================= */
 
-   /* =========================================================
+.appShellRoot {
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+.appShellMain {
+    min-width: 0;
+    height: 100%;
+}
+
+.sidebarToggleBtn .sapUiIcon {
+    color: #526581 !important;
+}
+
+.sidebarCollapsedRail {
+    width: 44px;
+    min-width: 44px;
+    height: 100vh;
+    flex-shrink: 0;
+    background: #f7f9fb;
+    border-right: 1px solid #d9e2ec;
+    padding-top: 14px;
+    box-sizing: border-box;
+}
+
+.sidebarToggleBtnCollapsed .sapUiIcon {
+    color: #0a6ed1 !important;
+}
+
+
+/* =========================================================
    DASHBOARD
    ========================================================= */
 
 .dashboardPage {
-    background: #f4f6f8 !important;
+    background: #f4f7fa !important;
+}
+
+.dashboardLayout {
+    background: #f4f7fa;
+}
+
+
+
+/* =========================================================
+   MAIN AREA
+   ========================================================= */
+
+.dashboardMain {
+    background: #f4f7fa;
+    min-width: 0;
 }
 
 
 /* =========================================================
-   HEADER
+   TOP BAR
    ========================================================= */
 
-.dashboardHeader {
-    height: 58px !important;
-
+.dashboardTopBar {
+    height: 56px !important;
     background: #ffffff !important;
-
-    border-bottom: 1px solid #d9e1e8 !important;
-
-    padding: 0 24px !important;
-
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid #dce2e8 !important;
+    padding: 0 1.4rem;
 }
 
-.dashboardBrand {
-    gap: 10px;
+.topBarIcon {
+    color: #0a6ed1;
 }
 
-.dashboardBrandIcon {
-    color: #0a6ed1 !important;
+.topBarTitle {
+    font-size: 1.05rem !important;
+    margin-left: 0.6rem;
 }
 
-.dashboardHeaderTitle {
-    font-size: 18px !important;
-
-    font-weight: 600 !important;
-
-    color: #17212b !important;
+.adminProfile {
+    gap: 0.45rem;
+    margin-right: 0.8rem;
 }
 
-.dashboardUser {
-    gap: 8px;
-}
-
-.dashboardUserIcon {
-    color: #647587 !important;
-}
-
-.dashboardUserText {
-    color: #455463;
-
-    font-size: 13px;
-}
-
-.dashboardLogout {
-    margin-left: 12px;
-
-    color: #0a6ed1 !important;
+.adminName {
+    font-size: 0.8rem;
+    font-weight: 600;
 }
 
 
 /* =========================================================
-   MAIN CONTENT
+   CONTENT
    ========================================================= */
+
+.dashboardScroll {
+    background: #f4f7fa;
+}
 
 .dashboardContent {
-    width: 100%;
-
-    box-sizing: border-box;
-
-    padding: 32px 34px 45px 34px;
+    padding: 1.6rem 2rem 2rem 2rem;
 }
 
-
-/* =========================================================
-   INTRO
-   ========================================================= */
-
-.dashboardIntro {
-    margin-bottom: 26px;
+.dashboardTitle {
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+    color: #172b4d !important;
 }
 
 .dashboardWelcome {
-    margin: 0 0 6px 0 !important;
-
-    font-size: 25px !important;
-
-    font-weight: 600 !important;
-
-    color: #17212b !important;
-}
-
-.dashboardSubtitle {
-    font-size: 14px;
-
-    color: #687887;
-}
-
-
-/* =========================================================
-   KPI CONTAINER
-   ========================================================= */
-
-.kpiContainer {
-    width: 100%;
-
-    margin-bottom: 32px;
+    color: #64748b;
+    margin-top: 0.25rem;
+    margin-bottom: 1.4rem;
 }
 
 
@@ -598,174 +598,256 @@ Dashboard page
    KPI CARDS
    ========================================================= */
 
+.kpiRow {
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+}
+
 .kpiCard {
-    min-height: 158px;
-
-    box-sizing: border-box;
-
-    padding: 20px;
-
     background: #ffffff;
-
-    border: 1px solid #dce3e8;
-
-    border-radius: 10px;
-
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-
-    cursor: pointer;
-
-    transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease;
+    border: 1px solid #dce3eb;
+    border-radius: 14px;
+    padding: 1.15rem;
+    width: 24%;
+    min-height: 145px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 7px rgba(0,0,0,0.05);
 }
 
-.kpiCard:hover {
-    transform: translateY(-2px);
-
-    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.09);
+.kpiHeader {
+    gap: 0.8rem;
 }
-
-
-/* =========================================================
-   KPI ACCENTS
-   ========================================================= */
-
-.kpiTotal {
-    border-top: 4px solid #0a6ed1;
-}
-
-.kpiPending {
-    border-top: 4px solid #e9730c;
-}
-
-.kpiApproved {
-    border-top: 4px solid #188918;
-}
-
-.kpiRejected {
-    border-top: 4px solid #bb0000;
-}
-
-
-/* =========================================================
-   KPI TEXT
-   ========================================================= */
-
-.kpiTitle {
-    font-size: 14px;
-
-    font-weight: 600;
-
-    color: #17212b;
-}
-
-.kpiSubtitle {
-    margin-top: 3px;
-
-    font-size: 12px;
-
-    color: #687887;
-}
-
-
-/* =========================================================
-   KPI ICON
-   ========================================================= */
 
 .kpiIcon {
-    width: 38px;
-
-    height: 38px;
-
-    border-radius: 8px;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
 }
 
-.kpiIconTotal {
-    background: #eaf3ff;
-
+.kpiIconBlue {
+    background: #e7f1ff;
     color: #0a6ed1;
 }
 
-.kpiIconPending {
-    background: #fff3e8;
-
+.kpiIconOrange {
+    background: #fff1df;
     color: #e9730c;
 }
 
-.kpiIconApproved {
-    background: #ebf7eb;
-
-    color: #188918;
+.kpiIconGreen {
+    background: #e5f7ec;
+    color: #18864b;
 }
 
-.kpiIconRejected {
-    background: #ffebeb;
-
+.kpiIconRed {
+    background: #ffe9e9;
     color: #bb0000;
 }
 
-
-/* =========================================================
-   KPI NUMBER
-   ========================================================= */
-
-.kpiNumber {
-    display: block;
-
-    margin-top: 18px;
+.kpiLabel {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #172b4d;
 }
 
-.kpiNumber .sapMObjectNumberText {
-    font-size: 30px !important;
+.kpiSubLabel {
+    font-size: 0.7rem;
+    color: #64748b;
+    margin-top: 0.15rem;
+}
 
-    font-weight: 500 !important;
+.kpiValue {
+    font-size: 2rem !important;
+    font-weight: 600;
+    color: #172b4d;
+    margin-top: 1rem;
+}
 
-    color: #17212b;
+.kpiOrange {
+    color: #e9730c !important;
+}
+
+.kpiGreen {
+    color: #18864b !important;
+}
+
+.kpiRed {
+    color: #bb0000 !important;
 }
 
 
 /* =========================================================
-   KPI FOOTER
+   ANALYTICS
    ========================================================= */
 
-.kpiActionText {
-    margin-top: 6px;
-
-    font-size: 11px;
-
-    color: #687887;
-}
-
-
-/* =========================================================
-   SECTIONS
-   ========================================================= */
-
-.dashboardSection {
-    margin-bottom: 28px;
+.analyticsContainer {
+    background: #ffffff;
+    border: 1px solid #dce3eb;
+    border-radius: 15px;
+    padding: 1.15rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 2px 7px rgba(0,0,0,0.04);
 }
 
 .sectionHeader {
-    margin-bottom: 14px;
+    margin-bottom: 1rem;
+}
+
+.sectionIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #e8f2ff;
+    color: #0a6ed1;
 }
 
 .sectionTitle {
-    margin: 0 !important;
-
-    font-size: 17px !important;
-
-    font-weight: 600 !important;
-
-    color: #17212b !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: #172b4d !important;
 }
 
 .sectionSubtitle {
-    margin-top: 3px;
+    font-size: 0.7rem;
+    color: #64748b;
+    margin-top: 0.1rem;
+}
 
-    font-size: 12px;
+.analyticsRow {
+    gap: 0.8rem;
+}
 
-    color: #687887;
+.analyticsCard {
+    width: 25%;
+    background: #f8fafc;
+    border: 1px solid #e1e7ee;
+    border-radius: 11px;
+    padding: 0.95rem;
+    min-height: 95px;
+    box-sizing: border-box;
+}
+
+.analyticsLabel {
+    font-size: 0.72rem;
+    color: #475569;
+}
+
+.analyticsValue {
+    font-size: 1.35rem !important;
+    font-weight: 700 !important;
+    color: #172b4d !important;
+    margin-top: 0.25rem;
+}
+
+.analyticsGreen {
+    color: #18864b !important;
+}
+
+.analyticsRed {
+    color: #bb0000 !important;
+}
+
+.analyticsDescription {
+    font-size: 0.68rem;
+    color: #64748b;
+    margin-top: 0.15rem;
+}
+
+
+/* =========================================================
+   STATUS SUMMARY
+   ========================================================= */
+
+.statusRow {
+    gap: 0.8rem;
+    margin-top: 0.8rem;
+}
+
+.statusBox {
+    width: 33.33%;
+    background: #ffffff;
+    border: 1px solid #e1e7ee;
+    border-radius: 11px;
+    padding: 0.9rem;
+}
+
+.statusTitle {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.4rem;
+}
+
+.statusValue {
+    font-size: 1.4rem !important;
+    font-weight: 700 !important;
+    margin-top: 0.4rem;
+}
+
+.statusDescription {
+    color: #64748b;
+    font-size: 0.68rem;
+}
+
+.statusOrange {
+    color: #e9730c !important;
+}
+
+.statusGreen {
+    color: #18864b !important;
+}
+
+.statusRed {
+    color: #bb0000 !important;
+}
+
+
+/* =========================================================
+   LOWER DASHBOARD
+   ========================================================= */
+
+.lowerDashboard {
+    gap: 1.2rem;
+    align-items: stretch;
+}
+
+
+/* =========================================================
+   RECENT PAYMENTS
+   ========================================================= */
+
+.recentContainer {
+    background: #ffffff;
+    border: 1px solid #dce3eb;
+    border-radius: 15px;
+    width: 70%;
+    overflow: hidden;
+    box-shadow: 0 2px 7px rgba(0,0,0,0.04);
+}
+
+.recentHeader {
+    padding: 1.1rem 1.2rem 0.8rem 1.2rem;
+}
+
+.recentTable {
+    margin-top: 0.4rem;
+}
+
+.recentTable .sapMListTblHeaderCell {
+    background: #f8fafc;
+}
+
+.recentTable .sapMListTblCell {
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+}
+
+.paymentReference {
+    color: #0a6ed1 !important;
+    font-weight: 700;
+}
+
+.paymentAmount .sapMObjectNumberText {
+    font-weight: 700;
 }
 
 
@@ -773,105 +855,33 @@ Dashboard page
    QUICK ACTIONS
    ========================================================= */
 
-.quickActions {
-    gap: 10px;
-
-    padding: 18px;
-
+.quickContainer {
     background: #ffffff;
-
-    border: 1px solid #dce3e8;
-
-    border-radius: 8px;
-
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    border: 1px solid #dce3eb;
+    border-radius: 15px;
+    width: 30%;
+    padding: 1.15rem;
+    box-sizing: border-box;
+    box-shadow: 0 2px 7px rgba(0,0,0,0.04);
 }
 
-.quickActionPrimary {
-    min-width: 145px;
-}
-
-.quickActionButton {
-    min-width: 145px;
-
-    border: 1px solid #d3dce4 !important;
-
-    border-radius: 6px !important;
-
-    background: #ffffff !important;
-}
-
-
-/* =========================================================
-   RECENT PAYMENTS CARD
-   ========================================================= */
-
-.recentPaymentsCard {
-    background: #ffffff;
-
-    border: 1px solid #dce3e8;
-
-    border-radius: 10px;
-
-    overflow: hidden;
-
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-.recentPaymentsHeader {
-    padding: 20px 20px 16px 20px;
-
-    border-bottom: 1px solid #e7ebee;
-}
-
-
-/* =========================================================
-   RECENT PAYMENTS TABLE
-   ========================================================= */
-
-.recentPaymentsTable {
+.actionButton {
     width: 100%;
+    height: 3rem;
+    margin-top: 0.6rem;
+    border: 1px solid #dbe3ec !important;
+    border-radius: 9px !important;
+    background: #f8fafc !important;
+    text-align: left;
 }
 
-.recentPaymentsTable .sapMListTblHeaderCell {
-    background: #f7f9fb !important;
-
-    border-bottom: 1px solid #dce3e8 !important;
-
-    padding-top: 11px !important;
-
-    padding-bottom: 11px !important;
-}
-
-.tableHeader {
-    font-size: 12px !important;
-
-    font-weight: 600 !important;
-
-    color: #526272 !important;
-}
-
-.recentPaymentsTable .sapMListTblCell {
-    padding-top: 13px !important;
-
-    padding-bottom: 13px !important;
-
-    border-bottom: 1px solid #edf0f2 !important;
-}
-
-.recentReference {
-    font-weight: 600 !important;
-
-    color: #0a6ed1 !important;
-}
-
-
-/* =========================================================
-   TABLE STATUS
-   ========================================================= */
-
-.recentPaymentsTable .sapMObjStatus {
+.actionButton .sapMBtnContent {
+    color: #172b4d !important;
     font-weight: 600;
+}
+
+.actionButton .sapUiIcon {
+    color: #0a6ed1 !important;
 }
 
 
@@ -880,18 +890,355 @@ Dashboard page
    ========================================================= */
 
 .dashboardFooter {
-    padding-top: 18px;
-
-    padding-right: 4px;
+    padding: 1.5rem 0 0.5rem 0;
 }
 
-.dashboardFooterText {
-    font-size: 11px;
-
-    color: #7a8793;
+.dashboardFooter .sapMText {
+    color: #64748b;
+    font-size: 0.7rem;
 }
 
 
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+    .dashboardSidebar {
+        width: 160px !important;
+    }
+
+    .dashboardContent {
+        padding: 1.2rem;
+    }
+
+    .kpiCard {
+        min-width: 180px;
+    }
+
+}
+
+@media (max-width: 800px) {
+
+    .kpiRow,
+    .analyticsRow,
+    .statusRow,
+    .lowerDashboard {
+        flex-direction: column;
+    }
+
+    .kpiCard,
+    .analyticsCard,
+    .statusBox,
+    .recentContainer,
+    .quickContainer {
+        width: 100%;
+    }
+
+}
+
+/* =====================================================
+   CLICKABLE KPI CARDS
+   ===================================================== */
+
+.kpiClickable {
+    cursor: pointer;
+    user-select: none;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        border-color 0.15s ease;
+}
+
+
+/* Hover */
+
+.kpiClickable:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.10);
+
+    border-color: #0a6ed1;
+}
+
+
+/* Click */
+
+.kpiClickable:active {
+    transform: translateY(0);
+
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+
+
+
+
+
+/* =====================================================
+   DASHBOARD SIDEBAR
+   ===================================================== */
+
+.dashboardSidebar {
+    width: 220px !important;
+    min-width: 220px !important;
+    height: 100vh;
+
+    box-sizing: border-box;
+
+    background: #f7f9fb !important;
+
+    border-right: 1px solid #d9e2ec;
+
+    padding: 0;
+
+    flex-shrink: 0;
+
+    overflow: hidden;
+}
+
+
+/* =====================================================
+   BRAND
+   ===================================================== */
+
+.sidebarBrand {
+    width: 100%;
+
+    height: 78px;
+
+    padding: 0 18px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e1e6eb;
+}
+
+
+.sidebarBrandIcon {
+    width: 38px;
+    height: 38px;
+
+    min-width: 38px;
+
+    border-radius: 9px;
+
+    background: #eaf3ff;
+
+    margin-right: 10px;
+}
+
+
+.sidebarBrandIcon .sapUiIcon {
+    color: #0a6ed1 !important;
+}
+
+
+.sidebarBrandText {
+    justify-content: center;
+}
+
+
+.sidebarBrandTitle {
+    color: #172b4d !important;
+
+    font-size: 14px !important;
+
+    font-weight: 700 !important;
+
+    line-height: 18px;
+}
+
+
+.sidebarBrandSubtitle {
+    color: #718096 !important;
+
+    font-size: 11px !important;
+
+    font-weight: 500 !important;
+
+    line-height: 15px;
+
+    margin-top: 2px;
+}
+
+
+/* =====================================================
+   NAVIGATION
+   ===================================================== */
+
+.sidebarNavigation {
+    padding: 26px 14px 0 14px;
+
+    box-sizing: border-box;
+}
+
+
+.sidebarSectionTitle {
+    padding-left: 10px;
+
+    margin-bottom: 10px;
+
+    color: #526581 !important;
+
+    font-size: 11px !important;
+
+    font-weight: 700 !important;
+
+    letter-spacing: 1.1px;
+}
+
+
+/* =====================================================
+   NAVIGATION BUTTON
+   ===================================================== */
+
+.sidebarButton {
+    width: 100% !important;
+
+    height: 42px !important;
+
+    margin-bottom: 5px;
+
+    border: none !important;
+
+    border-radius: 8px !important;
+
+    background: transparent !important;
+
+    box-sizing: border-box;
+}
+
+
+.sidebarButton .sapMBtnInner {
+    width: 100% !important;
+
+    height: 42px !important;
+
+    min-height: 42px !important;
+
+    border: none !important;
+
+    border-radius: 8px !important;
+
+    background: transparent !important;
+
+    padding-left: 12px !important;
+
+    padding-right: 10px !important;
+
+    text-align: left !important;
+}
+
+
+/* ICON */
+
+.sidebarButton .sapUiIcon {
+    color: #526581 !important;
+
+    font-size: 1rem !important;
+
+    margin-right: 10px;
+}
+
+
+/* TEXT */
+
+.sidebarButton .sapMBtnContent {
+    color: #33465f !important;
+
+    font-size: 13px !important;
+
+    font-weight: 600 !important;
+}
+
+
+/* =====================================================
+   HOVER
+   ===================================================== */
+
+.sidebarButton:hover .sapMBtnInner {
+    background: #edf4fb !important;
+}
+
+
+.sidebarButton:hover .sapUiIcon {
+    color: #0a6ed1 !important;
+}
+
+
+.sidebarButton:hover .sapMBtnContent {
+    color: #0a6ed1 !important;
+}
+
+
+/* =====================================================
+   ACTIVE
+   ===================================================== */
+
+.sidebarButtonActive .sapMBtnInner {
+    background: #0a6ed1 !important;
+
+    box-shadow: 0 3px 8px rgba(10, 110, 209, 0.18);
+}
+
+
+.sidebarButtonActive .sapUiIcon {
+    color: #ffffff !important;
+}
+
+
+.sidebarButtonActive .sapMBtnContent {
+    color: #ffffff !important;
+
+    font-weight: 700 !important;
+}
+
+
+.sidebarButtonActive:hover .sapMBtnInner {
+    background: #0a6ed1 !important;
+}
+
+
+/* =====================================================
+   BOTTOM PLATFORM AREA
+   ===================================================== */
+
+.sidebarBottom {
+    margin-top: 22px;
+
+    padding: 18px 20px;
+
+    border-top: 1px solid #dfe6ee;
+
+    box-sizing: border-box;
+}
+
+
+.sidebarFooterTitle {
+    color: #172b4d !important;
+
+    font-size: 12px !important;
+
+    font-weight: 700 !important;
+
+    line-height: 17px;
+}
+
+
+.sidebarFooterText {
+    color: #64758a !important;
+
+    font-size: 11px !important;
+
+    line-height: 16px;
+}
 /* =========================================================
    Approval inbox
    ========================================================= */
@@ -1780,4 +2127,380 @@ Dashboard page
     border-top: 1px solid #e5e9ec;
 
     background: #fafbfc;
+}
+
+
+
+
+
+
+/* =====================================================
+   APPLICATION SHELL
+   ===================================================== */
+
+.appShell {
+    background: #f4f7fa !important;
+}
+
+
+.appLayout {
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+
+/* =====================================================
+   SIDEBAR
+   ===================================================== */
+
+.appSidebar {
+    width: 220px !important;
+    min-width: 220px !important;
+
+    height: 100vh;
+
+    background: #f7f9fb !important;
+
+    border-right: 1px solid #d9e2ec;
+
+    box-sizing: border-box;
+
+    flex-shrink: 0;
+}
+
+
+/* =====================================================
+   SIDEBAR BRAND
+   ===================================================== */
+
+.appSidebarBrand {
+
+    height: 78px;
+
+    padding: 0 18px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e1e6eb;
+}
+
+
+.appBrandIcon {
+
+    width: 38px;
+
+    height: 38px;
+
+    min-width: 38px;
+
+    margin-right: 10px;
+
+    border-radius: 9px;
+
+    background: #eaf3ff;
+}
+
+
+.appBrandIcon .sapUiIcon {
+
+    color: #0a6ed1 !important;
+}
+
+
+.appBrandTitle {
+
+    color: #172b4d !important;
+
+    font-size: 14px !important;
+
+    font-weight: 700 !important;
+
+    line-height: 18px;
+}
+
+
+.appBrandSubtitle {
+
+    color: #718096 !important;
+
+    font-size: 11px !important;
+
+    line-height: 15px;
+
+    margin-top: 2px;
+}
+
+
+/* =====================================================
+   NAVIGATION
+   ===================================================== */
+
+.appNavigation {
+
+    padding: 26px 14px 0 14px;
+
+    box-sizing: border-box;
+}
+
+
+.appSectionTitle {
+
+    padding-left: 10px;
+
+    margin-bottom: 10px;
+
+    color: #526581 !important;
+
+    font-size: 11px !important;
+
+    font-weight: 700 !important;
+
+    letter-spacing: 1.1px;
+}
+
+
+/* =====================================================
+   NAV BUTTON
+   ===================================================== */
+
+.appNavButton {
+
+    width: 100% !important;
+
+    height: 42px !important;
+
+    margin-bottom: 5px;
+
+    border: none !important;
+
+    border-radius: 8px !important;
+
+    background: transparent !important;
+}
+
+
+.appNavButton .sapMBtnInner {
+
+    width: 100% !important;
+
+    height: 42px !important;
+
+    min-height: 42px !important;
+
+    border: none !important;
+
+    border-radius: 8px !important;
+
+    background: transparent !important;
+
+    padding-left: 12px !important;
+
+    text-align: left !important;
+}
+
+
+.appNavButton .sapUiIcon {
+
+    color: #526581 !important;
+
+    margin-right: 10px;
+
+    font-size: 1rem !important;
+}
+
+
+.appNavButton .sapMBtnContent {
+
+    color: #33465f !important;
+
+    font-size: 13px !important;
+
+    font-weight: 600 !important;
+}
+
+
+/* =====================================================
+   HOVER
+   ===================================================== */
+
+.appNavButton:hover .sapMBtnInner {
+
+    background: #edf4fb !important;
+}
+
+
+.appNavButton:hover .sapUiIcon {
+
+    color: #0a6ed1 !important;
+}
+
+
+.appNavButton:hover .sapMBtnContent {
+
+    color: #0a6ed1 !important;
+}
+
+
+/* =====================================================
+   ACTIVE
+   ===================================================== */
+
+.appNavButtonActive .sapMBtnInner {
+
+    background: #0a6ed1 !important;
+
+    box-shadow:
+        0 3px 8px rgba(10, 110, 209, 0.18);
+}
+
+
+.appNavButtonActive .sapUiIcon {
+
+    color: #ffffff !important;
+}
+
+
+.appNavButtonActive .sapMBtnContent {
+
+    color: #ffffff !important;
+
+    font-weight: 700 !important;
+}
+
+
+/* =====================================================
+   SIDEBAR FOOTER
+   ===================================================== */
+
+.appSidebarBottom {
+
+    margin-top: 22px;
+
+    padding: 18px 20px;
+
+    border-top: 1px solid #dfe6ee;
+}
+
+
+.appFooterTitle {
+
+    color: #172b4d !important;
+
+    font-size: 12px !important;
+
+    font-weight: 700 !important;
+}
+
+
+.appFooterText {
+
+    color: #64758a !important;
+
+    font-size: 11px !important;
+
+    line-height: 16px;
+}
+
+
+/* =====================================================
+   MAIN AREA
+   ===================================================== */
+
+.appMain {
+
+    min-width: 0;
+
+    height: 100vh;
+
+    background: #f4f7fa;
+
+    overflow: hidden;
+}
+
+
+/* =====================================================
+   TOP BAR
+   ===================================================== */
+
+.appTopBar {
+
+    height: 56px !important;
+
+    background: #ffffff !important;
+
+    border-bottom: 1px solid #dce2e8 !important;
+
+    padding: 0 18px !important;
+
+    box-shadow:
+        0 1px 3px rgba(0,0,0,0.04);
+}
+
+
+.appTopBarIcon {
+
+    color: #0a6ed1 !important;
+}
+
+
+.appTopBarTitle {
+
+    margin-left: 8px !important;
+
+    font-size: 17px !important;
+
+    font-weight: 600 !important;
+
+    color: #17212b !important;
+}
+
+
+.appNotificationButton {
+
+    color: #0a6ed1 !important;
+
+    margin-right: 8px;
+}
+
+
+.appUserProfile {
+
+    gap: 6px;
+
+    margin-right: 10px;
+
+    color: #33465f;
+}
+
+
+.appUserName {
+
+    font-size: 12px !important;
+
+    font-weight: 600 !important;
+}
+
+
+.appLogoutButton {
+
+    color: #0a6ed1 !important;
+}
+
+
+/* =====================================================
+   DYNAMIC CONTENT
+   ===================================================== */
+
+.appPageContainer {
+
+    width: 100%;
+
+    height: calc(100vh - 56px);
+
+    overflow: auto;
+
+    background: #f4f7fa;
 }

@@ -1,8 +1,114 @@
 <mvc:View
     controllerName="paymentsapp.controller.App"
     xmlns:mvc="sap.ui.core.mvc"
+    xmlns:tnt="sap.tnt"
+    xmlns:core="sap.ui.core"
     xmlns="sap.m">
 
-    <App id="app"/>
+    <!-- ToolPage is SAP's standard app-shell layout control:            -->
+    <!-- header + collapsible side nav + main content, height handled    -->
+    <!-- internally. It is the root of the app, so it never gets torn    -->
+    <!-- down when the router swaps page content in "app" below.         -->
+    <tnt:ToolPage id="toolPage">
+
+        <tnt:header>
+
+            <tnt:ToolHeader>
+
+                <Button
+                    icon="sap-icon://menu2"
+                    type="Transparent"
+                    tooltip="Show/hide menu"
+                    press=".onToggleSideNav"/>
+
+                <core:Icon
+                    src="sap-icon://money-bills"
+                    size="1.3rem"
+                    class="topBarIcon"/>
+
+                <Title
+                    text="Payment Operations"
+                    level="H2"
+                    class="topBarTitle"/>
+
+                <ToolbarSpacer/>
+
+            </tnt:ToolHeader>
+
+        </tnt:header>
+
+        <tnt:sideContent>
+
+            <tnt:SideNavigation
+                id="sideNav"
+                expanded="{appView>/sideExpanded}"
+                selectedKey="{appView>/currentRoute}">
+
+                <tnt:item>
+
+                    <tnt:NavigationList>
+
+                        <tnt:NavigationListItem
+                            text="Dashboard"
+                            icon="sap-icon://home"
+                            key="Dashboard"
+                            visible="{appView>/isAdmin}"
+                            select=".onDashboard"/>
+
+                        <tnt:NavigationListItem
+                            text="Payments"
+                            icon="sap-icon://money-bills"
+                            key="Payments"
+                            select=".onViewPayments"/>
+
+                        <tnt:NavigationListItem
+                            text="Approvals"
+                            icon="sap-icon://task"
+                            key="ApprovalInbox"
+                            visible="{appView>/isAdmin}"
+                            select=".onApprovalInbox"/>
+
+                        <tnt:NavigationListItem
+                            text="Users"
+                            icon="sap-icon://group"
+                            key="UserManagement"
+                            visible="{appView>/isAdmin}"
+                            select=".onUserManagement"/>
+
+                    </tnt:NavigationList>
+
+                </tnt:item>
+
+                <tnt:fixedItem>
+
+                    <tnt:NavigationList>
+
+                        <tnt:NavigationListItem
+                            text="Logout"
+                            icon="sap-icon://log"
+                            key="Logout"
+                            select=".onLogout"/>
+
+                    </tnt:NavigationList>
+
+                </tnt:fixedItem>
+
+            </tnt:SideNavigation>
+
+        </tnt:sideContent>
+
+        <tnt:mainContents>
+
+            <!-- Router target: manifest.json controlId/controlAggregation -->
+            <!-- ("app" / "pages") are unchanged. Only this control's       -->
+            <!-- content is swapped when navigating between routes.         -->
+            <App
+                id="app"
+                height="100%"
+                width="100%"/>
+
+        </tnt:mainContents>
+
+    </tnt:ToolPage>
 
 </mvc:View>

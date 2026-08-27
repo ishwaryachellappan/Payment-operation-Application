@@ -1,0 +1,125 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <!-- ================================================= -->
+    <!-- LEFT SIDEBAR (persistent shell navigation)         -->
+    <!-- ================================================= -->
+
+    <VBox
+        id="appSidebar"
+        width="220px"
+        class="dashboardSidebar"
+        visible="{appView>/sideExpanded}">
+
+        <!-- BRAND -->
+
+        <HBox
+            class="sidebarBrand"
+            alignItems="Center"
+            justifyContent="SpaceBetween">
+
+            <HBox alignItems="Center">
+
+                <HBox
+                    class="sidebarBrandIcon"
+                    justifyContent="Center"
+                    alignItems="Center">
+
+                    <core:Icon
+                        src="sap-icon://money-bills"
+                        size="1.2rem"/>
+
+                </HBox>
+
+                <VBox class="sidebarBrandText">
+
+                    <Text
+                        text="Payment Operations"
+                        class="sidebarBrandTitle"/>
+
+                    <Text
+                        text="Banking Platform"
+                        class="sidebarBrandSubtitle"/>
+
+                </VBox>
+
+            </HBox>
+
+            <!-- COLLAPSE TOGGLE -->
+
+            <Button
+                icon="sap-icon://navigation-left-arrow"
+                type="Transparent"
+                tooltip="Hide menu"
+                press=".onToggleSideNav"
+                class="sidebarToggleBtn"/>
+
+        </HBox>
+
+
+        <!-- NAVIGATION -->
+
+        <VBox class="sidebarNavigation">
+
+            <Text
+                text="OPERATIONS"
+                class="sidebarSectionTitle"/>
+
+
+            <Button
+                text="Dashboard"
+                icon="sap-icon://home"
+                type="Transparent"
+                press=".onDashboard"
+                class="{= ${appView>/currentRoute} === 'Dashboard' ? 'sidebarButton sidebarButtonActive' : 'sidebarButton' }"/>
+
+
+            <Button
+                text="Payments"
+                icon="sap-icon://money-bills"
+                type="Transparent"
+                press=".onViewPayments"
+                class="{= ${appView>/currentRoute} === 'Payments' ? 'sidebarButton sidebarButtonActive' : 'sidebarButton' }"/>
+
+
+            <Button
+                text="Approvals"
+                icon="sap-icon://task"
+                type="Transparent"
+                press=".onApprovalInbox"
+                class="{= ${appView>/currentRoute} === 'ApprovalInbox' ? 'sidebarButton sidebarButtonActive' : 'sidebarButton' }"/>
+
+
+            <Button
+                text="Users"
+                icon="sap-icon://group"
+                type="Transparent"
+                press=".onUserManagement"
+                visible="{appView>/isAdmin}"
+                class="{= ${appView>/currentRoute} === 'UserManagement' ? 'sidebarButton sidebarButtonActive' : 'sidebarButton' }"/>
+
+        </VBox>
+
+
+        <!-- PLATFORM -->
+
+        <VBox class="sidebarBottom">
+
+            <Text
+                text="Payment Operations"
+                class="sidebarFooterTitle"/>
+
+            <Text
+                text="Banking Operations"
+                class="sidebarFooterText"/>
+
+            <Text
+                text="Platform"
+                class="sidebarFooterText"/>
+
+        </VBox>
+
+    </VBox>
+
+</core:FragmentDefinition>

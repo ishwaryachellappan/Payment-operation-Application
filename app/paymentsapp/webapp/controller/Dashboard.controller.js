@@ -172,49 +172,129 @@ sap.ui.define([
                         payments
                     );
 
+                    // =====================================================
+// DASHBOARD ANALYTICS
+// =====================================================
 
-                    // =================================================
-                    // KPI COUNTS
-                    // =================================================
+const total = payments.length;
 
-                    const total =
-                        payments.length;
+const pending =
+    payments.filter(function (payment) {
+        return payment.status === "PENDING_APPROVAL";
+    }).length;
 
-                    const pending =
-                        payments.filter(
-                            function (payment) {
+const approved =
+    payments.filter(function (payment) {
+        return payment.status === "APPROVED";
+    }).length;
 
-                                return (
-                                    payment.status ===
-                                    "PENDING_APPROVAL"
-                                );
+const rejected =
+    payments.filter(function (payment) {
+        return payment.status === "REJECTED";
+    }).length;
 
-                            }
-                        ).length;
+// =====================================================
+// APPROVAL / REJECTION RATES
+// =====================================================
 
-                    const approved =
-                        payments.filter(
-                            function (payment) {
+const approvalRate =
+    total > 0
+        ? ((approved / total) * 100).toFixed(1)
+        : "0.0";
 
-                                return (
-                                    payment.status ===
-                                    "APPROVED"
-                                );
+const rejectionRate =
+    total > 0
+        ? ((rejected / total) * 100).toFixed(1)
+        : "0.0";
 
-                            }
-                        ).length;
 
-                    const rejected =
-                        payments.filter(
-                            function (payment) {
+// =====================================================
+// AMOUNT ANALYTICS
+// =====================================================
 
-                                return (
-                                    payment.status ===
-                                    "REJECTED"
-                                );
+const amounts =
+    payments
+        .map(function (payment) {
+            return Number(payment.amount);
+        })
+        .filter(function (amount) {
+            return !isNaN(amount);
+        });
 
-                            }
-                        ).length;
+const totalAmount =
+    amounts.reduce(function (sum, amount) {
+        return sum + amount;
+    }, 0);
+
+const averageAmount =
+    amounts.length > 0
+        ? totalAmount / amounts.length
+        : 0;
+
+const highestAmount =
+    amounts.length > 0
+        ? Math.max(...amounts)
+        : 0;
+
+const lowestAmount =
+    amounts.length > 0
+        ? Math.min(...amounts)
+        : 0;
+
+
+// =====================================================
+// CURRENCY DISTRIBUTION
+// =====================================================
+
+const currencyCounts = {};
+
+payments.forEach(function (payment) {
+
+    const currency =
+        payment.currency || "UNKNOWN";
+
+    if (!currencyCounts[currency]) {
+        currencyCounts[currency] = 0;
+    }
+
+    currencyCounts[currency]++;
+});
+
+
+// =====================================================
+// STATUS DISTRIBUTION
+// =====================================================
+
+const statusCounts = {
+
+    PENDING_APPROVAL:
+        pending,
+
+    APPROVED:
+        approved,
+
+    REJECTED:
+        rejected
+};
+
+
+console.log(
+    "Dashboard Analytics:",
+    {
+        total,
+        pending,
+        approved,
+        rejected,
+        approvalRate,
+        rejectionRate,
+        averageAmount,
+        highestAmount,
+        lowestAmount,
+        currencyCounts,
+        statusCounts
+    }
+);
+
 
 
                     console.log(
@@ -247,54 +327,32 @@ sap.ui.define([
                     // =================================================
 
                     const totalTile =
-                        this.byId(
-                            "totalPayments"
-                        );
+    this.byId("totalPayments");
 
-                    const pendingTile =
-                        this.byId(
-                            "pendingPayments"
-                        );
+const pendingTile =
+    this.byId("pendingPayments");
 
-                    const approvedTile =
-                        this.byId(
-                            "approvedPayments"
-                        );
+const approvedTile =
+    this.byId("approvedPayments");
 
-                    const rejectedTile =
-                        this.byId(
-                            "rejectedPayments"
-                        );
+const rejectedTile =
+    this.byId("rejectedPayments");
 
+if (totalTile) {
+    totalTile.setValue(total);
+}
 
-                    if (totalTile) {
+if (pendingTile) {
+    pendingTile.setValue(pending);
+}
 
-                        totalTile.setValue(
-                            total
-                        );
-                    }
+if (approvedTile) {
+    approvedTile.setValue(approved);
+}
 
-                    if (pendingTile) {
-
-                        pendingTile.setValue(
-                            pending
-                        );
-                    }
-
-                    if (approvedTile) {
-
-                        approvedTile.setValue(
-                            approved
-                        );
-                    }
-
-                    if (rejectedTile) {
-
-                        rejectedTile.setValue(
-                            rejected
-                        );
-                    }
-
+if (rejectedTile) {
+    rejectedTile.setValue(rejected);
+}
 
                     // =================================================
                     // APPROVAL INBOX COUNT
@@ -385,24 +443,63 @@ sap.ui.define([
                     }
 
 
-                    dashboardModel.setData({
+                   dashboardModel.setData({
 
-                        total:
-                            total,
+    // =========================
+    // KPI VALUES
+    // =========================
 
-                        pending:
-                            pending,
+    total: total,
 
-                        approved:
-                            approved,
+    pending: pending,
 
-                        rejected:
-                            rejected,
+    approved: approved,
 
-                        recentPayments:
-                            recentPayments
+    rejected: rejected,
 
-                    });
+
+    // =========================
+    // ANALYTICS
+    // =========================
+
+    approvalRate:
+        approvalRate,
+
+    rejectionRate:
+        rejectionRate,
+
+    averageAmount:
+        averageAmount.toFixed(2),
+
+    highestAmount:
+        highestAmount.toFixed(2),
+
+    lowestAmount:
+        lowestAmount.toFixed(2),
+
+    totalAmount:
+        totalAmount.toFixed(2),
+
+
+    // =========================
+    // DISTRIBUTION
+    // =========================
+
+    currencyCounts:
+        currencyCounts,
+
+    statusCounts:
+        statusCounts,
+
+
+    // =========================
+    // RECENT PAYMENTS
+    // =========================
+
+    recentPayments:
+        recentPayments
+
+});
 
 
                     dashboardModel.refresh(
@@ -635,6 +732,70 @@ formatPaymentStatusState: function (status) {
             return "None";
     }
 },
+
+onAfterRendering: function () {
+
+    this._makeKpiClickable(
+        "totalKpiCard",
+        this.onTotalPayments
+    );
+
+    this._makeKpiClickable(
+        "pendingKpiCard",
+        this.onPendingPayments
+    );
+
+    this._makeKpiClickable(
+        "approvedKpiCard",
+        this.onApprovedPayments
+    );
+
+    this._makeKpiClickable(
+        "rejectedKpiCard",
+        this.onRejectedPayments
+    );
+},
+
+_makeKpiClickable: function (sId, fnHandler) {
+
+    const oCard = this.byId(sId);
+
+    if (!oCard) {
+        console.error(
+            "KPI card not found:",
+            sId
+        );
+        return;
+    }
+
+    // Prevent duplicate event registration
+    oCard.detachBrowserEvent(
+        "click",
+        fnHandler,
+        this
+    );
+
+    // Make the whole card clickable
+    oCard.attachBrowserEvent(
+        "click",
+        fnHandler,
+        this
+    );
+
+    // Accessibility / visual indication
+    oCard.addStyleClass("kpiClickable");
+},
+
+onDashboard: function () {
+
+    this.getOwnerComponent()
+        .getRouter()
+        .navTo("Dashboard");
+
+},
+
+
+
 
         }
     );

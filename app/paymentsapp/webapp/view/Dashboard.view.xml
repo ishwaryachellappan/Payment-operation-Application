@@ -6,446 +6,686 @@
     displayBlock="true">
 
     <Page
-        showHeader="true"
+        showHeader="false"
         class="dashboardPage">
-
-        <!-- ===================================================== -->
-        <!-- HEADER -->
-        <!-- ===================================================== -->
-
-        <customHeader>
-
-            <Toolbar class="dashboardHeader">
-
-                <HBox
-                    alignItems="Center"
-                    class="dashboardBrand">
-
-                    <core:Icon
-                        src="sap-icon://money-bills"
-                        size="1.35rem"
-                        class="dashboardBrandIcon"/>
-
-                    <Title
-                        text="Payment Operations"
-                        level="H2"
-                        class="dashboardHeaderTitle"/>
-
-                </HBox>
-
-                <ToolbarSpacer/>
-
-                <HBox
-                    alignItems="Center"
-                    class="dashboardUser">
-
-                    <core:Icon
-                        src="sap-icon://person-placeholder"
-                        size="1rem"
-                        class="dashboardUserIcon"/>
-
-                    <Text
-                        text="Administrator"
-                        class="dashboardUserText"/>
-
-                    <Button
-                        text="Logout"
-                        icon="sap-icon://log"
-                        type="Transparent"
-                        press=".onLogout"
-                        class="dashboardLogout"/>
-
-                </HBox>
-
-            </Toolbar>
-
-        </customHeader>
-
-
-        <!-- ===================================================== -->
-        <!-- MAIN CONTENT -->
-        <!-- ===================================================== -->
 
         <content>
 
-            <VBox
-                class="dashboardContent"
-                width="100%">
-
-
                 <!-- ================================================= -->
-                <!-- INTRODUCTION -->
+                <!-- MAIN AREA (sidebar now lives in the shell App.view) -->
                 <!-- ================================================= -->
 
                 <VBox
-                    class="dashboardIntro">
-
-                    <Title
-                        text="Welcome, Administrator"
-                        level="H1"
-                        class="dashboardWelcome"/>
-
-                    <Text
-                        text="SAP Banking Payment Operations"
-                        class="dashboardSubtitle"/>
-
-                </VBox>
+                    width="100%"
+                    class="dashboardMain">
 
 
-                <!-- ================================================= -->
-                <!-- KPI CARDS -->
-                <!-- ================================================= -->
+                    <!-- ================================================= -->
+                    <!-- TOP BAR -->
+                    <!-- ================================================= -->
 
-                <HBox
-                    class="kpiContainer"
-                    justifyContent="SpaceBetween"
-                    width="100%">
+                    <Toolbar class="dashboardTopBar">
 
+                        <HBox
+                            alignItems="Center">
 
-                    <!-- ============================================= -->
-                    <!-- TOTAL PAYMENTS -->
-                    <!-- ============================================= -->
-
-                    <GenericTile
-                        class="kpiTile kpiTotal"
-                        header="Total Payments"
-                        subheader="All Payments"
-                        press=".onTotalPayments">
-
-                        <TileContent>
-
-                            <NumericContent
-                                value="{dashboard>/total}"
-                                icon="sap-icon://money-bills"
-                                valueColor="Neutral"/>
-
-                        </TileContent>
-
-                    </GenericTile>
-
-
-                    <!-- ============================================= -->
-                    <!-- PENDING APPROVAL -->
-                    <!-- ============================================= -->
-
-                    <GenericTile
-                        class="kpiTile kpiPending"
-                        header="Pending Approval"
-                        subheader="Awaiting Action"
-                        press=".onPendingPayments">
-
-                        <TileContent>
-
-                            <NumericContent
-                                value="{dashboard>/pending}"
-                                icon="sap-icon://pending"
-                                valueColor="Critical"/>
-
-                        </TileContent>
-
-                    </GenericTile>
-
-
-                    <!-- ============================================= -->
-                    <!-- APPROVED -->
-                    <!-- ============================================= -->
-
-                    <GenericTile
-                        class="kpiTile kpiApproved"
-                        header="Approved"
-                        subheader="Approved Payments"
-                        press=".onApprovedPayments">
-
-                        <TileContent>
-
-                            <NumericContent
-                                value="{dashboard>/approved}"
-                                icon="sap-icon://accept"
-                                valueColor="Good"/>
-
-                        </TileContent>
-
-                    </GenericTile>
-
-
-                    <!-- ============================================= -->
-                    <!-- REJECTED -->
-                    <!-- ============================================= -->
-
-                    <GenericTile
-                        class="kpiTile kpiRejected"
-                        header="Rejected"
-                        subheader="Rejected Payments"
-                        press=".onRejectedPayments">
-
-                        <TileContent>
-
-                            <NumericContent
-                                value="{dashboard>/rejected}"
-                                icon="sap-icon://decline"
-                                valueColor="Error"/>
-
-                        </TileContent>
-
-                    </GenericTile>
-
-                </HBox>
-
-
-                <!-- ================================================= -->
-                <!-- QUICK ACTIONS -->
-                <!-- ================================================= -->
-
-                <VBox
-                    class="dashboardSection">
-
-                    <VBox
-                        class="sectionHeader">
-
-                        <Title
-                            text="Quick Actions"
-                            level="H2"
-                            class="sectionTitle"/>
-
-                        <Text
-                            text="Frequently used payment operations"
-                            class="sectionSubtitle"/>
-
-                    </VBox>
-
-
-                    <HBox
-                        class="quickActions"
-                        alignItems="Center">
-
-
-                        <!-- VIEW PAYMENTS -->
-
-                        <Button
-                            text="View Payments"
-                            icon="sap-icon://list"
-                            type="Emphasized"
-                            press=".onViewPayments"
-                            class="quickActionPrimary"/>
-
-
-                        <!-- APPROVAL INBOX -->
-
-                        <Button
-                            text="Approval Inbox"
-                            icon="sap-icon://task"
-                            type="Transparent"
-                            press=".onApprovalInbox"
-                            class="quickActionButton"/>
-
-
-                        <!-- USER MANAGEMENT -->
-
-                        <Button
-                            text="User Management"
-                            icon="sap-icon://group"
-                            type="Transparent"
-                            press=".onUserManagement"
-                            class="quickActionButton"/>
-
-                    </HBox>
-
-                </VBox>
-
-
-                <!-- ================================================= -->
-                <!-- RECENT PAYMENTS -->
-                <!-- ================================================= -->
-
-                <VBox
-                    class="recentPaymentsCard">
-
-
-                    <!-- ============================================= -->
-                    <!-- RECENT PAYMENTS HEADER -->
-                    <!-- ============================================= -->
-
-                    <HBox
-                        justifyContent="SpaceBetween"
-                        alignItems="Center"
-                        class="recentPaymentsHeader">
-
-                        <VBox>
+                            <core:Icon
+                                src="sap-icon://money-bills"
+                                size="1.3rem"
+                                class="topBarIcon"/>
 
                             <Title
-                                text="Recent Payments"
+                                text="Payment Operations"
                                 level="H2"
-                                class="sectionTitle"/>
+                                class="topBarTitle"/>
+
+                        </HBox>
+
+                        <ToolbarSpacer/>
+
+                        <core:Icon
+                            src="sap-icon://bell"
+                            size="1.1rem"
+                            class="topBarIcon"/>
+
+                        <HBox
+                            alignItems="Center"
+                            class="adminProfile">
+
+                            <core:Icon
+                                src="sap-icon://person-placeholder"
+                                size="1rem"/>
 
                             <Text
-                                text="Latest payment transactions"
-                                class="sectionSubtitle"/>
+                                text="Administrator"
+                                class="adminName"/>
+
+                            <core:Icon
+                                src="sap-icon://slim-arrow-down"
+                                size="0.7rem"/>
+
+                        </HBox>
+
+                        <Button
+                            text="Logout"
+                            icon="sap-icon://log"
+                            type="Transparent"
+                            press=".onLogout"/>
+
+                    </Toolbar>
+
+
+                    <!-- ================================================= -->
+                    <!-- PAGE CONTENT -->
+                    <!-- ================================================= -->
+
+                    <ScrollContainer
+                        vertical="true"
+                        horizontal="false"
+                        height="calc(100vh - 56px)"
+                        class="dashboardScroll">
+
+                        <VBox class="dashboardContent">
+
+
+                            <!-- PAGE TITLE -->
+
+                            <Title
+                                text="Payment Operations Dashboard"
+                                level="H1"
+                                class="dashboardTitle"/>
+
+                            <Text
+                                text="Welcome, Administrator"
+                                class="dashboardWelcome"/>
+
+
+                           <!-- ================================================= -->
+<!-- KPI CARDS -->
+<!-- ================================================= -->
+
+<HBox
+    class="kpiRow"
+    justifyContent="SpaceBetween"
+    width="100%">
+
+    <!-- ============================================= -->
+    <!-- TOTAL PAYMENTS -->
+    <!-- ============================================= -->
+
+    <VBox
+        id="totalKpiCard"
+        class="kpiCard"
+        width="24%">
+
+        <HBox
+            alignItems="Center"
+            class="kpiHeader">
+
+            <HBox
+                class="kpiIcon kpiIconBlue"
+                justifyContent="Center"
+                alignItems="Center">
+
+                <core:Icon
+                    src="sap-icon://money-bills"
+                    size="1.2rem"/>
+
+            </HBox>
+
+            <VBox>
+
+                <Text
+                    text="Total Payments"
+                    class="kpiLabel"/>
+
+                <Text
+                    text="All Payments"
+                    class="kpiSubLabel"/>
+
+            </VBox>
+
+        </HBox>
+
+        <Text
+            text="{dashboard>/total}"
+            class="kpiValue"/>
+
+    </VBox>
+
+
+    <!-- ============================================= -->
+    <!-- PENDING APPROVAL -->
+    <!-- ============================================= -->
+
+    <VBox
+        id="pendingKpiCard"
+        class="kpiCard"
+        width="24%">
+
+        <HBox
+            alignItems="Center"
+            class="kpiHeader">
+
+            <HBox
+                class="kpiIcon kpiIconOrange"
+                justifyContent="Center"
+                alignItems="Center">
+
+                <core:Icon
+                    src="sap-icon://pending"
+                    size="1.2rem"/>
+
+            </HBox>
+
+            <VBox>
+
+                <Text
+                    text="Pending Approval"
+                    class="kpiLabel"/>
+
+                <Text
+                    text="Awaiting Action"
+                    class="kpiSubLabel"/>
+
+            </VBox>
+
+        </HBox>
+
+        <Text
+            text="{dashboard>/pending}"
+            class="kpiValue kpiOrange"/>
+
+    </VBox>
+
+
+    <!-- ============================================= -->
+    <!-- APPROVED -->
+    <!-- ============================================= -->
+
+    <VBox
+        id="approvedKpiCard"
+        class="kpiCard"
+        width="24%">
+
+        <HBox
+            alignItems="Center"
+            class="kpiHeader">
+
+            <HBox
+                class="kpiIcon kpiIconGreen"
+                justifyContent="Center"
+                alignItems="Center">
+
+                <core:Icon
+                    src="sap-icon://accept"
+                    size="1.2rem"/>
+
+            </HBox>
+
+            <VBox>
+
+                <Text
+                    text="Approved"
+                    class="kpiLabel"/>
+
+                <Text
+                    text="Approved Payments"
+                    class="kpiSubLabel"/>
+
+            </VBox>
+
+        </HBox>
+
+        <Text
+            text="{dashboard>/approved}"
+            class="kpiValue kpiGreen"/>
+
+    </VBox>
+
+
+    <!-- ============================================= -->
+    <!-- REJECTED -->
+    <!-- ============================================= -->
+
+    <VBox
+        id="rejectedKpiCard"
+        class="kpiCard"
+        width="24%">
+
+        <HBox
+            alignItems="Center"
+            class="kpiHeader">
+
+            <HBox
+                class="kpiIcon kpiIconRed"
+                justifyContent="Center"
+                alignItems="Center">
+
+                <core:Icon
+                    src="sap-icon://decline"
+                    size="1.2rem"/>
+
+            </HBox>
+
+            <VBox>
+
+                <Text
+                    text="Rejected"
+                    class="kpiLabel"/>
+
+                <Text
+                    text="Rejected Payments"
+                    class="kpiSubLabel"/>
+
+            </VBox>
+
+        </HBox>
+
+        <Text
+            text="{dashboard>/rejected}"
+            class="kpiValue kpiRed"/>
+
+    </VBox>
+
+</HBox>
+
+                            <!-- ================================================= -->
+                            <!-- PAYMENT ANALYTICS -->
+                            <!-- ================================================= -->
+
+                            <VBox class="analyticsContainer">
+
+                                <HBox
+                                    alignItems="Center"
+                                    class="sectionHeader">
+
+                                    <HBox
+                                        class="sectionIcon"
+                                        justifyContent="Center"
+                                        alignItems="Center">
+
+                                        <core:Icon
+                                            src="sap-icon://line-chart"
+                                            size="1rem"/>
+
+                                    </HBox>
+
+                                    <VBox>
+
+                                        <Title
+                                            text="Payment Analytics"
+                                            level="H2"
+                                            class="sectionTitle"/>
+
+                                        <Text
+                                            text="Overview of payment performance"
+                                            class="sectionSubtitle"/>
+
+                                    </VBox>
+
+                                </HBox>
+
+
+                                <!-- ANALYTICS METRICS -->
+
+                                <HBox
+                                    class="analyticsRow"
+                                    justifyContent="SpaceBetween">
+
+
+                                    <VBox class="analyticsCard">
+
+                                        <Text
+                                            text="Approval Rate"
+                                            class="analyticsLabel"/>
+
+                                        <Text
+                                            text="{= ${dashboard>/approvalRate} + '%' }"
+                                            class="analyticsValue analyticsGreen"/>
+
+                                        <Text
+                                            text="Payments approved"
+                                            class="analyticsDescription"/>
+
+                                    </VBox>
+
+
+                                    <VBox class="analyticsCard">
+
+                                        <Text
+                                            text="Rejection Rate"
+                                            class="analyticsLabel"/>
+
+                                        <Text
+                                            text="{= ${dashboard>/rejectionRate} + '%' }"
+                                            class="analyticsValue analyticsRed"/>
+
+                                        <Text
+                                            text="Payments rejected"
+                                            class="analyticsDescription"/>
+
+                                    </VBox>
+
+
+                                    <VBox class="analyticsCard">
+
+                                        <Text
+                                            text="Average Payment"
+                                            class="analyticsLabel"/>
+
+                                        <Text
+                                            text="{dashboard>/averageAmount}"
+                                            class="analyticsValue"/>
+
+                                        <Text
+                                            text="Average transaction value"
+                                            class="analyticsDescription"/>
+
+                                    </VBox>
+
+
+                                    <VBox class="analyticsCard">
+
+                                        <Text
+                                            text="Highest Payment"
+                                            class="analyticsLabel"/>
+
+                                        <Text
+                                            text="{dashboard>/highestAmount}"
+                                            class="analyticsValue"/>
+
+                                        <Text
+                                            text="Largest transaction"
+                                            class="analyticsDescription"/>
+
+                                    </VBox>
+
+                                </HBox>
+
+
+                                <!-- STATUS SUMMARY -->
+
+                                <HBox
+                                    class="statusRow"
+                                    justifyContent="SpaceBetween">
+
+
+                                    <VBox class="statusBox">
+
+                                        <HBox alignItems="Center">
+
+                                            <core:Icon
+                                                src="sap-icon://pending"
+                                                class="statusOrange"/>
+
+                                            <Text
+                                                text="Pending Approval"
+                                                class="statusTitle"/>
+
+                                        </HBox>
+
+                                        <Text
+                                            text="{dashboard>/pending}"
+                                            class="statusValue statusOrange"/>
+
+                                        <Text
+                                            text="Awaiting approval"
+                                            class="statusDescription"/>
+
+                                    </VBox>
+
+
+                                    <VBox class="statusBox">
+
+                                        <HBox alignItems="Center">
+
+                                            <core:Icon
+                                                src="sap-icon://accept"
+                                                class="statusGreen"/>
+
+                                            <Text
+                                                text="Approved"
+                                                class="statusTitle"/>
+
+                                        </HBox>
+
+                                        <Text
+                                            text="{dashboard>/approved}"
+                                            class="statusValue statusGreen"/>
+
+                                        <Text
+                                            text="Successfully approved"
+                                            class="statusDescription"/>
+
+                                    </VBox>
+
+
+                                    <VBox class="statusBox">
+
+                                        <HBox alignItems="Center">
+
+                                            <core:Icon
+                                                src="sap-icon://decline"
+                                                class="statusRed"/>
+
+                                            <Text
+                                                text="Rejected"
+                                                class="statusTitle"/>
+
+                                        </HBox>
+
+                                        <Text
+                                            text="{dashboard>/rejected}"
+                                            class="statusValue statusRed"/>
+
+                                        <Text
+                                            text="Rejected payments"
+                                            class="statusDescription"/>
+
+                                    </VBox>
+
+                                </HBox>
+
+                            </VBox>
+
+
+                            <!-- ================================================= -->
+                            <!-- LOWER AREA -->
+                            <!-- ================================================= -->
+
+                            <HBox
+                                class="lowerDashboard"
+                                justifyContent="SpaceBetween">
+
+
+                                <!-- RECENT PAYMENTS -->
+
+                                <VBox class="recentContainer">
+
+                                    <HBox
+                                        justifyContent="SpaceBetween"
+                                        alignItems="Center"
+                                        class="recentHeader">
+
+                                        <HBox alignItems="Center">
+
+                                            <HBox
+                                                class="sectionIcon"
+                                                justifyContent="Center"
+                                                alignItems="Center">
+
+                                                <core:Icon
+                                                    src="sap-icon://list"
+                                                    size="1rem"/>
+
+                                            </HBox>
+
+                                            <VBox
+                                                class="sapUiSmallMarginBegin">
+
+                                                <Title
+                                                    text="Recent Payments"
+                                                    level="H2"
+                                                    class="sectionTitle"/>
+
+                                                <Text
+                                                    text="Latest payment transactions"
+                                                    class="sectionSubtitle"/>
+
+                                            </VBox>
+
+                                        </HBox>
+
+                                        <Button
+                                            text="View All"
+                                            type="Transparent"
+                                            press=".onViewPayments"/>
+
+                                    </HBox>
+
+
+                                    <Table
+                                        items="{dashboard>/recentPayments}"
+                                        class="recentTable"
+                                        growing="false">
+
+                                        <columns>
+
+                                            <Column>
+                                                <Text text="Reference"/>
+                                            </Column>
+
+                                            <Column>
+                                                <Text text="Company"/>
+                                            </Column>
+
+                                            <Column hAlign="End">
+                                                <Text text="Amount"/>
+                                            </Column>
+
+                                            <Column>
+                                                <Text text="Currency"/>
+                                            </Column>
+
+                                            <Column>
+                                                <Text text="Status"/>
+                                            </Column>
+
+                                        </columns>
+
+                                        <items>
+
+                                            <ColumnListItem>
+
+                                                <cells>
+
+                                                    <Text
+                                                        text="{dashboard>paymentReference}"
+                                                        class="paymentReference"/>
+
+                                                    <Text
+                                                        text="{dashboard>companyCode}"/>
+
+                                                    <ObjectNumber
+                                                        number="{dashboard>amount}"
+                                                        class="paymentAmount"/>
+
+                                                    <Text
+                                                        text="{dashboard>currency}"/>
+
+                                                    <ObjectStatus
+                                                        text="{dashboard>status}"
+                                                        state="{
+                                                            path: 'dashboard>status',
+                                                            formatter: '.formatPaymentStatusState'
+                                                        }"/>
+
+                                                </cells>
+
+                                            </ColumnListItem>
+
+                                        </items>
+
+                                    </Table>
+
+                                </VBox>
+
+
+                                <!-- QUICK ACTIONS -->
+
+                                <VBox class="quickContainer">
+
+                                    <HBox alignItems="Center">
+
+                                        <HBox
+                                            class="sectionIcon"
+                                            justifyContent="Center"
+                                            alignItems="Center">
+
+                                            <core:Icon
+                                                src="sap-icon://flash"
+                                                size="1rem"/>
+
+                                        </HBox>
+
+                                        <Title
+                                            text="Quick Actions"
+                                            level="H2"
+                                            class="sectionTitle sapUiSmallMarginBegin"/>
+
+                                    </HBox>
+
+
+                                    <Text
+                                        text="Frequently used operations"
+                                        class="sectionSubtitle"/>
+
+
+                                    <Button
+                                        text="View Payments"
+                                        icon="sap-icon://list"
+                                        type="Transparent"
+                                        press=".onViewPayments"
+                                        class="actionButton"/>
+
+
+                                    <Button
+                                        text="Approval Inbox"
+                                        icon="sap-icon://task"
+                                        type="Transparent"
+                                        press=".onApprovalInbox"
+                                        class="actionButton"/>
+
+
+                                    <Button
+                                        text="User Management"
+                                        icon="sap-icon://group"
+                                        type="Transparent"
+                                        press=".onUserManagement"
+                                        class="actionButton"/>
+
+                                </VBox>
+
+                            </HBox>
+
+
+                            <!-- FOOTER -->
+
+                            <HBox
+                                justifyContent="Center"
+                                class="dashboardFooter">
+
+                                <Text
+                                    text="Payment Operations • © 2026 SAP Banking. All rights reserved."/>
+
+                            </HBox>
 
                         </VBox>
 
-
-                        <Button
-                            text="View All"
-                            icon="sap-icon://navigation-right-arrow"
-                            iconFirst="false"
-                            type="Transparent"
-                            press=".onViewPayments"/>
-
-                    </HBox>
-
-
-                    <!-- ============================================= -->
-                    <!-- RECENT PAYMENTS TABLE -->
-                    <!-- ============================================= -->
-
-                    <Table
-                        id="recentPaymentsTable"
-                        items="{dashboard>/recentPayments}"
-                        growing="false"
-                        class="recentPaymentsTable">
-
-
-                        <!-- ========================================= -->
-                        <!-- COLUMNS -->
-                        <!-- ========================================= -->
-
-                        <columns>
-
-                            <!-- REFERENCE -->
-
-                            <Column
-                                width="25%">
-
-                                <Text
-                                    text="Reference"
-                                    class="tableHeader"/>
-
-                            </Column>
-
-
-                            <!-- COMPANY -->
-
-                            <Column
-                                width="15%">
-
-                                <Text
-                                    text="Company"
-                                    class="tableHeader"/>
-
-                            </Column>
-
-
-                            <!-- AMOUNT -->
-
-                            <Column
-                                width="18%"
-                                hAlign="End">
-
-                                <Text
-                                    text="Amount"
-                                    class="tableHeader"/>
-
-                            </Column>
-
-
-                            <!-- CURRENCY -->
-
-                            <Column
-                                width="15%">
-
-                                <Text
-                                    text="Currency"
-                                    class="tableHeader"/>
-
-                            </Column>
-
-
-                            <!-- STATUS -->
-
-                            <Column
-                                width="27%">
-
-                                <Text
-                                    text="Status"
-                                    class="tableHeader"/>
-
-                            </Column>
-
-                        </columns>
-
-
-                        <!-- ========================================= -->
-                        <!-- ROWS -->
-                        <!-- ========================================= -->
-
-                        <items>
-
-                            <ColumnListItem>
-
-                                <cells>
-
-
-                                    <!-- PAYMENT REFERENCE -->
-
-                                    <Text
-                                        text="{dashboard>paymentReference}"
-                                        class="recentReference"/>
-
-
-                                    <!-- COMPANY CODE -->
-
-                                    <Text
-                                        text="{dashboard>companyCode}"/>
-
-
-                                    <!-- AMOUNT -->
-
-                                    <ObjectNumber
-                                        number="{dashboard>amount}"
-                                        emphasized="true"/>
-
-
-                                    <!-- CURRENCY -->
-
-                                    <Text
-                                        text="{dashboard>currency}"/>
-
-
-                                    <!-- STATUS -->
-
-                                    <ObjectStatus
-                                        text="{dashboard>status}"
-                                        state="{
-                                            path: 'dashboard>status',
-                                            formatter: '.formatPaymentStatusState'
-                                        }"/>
-
-                                </cells>
-
-                            </ColumnListItem>
-
-                        </items>
-
-                    </Table>
+                    </ScrollContainer>
 
                 </VBox>
-
-
-                <!-- ================================================= -->
-                <!-- FOOTER -->
-                <!-- ================================================= -->
-
-                <HBox
-                    justifyContent="End"
-                    class="dashboardFooter">
-
-                    <Text
-                        text="Payment Operations"
-                        class="dashboardFooterText"/>
-
-                </HBox>
-
-            </VBox>
 
         </content>
 
