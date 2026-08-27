@@ -1,16 +1,65 @@
 const cds = require('@sap/cds');
 
-module.exports = cds.service.impl(function () {
+const {
+    SELECT,
+    INSERT,
+    UPDATE,
+    DELETE
+} = cds.ql;
+
+module.exports = cds.service.impl(async function () {
 
     const {
         Users,
         Payments,
-        UserLogs
+        UserLogs,
+        Messages
     } = this.entities;
 
 
     // =========================================================
-    // HELPER: WRITE USER LOG
+    // HELPER - GET ACTOR DETAILS
+    // =========================================================
+
+    async function getActorDetails(userName) {
+
+        if (!userName) {
+
+            return {
+                userName: 'SYSTEM',
+                fullName: 'System',
+                role: 'SYSTEM'
+            };
+
+        }
+
+        const user =
+            await SELECT.one
+                .from(Users)
+                .where({
+                    userName: userName
+                });
+
+        if (!user) {
+
+            return {
+                userName: userName,
+                fullName: userName,
+                role: 'UNKNOWN'
+            };
+
+        }
+
+        return {
+            userName: user.userName,
+            fullName: user.fullName,
+            role: user.role
+        };
+    }
+
+
+    // =========================================================
+    // HELPER - CREATE USER LOG
     // =========================================================
 
     async function writeUserLog({
@@ -23,89 +72,97 @@ module.exports = cds.service.impl(function () {
         details
     }) {
 
-        try {
+        await INSERT
+            .into(UserLogs)
+            .entries({
 
-            await INSERT.into(UserLogs).entries({
+                ID:
+                    cds.utils.uuid(),
 
-                ID: cds.utils.uuid(),
+                userName:
+                    userName || 'SYSTEM',
 
-                userName: userName || '-',
+                fullName:
+                    fullName || userName || 'System',
 
-                fullName: fullName || '-',
+                role:
+                    role || 'SYSTEM',
 
-                role: role || '-',
+                action:
+                    action,
 
-                action: action,
+                module:
+                    module,
 
-                module: module,
+                status:
+                    status,
 
-                status: status,
+                details:
+                    details,
 
-                details: details || '-',
-
-                createdAt: new Date()
+                createdAt:
+                    new Date()
 
             });
-
-        } catch (error) {
-
-            // Do not allow audit logging failure
-            // to break the main business operation.
-
-            console.error(
-                'USER LOG ERROR:',
-                error
-            );
-        }
     }
 
 
     // =========================================================
-    // HELPER: GET ACTOR DETAILS
+    // HELPER - CREATE INTERNAL MESSAGE
     // =========================================================
 
-    async function getActorDetails(performedBy) {
+    async function createInternalMessage({
+        senderUserName,
+        receiverUserName,
+        subject,
+        message,
+        messageType
+    }) {
 
-        if (!performedBy) {
+        if (!receiverUserName) {
 
-            return {
-                userName: 'Unknown',
-                fullName: 'Unknown',
-                role: 'Unknown'
-            };
+            console.warn(
+                'Message not created: receiverUserName missing'
+            );
+
+            return;
         }
 
 
-        const actor =
-            await SELECT.one
-                .from(Users)
-                .where({
-                    userName: performedBy
-                });
+        await INSERT
+            .into(Messages)
+            .entries({
+
+                ID:
+                    cds.utils.uuid(),
+
+                senderUserName:
+                    senderUserName || 'SYSTEM',
+
+                receiverUserName:
+                    receiverUserName,
+
+                subject:
+                    subject,
+
+                message:
+                    message,
+
+                messageType:
+                    messageType || 'SYSTEM',
+
+                isRead:
+                    false,
+
+                createdAt:
+                    new Date()
+
+            });
 
 
-        if (!actor) {
-
-            return {
-                userName: performedBy,
-                fullName: performedBy,
-                role: 'Unknown'
-            };
-        }
-
-
-        return {
-
-            userName:
-                actor.userName,
-
-            fullName:
-                actor.fullName,
-
-            role:
-                actor.role
-
-        };
+        console.log(
+            `Internal message created: ${senderUserName} -> ${receiverUserName}`
+        );
     }
 
 
@@ -121,72 +178,15 @@ module.exports = cds.service.impl(function () {
         } = req.data;
 
 
-        // -----------------------------------------------------
-        // Missing username/password
-        // -----------------------------------------------------
-
-        if (!userName || !password) {
-
-            await writeUserLog({
-
-                userName:
-                    userName || '-',
-
-                fullName:
-                    '-',
-
-                role:
-                    '-',
-
-                action:
-                    'Login',
-
-                module:
-                    'Authentication',
-
-                status:
-                    'Failed',
-
-                details:
-                    'Username and password are required'
-
-            });
-
-
-            return {
-
-                success: false,
-
-                message:
-                    'Username and password are required'
-
-            };
-        }
-
-
-        // -----------------------------------------------------
-        // Find active user
-        // -----------------------------------------------------
-
         const user =
             await SELECT.one
                 .from(Users)
                 .where({
-
-                    userName:
-                        userName,
-
-                    isActive:
-                        true
-
+                    userName: userName
                 });
 
 
-        // -----------------------------------------------------
-        // Invalid username/password
-        // -----------------------------------------------------
-
-        if (!user || user.password !== password) {
+        if (!user) {
 
             await writeUserLog({
 
@@ -194,14 +194,10 @@ module.exports = cds.service.impl(function () {
                     userName,
 
                 fullName:
-                    user
-                        ? user.fullName
-                        : '-',
+                    '-',
 
                 role:
-                    user
-                        ? user.role
-                        : '-',
+                    '-',
 
                 action:
                     'Login',
@@ -220,7 +216,17 @@ module.exports = cds.service.impl(function () {
 
             return {
 
-                success: false,
+                success:
+                    false,
+
+                username:
+                    userName,
+
+                fullName:
+                    '',
+
+                role:
+                    '',
 
                 message:
                     'Invalid username or password'
@@ -229,9 +235,105 @@ module.exports = cds.service.impl(function () {
         }
 
 
-        // -----------------------------------------------------
-        // Successful login
-        // -----------------------------------------------------
+        if (!user.isActive) {
+
+            await writeUserLog({
+
+                userName:
+                    user.userName,
+
+                fullName:
+                    user.fullName,
+
+                role:
+                    user.role,
+
+                action:
+                    'Login',
+
+                module:
+                    'Authentication',
+
+                status:
+                    'Failed',
+
+                details:
+                    'User account is inactive'
+
+            });
+
+
+            return {
+
+                success:
+                    false,
+
+                username:
+                    user.userName,
+
+                fullName:
+                    user.fullName,
+
+                role:
+                    user.role,
+
+                message:
+                    'User account is inactive'
+
+            };
+        }
+
+
+        if (
+            user.password !== password
+        ) {
+
+            await writeUserLog({
+
+                userName:
+                    user.userName,
+
+                fullName:
+                    user.fullName,
+
+                role:
+                    user.role,
+
+                action:
+                    'Login',
+
+                module:
+                    'Authentication',
+
+                status:
+                    'Failed',
+
+                details:
+                    'Invalid username or password'
+
+            });
+
+
+            return {
+
+                success:
+                    false,
+
+                username:
+                    user.userName,
+
+                fullName:
+                    user.fullName,
+
+                role:
+                    user.role,
+
+                message:
+                    'Invalid username or password'
+
+            };
+        }
+
 
         await writeUserLog({
 
@@ -277,7 +379,6 @@ module.exports = cds.service.impl(function () {
                 'Login successful'
 
         };
-
     });
 
 
@@ -287,84 +388,39 @@ module.exports = cds.service.impl(function () {
 
     this.on('createUser', async (req) => {
 
-      const {
-    userName,
-    fullName,
-    email,
-    password,
-    role,
-    isActive,
-    performedBy
-} = req.data;
+        const {
+            userName,
+            fullName,
+            email,
+            password,
+            role,
+            isActive,
+            performedBy
+        } = req.data;
 
-
-        // -----------------------------------------------------
-        // Validate
-        // -----------------------------------------------------
-
-        if (
-            !userName ||
-            !fullName ||
-            !email ||
-            !password ||
-            !role
-        ) {
-
-            return req.reject(
-                400,
-                'All mandatory fields are required'
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Check duplicate
-        // -----------------------------------------------------
 
         const existingUser =
             await SELECT.one
                 .from(Users)
                 .where({
-                    userName
+                    userName:
+                        userName
                 });
 
 
         if (existingUser) {
 
-            return req.reject(
-                400,
-                'User ID already exists'
-            );
+            return {
+
+                success:
+                    false,
+
+                message:
+                    'User already exists'
+
+            };
         }
 
-
-        // -----------------------------------------------------
-        // Create user
-        // -----------------------------------------------------
-
-        await INSERT
-            .into(Users)
-            .entries({
-
-                userName,
-
-                fullName,
-
-                email,
-
-                password,
-
-                role,
-
-                isActive:
-                    isActive !== false
-
-            });
-
-
-        // -----------------------------------------------------
-        // Get actor
-        // -----------------------------------------------------
 
         const actor =
             await getActorDetails(
@@ -372,9 +428,37 @@ module.exports = cds.service.impl(function () {
             );
 
 
-        // -----------------------------------------------------
-        // Write audit log
-        // -----------------------------------------------------
+        const userId =
+            cds.utils.uuid();
+
+
+        await INSERT
+            .into(Users)
+            .entries({
+
+                ID:
+                    userId,
+
+                userName:
+                    userName,
+
+                fullName:
+                    fullName,
+
+                email:
+                    email,
+
+                password:
+                    password,
+
+                role:
+                    role,
+
+                isActive:
+                    isActive
+
+            });
+
 
         await writeUserLog({
 
@@ -397,7 +481,7 @@ module.exports = cds.service.impl(function () {
                 'Success',
 
             details:
-                `User ${userName} created`
+                `New user ${userName} created`
 
         });
 
@@ -411,7 +495,6 @@ module.exports = cds.service.impl(function () {
                 'User created successfully'
 
         };
-
     });
 
 
@@ -435,7 +518,8 @@ module.exports = cds.service.impl(function () {
             await SELECT.one
                 .from(Payments)
                 .where({
-                    ID: paymentId
+                    ID:
+                        paymentId
                 });
 
 
@@ -449,7 +533,7 @@ module.exports = cds.service.impl(function () {
 
 
         // -----------------------------------------------------
-        // Check status
+        // Check payment status
         // -----------------------------------------------------
 
         if (
@@ -465,7 +549,17 @@ module.exports = cds.service.impl(function () {
 
 
         // -----------------------------------------------------
-        // Approve
+        // Get admin/user performing action
+        // -----------------------------------------------------
+
+        const actor =
+            await getActorDetails(
+                performedBy
+            );
+
+
+        // -----------------------------------------------------
+        // Update payment
         // -----------------------------------------------------
 
         await UPDATE(Payments)
@@ -482,44 +576,9 @@ module.exports = cds.service.impl(function () {
 
             });
 
-            await createInternalMessage({
-
-    senderUserName:
-        actor.userName,
-
-    receiverUserName:
-        payment.createdByUserName,
-
-    subject:
-        `Payment ${payment.paymentReference} rejected`,
-
-    message:
-        `Your payment ${payment.paymentReference} `
-        + `has been rejected.`
-        + (
-            reason
-                ? ` Reason: ${reason}`
-                : ''
-        ),
-
-    messageType:
-        'PAYMENT_REJECTED'
-
-});
-
 
         // -----------------------------------------------------
-        // Get actor
-        // -----------------------------------------------------
-
-        const actor =
-            await getActorDetails(
-                performedBy
-            );
-
-
-        // -----------------------------------------------------
-        // Write audit log
+        // Create User Log
         // -----------------------------------------------------
 
         await writeUserLog({
@@ -548,6 +607,78 @@ module.exports = cds.service.impl(function () {
         });
 
 
+        // -----------------------------------------------------
+        // Create internal message
+        // -----------------------------------------------------
+
+        // -----------------------------------------------------
+// Create internal message
+// -----------------------------------------------------
+
+// -----------------------------------------------------
+// CREATE MESSAGE FOR PAYMENT CREATOR
+// -----------------------------------------------------
+
+const paymentCreator =
+    payment.createdByUserName;
+
+
+console.log(
+    "========== APPROVAL MESSAGE =========="
+);
+
+console.log(
+    "Payment:",
+    payment.paymentReference
+);
+
+console.log(
+    "Payment Creator:",
+    paymentCreator
+);
+
+console.log(
+    "Approved By:",
+    actor.userName
+);
+
+
+if (!paymentCreator) {
+
+    console.warn(
+        `No createdByUserName found for payment ${payment.paymentReference}`
+    );
+
+} else {
+
+    await createInternalMessage({
+
+        senderUserName:
+            actor.userName || 'admin',
+
+        receiverUserName:
+            paymentCreator,
+
+        subject:
+            `Payment ${payment.paymentReference} approved`,
+
+        message:
+            `Your payment ${payment.paymentReference} `
+            + `has been approved successfully by `
+            + `${actor.fullName || actor.userName}.`,
+
+        messageType:
+            'PAYMENT_APPROVED'
+
+    });
+
+    console.log(
+        `Approval message sent to ${paymentCreator}`
+    );
+
+}
+
+
         return {
 
             success:
@@ -557,7 +688,6 @@ module.exports = cds.service.impl(function () {
                 'Payment approved successfully'
 
         };
-
     });
 
 
@@ -582,10 +712,8 @@ module.exports = cds.service.impl(function () {
             await SELECT.one
                 .from(Payments)
                 .where({
-
                     ID:
                         paymentId
-
                 });
 
 
@@ -599,7 +727,7 @@ module.exports = cds.service.impl(function () {
 
 
         // -----------------------------------------------------
-        // Check status
+        // Check payment status
         // -----------------------------------------------------
 
         if (
@@ -615,7 +743,17 @@ module.exports = cds.service.impl(function () {
 
 
         // -----------------------------------------------------
-        // Reject payment
+        // Get actor
+        // -----------------------------------------------------
+
+        const actor =
+            await getActorDetails(
+                performedBy
+            );
+
+
+        // -----------------------------------------------------
+        // Update payment
         // -----------------------------------------------------
 
         await UPDATE(Payments)
@@ -637,17 +775,7 @@ module.exports = cds.service.impl(function () {
 
 
         // -----------------------------------------------------
-        // Get actor
-        // -----------------------------------------------------
-
-        const actor =
-            await getActorDetails(
-                performedBy
-            );
-
-
-        // -----------------------------------------------------
-        // Build log details
+        // Create User Log
         // -----------------------------------------------------
 
         let logDetails =
@@ -661,10 +789,6 @@ module.exports = cds.service.impl(function () {
 
         }
 
-
-        // -----------------------------------------------------
-        // Write audit log
-        // -----------------------------------------------------
 
         await writeUserLog({
 
@@ -692,6 +816,42 @@ module.exports = cds.service.impl(function () {
         });
 
 
+        // -----------------------------------------------------
+        // Create internal message
+        // -----------------------------------------------------
+
+        if (
+            payment.createdByUserName
+        ) {
+
+            await createInternalMessage({
+
+                senderUserName:
+                    actor.userName,
+
+                receiverUserName:
+                    payment.createdByUserName,
+
+                subject:
+                    `Payment ${payment.paymentReference} rejected`,
+
+                message:
+                    `Your payment ${payment.paymentReference} `
+                    + `has been rejected.`
+                    + (
+                        reason
+                            ? ` Reason: ${reason}`
+                            : ''
+                    ),
+
+                messageType:
+                    'PAYMENT_REJECTED'
+
+            });
+
+        }
+
+
         return {
 
             success:
@@ -701,7 +861,6 @@ module.exports = cds.service.impl(function () {
                 'Payment rejected successfully'
 
         };
-
     });
 
 
@@ -724,55 +883,11 @@ module.exports = cds.service.impl(function () {
         } = req.data;
 
 
-        // -----------------------------------------------------
-        // Mandatory validation
-        // -----------------------------------------------------
-
-        if (
-            !paymentReference ||
-            !companyCode ||
-            !debtorAccount ||
-            !creditorAccount ||
-            amount === null ||
-            amount === undefined ||
-            !currency ||
-            !paymentMethod ||
-            !paymentDate
-        ) {
-
-            return req.reject(
-                400,
-                'All payment fields are required'
+        const actor =
+            await getActorDetails(
+                performedBy
             );
-        }
 
-
-        // -----------------------------------------------------
-        // Duplicate payment reference
-        // -----------------------------------------------------
-
-        const existingPayment =
-            await SELECT.one
-                .from(Payments)
-                .where({
-
-                    paymentReference
-
-                });
-
-
-        if (existingPayment) {
-
-            return req.reject(
-                400,
-                'Payment reference already exists'
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Create payment
-        // -----------------------------------------------------
 
         const paymentId =
             cds.utils.uuid();
@@ -785,41 +900,69 @@ module.exports = cds.service.impl(function () {
                 ID:
                     paymentId,
 
-                paymentReference,
+                paymentReference:
+                    paymentReference,
 
-                companyCode,
+                companyCode:
+                    companyCode,
 
-                debtorAccount,
+                debtorAccount:
+                    debtorAccount,
 
-                creditorAccount,
+                creditorAccount:
+                    creditorAccount,
 
-                amount,
+                amount:
+                    amount,
 
-                currency,
+                currency:
+                    currency,
 
-                paymentMethod,
+                paymentMethod:
+                    paymentMethod,
 
-                paymentDate,
+                paymentDate:
+                    paymentDate,
 
                 status:
-                    'PENDING_APPROVAL'
+                    'PENDING_APPROVAL',
+
+                // IMPORTANT
+                // This connects the payment to the
+                // internal application User ID.
+
+                createdByUserName:
+                    performedBy
 
             });
 
 
-        // -----------------------------------------------------
-        // Get actor
-        // -----------------------------------------------------
+            // =====================================================
+// NOTIFY ADMIN ABOUT NEW PAYMENT
+// =====================================================
 
-        const actor =
-            await getActorDetails(
-                performedBy
-            );
+await createInternalMessage({
 
+    senderUserName:
+        actor.userName,
 
-        // -----------------------------------------------------
-        // Write audit log
-        // -----------------------------------------------------
+    receiverUserName:
+        'admin',
+
+    subject:
+        `New payment ${paymentReference} requires approval`,
+
+    message:
+        `Payment ${paymentReference} `
+        + `has been created by `
+        + `${actor.fullName} `
+        + `and is waiting for approval.`,
+
+    messageType:
+        'PAYMENT_PENDING_APPROVAL'
+
+});
+
 
         await writeUserLog({
 
@@ -852,13 +995,13 @@ module.exports = cds.service.impl(function () {
             success:
                 true,
 
-            paymentId,
+            paymentId:
+                paymentId,
 
             message:
                 'Payment created successfully'
 
         };
-
     });
 
 
@@ -880,114 +1023,66 @@ module.exports = cds.service.impl(function () {
         } = req.data;
 
 
-        // -----------------------------------------------------
-        // Validation
-        // -----------------------------------------------------
-
-        if (
-            !userId ||
-            !userName ||
-            !fullName ||
-            !email ||
-            !role
-        ) {
-
-            return req.reject(
-                400,
-                'All mandatory fields are required'
+        const actor =
+            await getActorDetails(
+                performedBy
             );
-        }
 
 
-        // -----------------------------------------------------
-        // Find user
-        // -----------------------------------------------------
-
-        const existingUser =
+        const user =
             await SELECT.one
                 .from(Users)
                 .where({
-
                     ID:
                         userId
-
                 });
 
 
-        if (!existingUser) {
+        if (!user) {
 
-            return req.reject(
-                404,
-                'User not found'
-            );
+            return {
+
+                success:
+                    false,
+
+                message:
+                    'User not found'
+
+            };
         }
 
-
-        // -----------------------------------------------------
-        // Check duplicate username
-        // -----------------------------------------------------
-
-        const duplicateUser =
-            await SELECT.one
-                .from(Users)
-                .where({
-
-                    userName:
-                        userName
-
-                });
-
-
-        if (
-            duplicateUser &&
-            duplicateUser.ID !== userId
-        ) {
-
-            return req.reject(
-                400,
-                'User ID already exists'
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Build update
-        // -----------------------------------------------------
 
         const updateData = {
 
-            userName,
+            userName:
+                userName,
 
-            fullName,
+            fullName:
+                fullName,
 
-            email,
+            email:
+                email,
 
-            role,
+            role:
+                role,
 
             isActive:
-                isActive !== false
+                isActive
 
         };
 
 
-        // -----------------------------------------------------
-        // Update password only when supplied
-        // -----------------------------------------------------
-
         if (
-            password &&
-            password.trim()
+            password !== undefined &&
+            password !== null &&
+            password !== ''
         ) {
 
             updateData.password =
-                password.trim();
+                password;
 
         }
 
-
-        // -----------------------------------------------------
-        // Update database
-        // -----------------------------------------------------
 
         await UPDATE(Users)
             .set(updateData)
@@ -998,20 +1093,6 @@ module.exports = cds.service.impl(function () {
 
             });
 
-
-        // -----------------------------------------------------
-        // Get actor
-        // -----------------------------------------------------
-
-        const actor =
-            await getActorDetails(
-                performedBy
-            );
-
-
-        // -----------------------------------------------------
-        // Write audit log
-        // -----------------------------------------------------
 
         await writeUserLog({
 
@@ -1048,7 +1129,6 @@ module.exports = cds.service.impl(function () {
                 'User updated successfully'
 
         };
-
     });
 
 
@@ -1064,24 +1144,13 @@ module.exports = cds.service.impl(function () {
         } = req.data;
 
 
-        // -----------------------------------------------------
-        // Validation
-        // -----------------------------------------------------
-
-        if (!userId) {
-
-            return req.reject(
-                400,
-                'User ID is required'
+        const actor =
+            await getActorDetails(
+                performedBy
             );
-        }
 
 
-        // -----------------------------------------------------
-        // Find user
-        // -----------------------------------------------------
-
-        const existingUser =
+        const user =
             await SELECT.one
                 .from(Users)
                 .where({
@@ -1092,18 +1161,19 @@ module.exports = cds.service.impl(function () {
                 });
 
 
-        if (!existingUser) {
+        if (!user) {
 
-            return req.reject(
-                404,
-                'User not found'
-            );
+            return {
+
+                success:
+                    false,
+
+                message:
+                    'User not found'
+
+            };
         }
 
-
-        // -----------------------------------------------------
-        // Delete
-        // -----------------------------------------------------
 
         await DELETE
             .from(Users)
@@ -1114,20 +1184,6 @@ module.exports = cds.service.impl(function () {
 
             });
 
-
-        // -----------------------------------------------------
-        // Get actor
-        // -----------------------------------------------------
-
-        const actor =
-            await getActorDetails(
-                performedBy
-            );
-
-
-        // -----------------------------------------------------
-        // Write audit log
-        // -----------------------------------------------------
 
         await writeUserLog({
 
@@ -1150,7 +1206,7 @@ module.exports = cds.service.impl(function () {
                 'Success',
 
             details:
-                `User ${existingUser.userName} deleted`
+                `User ${user.userName} deleted`
 
         });
 
@@ -1164,7 +1220,6 @@ module.exports = cds.service.impl(function () {
                 'User deleted successfully'
 
         };
-
     });
 
 
@@ -1180,144 +1235,151 @@ module.exports = cds.service.impl(function () {
         } = req.data;
 
 
-        // -----------------------------------------------------
-        // Validate CSV
-        // -----------------------------------------------------
+        if (!csvData) {
 
-        if (
-            !csvData ||
-            !csvData.trim()
-        ) {
+            return {
 
-            return req.reject(
-                400,
-                'CSV data is required'
-            );
+                success:
+                    false,
+
+                totalRows:
+                    0,
+
+                successfulRows:
+                    0,
+
+                failedRows:
+                    0,
+
+                message:
+                    'CSV data is empty',
+
+                errors:
+                    ''
+
+            };
         }
+
+
+        const actor =
+            await getActorDetails(
+                performedBy
+            );
 
 
         const lines =
             csvData
                 .trim()
-                .split(/\r?\n/)
-                .filter(
-                    line =>
-                        line.trim()
-                );
+                .split(/\r?\n/);
 
 
         if (lines.length < 2) {
 
-            return req.reject(
-                400,
-                'CSV must contain a header and at least one payment'
-            );
+            return {
+
+                success:
+                    false,
+
+                totalRows:
+                    0,
+
+                successfulRows:
+                    0,
+
+                failedRows:
+                    0,
+
+                message:
+                    'CSV contains no data rows',
+
+                errors:
+                    ''
+
+            };
         }
 
 
-        // -----------------------------------------------------
-        // Expected headers
-        // -----------------------------------------------------
+       let headerLine = lines[0].trim();
+
+// Remove BOM if present
+headerLine = headerLine.replace(/^\uFEFF/, "");
+
+// Remove surrounding quotes from the complete header line
+if (
+    headerLine.startsWith('"') &&
+    headerLine.endsWith('"')
+) {
+    headerLine =
+        headerLine.substring(
+            1,
+            headerLine.length - 1
+        );
+}
+
+const headers =
+    headerLine
+        .split(',')
+        .map(
+            h =>
+                h.trim()
+                 .replace(/^"|"$/g, '')
+        );
+
 
         const expectedHeaders = [
 
             'paymentReference',
-
             'companyCode',
-
             'debtorAccount',
-
             'creditorAccount',
-
             'amount',
-
             'currency',
-
             'paymentMethod',
-
             'paymentDate'
 
         ];
 
 
-        const headers =
-            lines[0]
-
-                .replace(
-                    /^\uFEFF/,
-                    ''
-                )
-
-                .split(',')
-
-                .map(
-                    header =>
-                        header
-                            .trim()
-                            .replace(
-                                /^"|"$/g,
-                                ''
-                            )
-                );
+       const headersValid =
+    headers.length === expectedHeaders.length &&
+    expectedHeaders.every(
+        (header, index) =>
+            headers[index] === header
+    );
 
 
-        const headersValid =
-            headers.length ===
-            expectedHeaders.length &&
+if (!headersValid) {
 
-            headers.every(
-                function (
-                    header,
-                    index
-                ) {
+    return {
 
-                    return (
+        success: false,
 
-                        header.toLowerCase() ===
-                        expectedHeaders[index]
-                            .toLowerCase()
+        totalRows:
+            lines.length - 1,
 
-                    );
+        successfulRows: 0,
 
-                }
-            );
+        failedRows:
+            lines.length - 1,
 
+        message:
+            'Invalid CSV headers',
 
-        if (!headersValid) {
+        errors:
+            `Expected: ${expectedHeaders.join(', ')}`
+            + ` | Received: ${headers.join(', ')}`
 
-            return req.reject(
-
-                400,
-
-                'Invalid CSV headers. Expected: ' +
-                expectedHeaders.join(',')
-
-            );
-
-        }
+    };
+}
+             
 
 
-        // -----------------------------------------------------
-        // Counters
-        // -----------------------------------------------------
+        let successfulRows = 0;
 
-        let successfulRows =
-            0;
-
-        let failedRows =
-            0;
-
+        let failedRows = 0;
 
         const errors = [];
 
-
-        const uploadedReferences =
-            new Set();
-
-
-        // -----------------------------------------------------
-        // Process rows
-        // -----------------------------------------------------
 
         for (
             let i = 1;
@@ -1325,214 +1387,85 @@ module.exports = cds.service.impl(function () {
             i++
         ) {
 
-            const rowNumber =
-                i + 1;
-
-
             try {
 
                 const values =
                     lines[i]
-
                         .split(',')
-
                         .map(
                             value =>
-                                value
-                                    .trim()
-                                    .replace(
-                                        /^"|"$/g,
-                                        ''
-                                    )
+                                value.trim()
                         );
 
 
-                if (
-                    values.length !==
-                    expectedHeaders.length
-                ) {
-
-                    throw new Error(
-                        'Incorrect number of columns'
-                    );
-
-                }
+                const row = {};
 
 
-                const [
+                headers.forEach(
+                    (
+                        header,
+                        index
+                    ) => {
 
-                    paymentReference,
+                        row[header] =
+                            values[index];
 
-                    companyCode,
-
-                    debtorAccount,
-
-                    creditorAccount,
-
-                    amount,
-
-                    currency,
-
-                    paymentMethod,
-
-                    paymentDate,
-
-                    performedBy
-
-                ] = values;
-
-
-                // ---------------------------------------------
-                // Mandatory fields
-                // ---------------------------------------------
-
-                if (
-                    !paymentReference ||
-                    !companyCode ||
-                    !debtorAccount ||
-                    !creditorAccount ||
-                    !amount ||
-                    !currency ||
-                    !paymentMethod ||
-                    !paymentDate
-                ) {
-
-                    throw new Error(
-                        'All payment fields are required'
-                    );
-
-                }
-
-
-                // ---------------------------------------------
-                // Duplicate inside CSV
-                // ---------------------------------------------
-
-                if (
-                    uploadedReferences.has(
-                        paymentReference
-                    )
-                ) {
-
-                    throw new Error(
-                        'Duplicate payment reference in CSV'
-                    );
-
-                }
-
-
-                uploadedReferences.add(
-                    paymentReference
+                    }
                 );
 
 
-                // ---------------------------------------------
-                // Duplicate in database
-                // ---------------------------------------------
-
-                const existingPayment =
-                    await SELECT.one
-                        .from(Payments)
-                        .where({
-
-                            paymentReference
-
-                        });
-
-
-                if (existingPayment) {
-
-                    throw new Error(
-                        'Payment reference already exists'
-                    );
-
-                }
-
-
-                // ---------------------------------------------
-                // Amount validation
-                // ---------------------------------------------
-
-                const numericAmount =
-                    Number(amount);
-
-
                 if (
-                    Number.isNaN(
-                        numericAmount
-                    ) ||
-                    numericAmount <= 0
+                    !row.paymentReference
+                    ||
+                    !row.companyCode
+                    ||
+                    !row.amount
+                    ||
+                    !row.currency
                 ) {
 
                     throw new Error(
-                        'Amount must be greater than zero'
+                        'Required fields missing'
                     );
-
                 }
 
 
-                // ---------------------------------------------
-                // Currency validation
-                // ---------------------------------------------
+                const paymentId =
+                    cds.utils.uuid();
 
-                if (
-                    !/^[A-Za-z]{3}$/.test(
-                        currency
-                    )
-                ) {
-
-                    throw new Error(
-                        'Currency must be a 3-letter code'
-                    );
-
-                }
-
-
-                // ---------------------------------------------
-                // Date validation
-                // ---------------------------------------------
-
-                if (
-                    !/^\d{4}-\d{2}-\d{2}$/.test(
-                        paymentDate
-                    )
-                ) {
-
-                    throw new Error(
-                        'Payment date must be YYYY-MM-DD'
-                    );
-
-                }
-
-
-                // ---------------------------------------------
-                // Insert payment
-                // ---------------------------------------------
 
                 await INSERT
                     .into(Payments)
                     .entries({
 
                         ID:
-                            cds.utils.uuid(),
+                            paymentId,
 
-                        paymentReference,
+                        paymentReference:
+                            row.paymentReference,
 
-                        companyCode,
+                        companyCode:
+                            row.companyCode,
 
-                        debtorAccount,
+                        debtorAccount:
+                            row.debtorAccount,
 
-                        creditorAccount,
+                        creditorAccount:
+                            row.creditorAccount,
 
                         amount:
-                            numericAmount,
+                            Number(
+                                row.amount
+                            ),
 
                         currency:
-                            currency.toUpperCase(),
+                            row.currency,
 
-                        paymentMethod,
+                        paymentMethod:
+                            row.paymentMethod,
 
-                        paymentDate,
+                        paymentDate:
+                            row.paymentDate,
 
                         status:
                             'PENDING_APPROVAL',
@@ -1541,6 +1474,32 @@ module.exports = cds.service.impl(function () {
                             performedBy
 
                     });
+
+
+                await writeUserLog({
+
+                    userName:
+                        actor.userName,
+
+                    fullName:
+                        actor.fullName,
+
+                    role:
+                        actor.role,
+
+                    action:
+                        'Create',
+
+                    module:
+                        'Payments',
+
+                    status:
+                        'Success',
+
+                    details:
+                        `Payment ${row.paymentReference} created through bulk upload`
+
+                });
 
 
                 successfulRows++;
@@ -1552,135 +1511,34 @@ module.exports = cds.service.impl(function () {
 
 
                 errors.push(
-
-                    `Row ${rowNumber}: ${error.message}`
-
+                    `Row ${i + 1}: ${error.message}`
                 );
 
             }
-
         }
 
-
-        // -----------------------------------------------------
-        // Get actor
-        // -----------------------------------------------------
-
-        const actor =
-            await getActorDetails(
-                performedBy
-            );
-
-
-        // -----------------------------------------------------
-        // Write ONE audit log for the bulk operation
-        // -----------------------------------------------------
-
-        await writeUserLog({
-
-            userName:
-                actor.userName,
-
-            fullName:
-                actor.fullName,
-
-            role:
-                actor.role,
-
-            action:
-                'Bulk Upload',
-
-            module:
-                'Payments',
-
-            status:
-                successfulRows > 0
-                    ? 'Success'
-                    : 'Failed',
-
-            details:
-                `${successfulRows} payment(s) uploaded successfully. ` +
-                `${failedRows} payment(s) failed.`
-
-        });
-
-
-        // -----------------------------------------------------
-        // Return response
-        // -----------------------------------------------------
 
         return {
 
             success:
-                successfulRows > 0,
+                failedRows === 0,
 
             totalRows:
                 lines.length - 1,
 
-            successfulRows,
+            successfulRows:
+                successfulRows,
 
-            failedRows,
+            failedRows:
+                failedRows,
 
             message:
-                `${successfulRows} payment(s) uploaded successfully. ` +
-                `${failedRows} payment(s) failed.`,
+                `${successfulRows} payment(s) created successfully`,
 
             errors:
                 errors.join('\n')
 
         };
-
     });
-
-
-    // =========================================================
-    // HELPER: CREATE INTERNAL MESSAGE
-    // =========================================================
-
-    async function createInternalMessage({
-        senderUserName,
-        receiverUserName,
-        subject,
-        message,
-        messageType
-    }) {
-
-        try {
-
-            await INSERT.into(Messages).entries({
-
-                ID: cds.utils.uuid(),
-
-                senderUserName:
-                    senderUserName || 'SYSTEM',
-
-                receiverUserName:
-                    receiverUserName,
-
-                subject:
-                    subject,
-
-                message:
-                    message,
-
-                messageType:
-                    messageType || 'SYSTEM',
-
-                isRead:
-                    false,
-
-                createdAt:
-                    new Date()
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                'MESSAGE CREATION ERROR:',
-                error
-            );
-        }
-    }
 
 });

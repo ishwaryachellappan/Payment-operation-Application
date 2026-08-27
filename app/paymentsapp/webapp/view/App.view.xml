@@ -91,6 +91,27 @@
 
     </HBox>
 
+      <HBox
+        id="mailNotificationArea"
+        alignItems="Center"
+        class="notificationItem">
+
+        <Button
+            id="mailNotificationButton"
+            icon="sap-icon://email"
+            type="Transparent"
+            tooltip="Mail"
+            press=".onMailPress"
+            class="notificationButton"/>
+
+        <Text
+            id="mailNotificationCount"
+            text="0"
+            visible="false"
+            class="notificationBadge mailBadge"/>
+
+    </HBox>
+
 </HBox>
 
             </tnt:ToolHeader>

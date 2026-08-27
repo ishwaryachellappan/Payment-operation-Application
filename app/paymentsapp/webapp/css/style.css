@@ -2810,3 +2810,149 @@
     font-size: 13px;
     color: #667085;
 }
+
+/* =====================================================
+   FULL MESSAGE POPUP
+   ===================================================== */
+
+.fullMessageItem {
+    padding: 16px;
+    gap: 12px;
+}
+
+.fullMessageItem .sapMTitle {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.fullMessageItem .sapMText {
+    font-size: 12px;
+}
+
+.fullMessageItem .sapMText:last-child {
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 8px;
+    white-space: pre-wrap;
+}
+
+.emptyMessageContainer {
+    padding: 25px 15px;
+}
+
+.messagePopoverContent {
+    padding: 16px;
+    gap: 10px;
+}
+
+.messagePopoverContent .sapMList {
+    border: 1px solid #eaecf0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.messagePopoverContent .sapMLIB {
+    background: #ffffff;
+}
+
+/* =====================================================
+   MESSAGE DIALOG
+   ===================================================== */
+
+.messageDialogItem {
+    padding: 20px;
+}
+
+.messageDialogItem .sapMTitle {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.messageDialogItem .sapMText {
+    font-size: 13px;
+}
+
+.messageBody {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.messageBody .sapMText {
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    margin-bottom: 18px;
+}
+
+.messageBody .sapMBtn {
+    align-self: flex-end;
+}
+
+.emptyMessageDialog {
+    padding: 50px 20px;
+    gap: 15px;
+}
+
+.emptyMessageDialog .sapUiIcon {
+    color: #6b7280;
+}
+
+/* =====================================================
+   MAIL
+   ===================================================== */
+
+.mailDialogItem {
+    padding: 20px;
+}
+
+.mailDialogItem .sapMTitle {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.mailDialogItem .sapMText {
+    font-size: 13px;
+}
+
+.mailDialogItem .sapMText:nth-child(4) {
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 15px;
+    margin-bottom: 18px;
+    white-space: pre-wrap;
+}
+
+.mailDialogItem .sapMBtn {
+    align-self: flex-end;
+}
+
+.unreadMailItem {
+    background: #f7f9fc;
+}
+
+.mailBadge {
+    margin-left: -4px;
+}
+
+/* =====================================================
+   SIMPLE SYSTEM MESSAGES
+   ===================================================== */
+
+.simpleMessageItem {
+    padding: 16px 20px;
+}
+
+.simpleMessageItem .sapMText:first-child {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.simpleMessageItem .sapMText:last-child {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #6a6d70;
+}

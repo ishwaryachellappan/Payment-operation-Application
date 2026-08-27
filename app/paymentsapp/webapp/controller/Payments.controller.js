@@ -541,6 +541,23 @@ sap.ui.define([
 
                                     try {
 
+                                        const performedBy =
+    sessionStorage.getItem("username");
+
+console.log(
+    "Creating payment as:",
+    performedBy
+);
+
+if (!performedBy) {
+
+    MessageBox.error(
+        "Unable to identify the logged-in user."
+    );
+
+    return;
+}
+
                                         const response =
                                             await fetch(
                                                 "/payment-service/createPayment",
@@ -555,32 +572,40 @@ sap.ui.define([
                                                             "application/json"
                                                     },
 
-                                                    body:
-                                                        JSON.stringify({
-                                                            paymentReference:
-                                                                paymentReference,
+                                                   body:
+    JSON.stringify({
 
-                                                            companyCode:
-                                                                companyCode,
+        paymentReference:
+            paymentReference,
 
-                                                            debtorAccount:
-                                                                debtorAccount,
+        companyCode:
+            companyCode,
 
-                                                            creditorAccount:
-                                                                creditorAccount,
+        debtorAccount:
+            debtorAccount,
 
-                                                            amount:
-                                                                numericAmount,
+        creditorAccount:
+            creditorAccount,
 
-                                                            currency:
-                                                                currency,
+        amount:
+            numericAmount,
 
-                                                            paymentMethod:
-                                                                paymentMethod,
+        currency:
+            currency,
 
-                                                            paymentDate:
-                                                                paymentDate
-                                                        })
+        paymentMethod:
+            paymentMethod,
+
+        paymentDate:
+            paymentDate,
+
+        // IMPORTANT:
+        // Store the actual logged-in user
+        // as the payment creator.
+        performedBy:
+            sessionStorage.getItem("username")
+
+    })
                                                 }
                                             );
 

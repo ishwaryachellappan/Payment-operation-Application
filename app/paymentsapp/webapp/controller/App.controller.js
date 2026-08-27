@@ -51,7 +51,9 @@ sap.ui.define([
 
                         pendingApprovalCount: 0,
 
-                        unreadMessageCount: 0
+                        unreadMessageCount: 0,
+
+                        mailCount: 0
 
                     });
 
@@ -115,11 +117,21 @@ sap.ui.define([
                 }
 
 
-                if (
-                    this._messagePopover
-                ) {
+                if (this._messagePopover) {
 
                     this._messagePopover.destroy();
+
+                }
+
+                if (this._messageDialog) {
+
+                    this._messageDialog.destroy();
+
+                }
+
+                if (this._mailDialog) {
+
+                    this._mailDialog.destroy();
 
                 }
             },
@@ -214,7 +226,9 @@ sap.ui.define([
 
                     this._loadPendingApprovals(),
 
-                    this._loadUnreadMessages()
+                    this._loadUnreadMessages(),
+
+                    this._loadMailCount()
 
                 ]);
 
@@ -592,7 +606,7 @@ sap.ui.define([
                                         ? "1 payment is waiting for approval."
 
                                         : iCount
-                                            + " payments are waiting for approval.",
+                                        + " payments are waiting for approval.",
 
                             wrapping:
                                 true
@@ -737,222 +751,331 @@ sap.ui.define([
                 },
 
 
-            // =====================================================
-            // MESSAGE ICON
-            // =====================================================
+           // =====================================================
+// MESSAGES
+// Short system notifications
+// Opening the popup automatically marks them as read
+// =====================================================
 
-            onMessageNotificationsPress:
-                async function () {
+onMessageNotificationsPress: async function () {
 
-                    const aMessages =
-                        await this._getUnreadMessages();
+    try {
 
-
-                    this._setMessageCount(
-                        aMessages.length
-                    );
+        const aMessages =
+            await this._getUnreadMessages();
 
 
-                    if (
-                        this._messagePopover
-                        &&
-                        this._messagePopover.isOpen()
-                    ) {
+        // =================================================
+        // NO UNREAD MESSAGES
+        // =================================================
 
-                        this._messagePopover.close();
+        if (aMessages.length === 0) {
 
-                        return;
-                    }
+            if (!this._messageDialog) {
 
+                this._messageDialog =
+                    new sap.m.Dialog({
 
-                    const oTitle =
-                        new Title({
+                        title: "Messages",
 
-                            text:
-                                "Messages",
+                        contentWidth: "500px",
 
-                            level:
-                                "H4"
+                        stretchOnPhone: true,
 
-                        });
+                        buttons: [
 
+                            new sap.m.Button({
 
-                    oTitle.addStyleClass(
-                        "notificationPopoverTitle"
-                    );
+                                text: "Close",
 
+                                type: "Transparent",
 
-                    const aItems = [];
+                                press: function () {
 
-
-                    if (
-                        aMessages.length === 0
-                    ) {
-
-                        const oEmpty =
-                            new Text({
-
-                                text:
-                                    "You have no unread messages.",
-
-                                wrapping:
-                                    true
-
-                            });
-
-
-                        oEmpty.addStyleClass(
-                            "notificationEmpty"
-                        );
-
-
-                        aItems.push(
-                            oEmpty
-                        );
-
-                    } else {
-
-                        const oList =
-                            new List({
-
-                                showSeparators:
-                                    "Inner"
-
-                            });
-
-
-                        aMessages
-                            .slice(0, 5)
-                            .forEach(
-                                function (
-                                    oMessage
-                                ) {
-
-                                    const oItem =
-                                        new StandardListItem({
-
-                                            title:
-                                                oMessage.subject
-                                                || "Message",
-
-                                            description:
-                                                oMessage.message
-                                                || "",
-
-                                            info:
-                                                oMessage.senderUserName
-                                                || "",
-
-                                            type:
-                                                "Active",
-
-                                            press:
-                                                function () {
-
-                                                    this._markMessageAsRead(
-                                                        oMessage.ID
-                                                    );
-
-                                                }.bind(this)
-
-                                        });
-
-
-                                    oList.addItem(
-                                        oItem
-                                    );
+                                    this._messageDialog.close();
 
                                 }.bind(this)
-                            );
 
+                            })
 
-                        aItems.push(
-                            oList
-                        );
+                        ]
 
+                    });
 
-                        const oHint =
-                            new Text({
-
-                                text:
-                                    aMessages.length > 5
-
-                                        ? "Showing the 5 most recent unread messages."
-
-                                        : "Click a message to mark it as read.",
-
-                                wrapping:
-                                    true
-
-                            });
-
-
-                        oHint.addStyleClass(
-                            "notificationHint"
-                        );
-
-
-                        aItems.push(
-                            oHint
-                        );
-                    }
-
-
-                    const oContent =
-                        new VBox({
-
-                            items: [
-
-                                oTitle,
-
-                                ...aItems
-
-                            ]
-
-                        });
-
-
-                    oContent.addStyleClass(
-                        "messagePopoverContent"
+                this.getView()
+                    .addDependent(
+                        this._messageDialog
                     );
 
+            }
 
-                    if (
-                        this._messagePopover
-                    ) {
 
-                        this._messagePopover.destroy();
+            this._messageDialog.removeAllContent();
+
+
+            const oEmpty =
+                new sap.m.VBox({
+
+                    alignItems: "Center",
+
+                    justifyContent: "Center",
+
+                    items: [
+
+                        new sap.ui.core.Icon({
+
+                            src:
+                                "sap-icon://message-information",
+
+                            size: "2.5rem"
+
+                        }),
+
+                        new sap.m.Text({
+
+                            text:
+                                "You have no unread messages.",
+
+                            textAlign:
+                                "Center"
+
+                        })
+
+                    ]
+
+                });
+
+
+            oEmpty.addStyleClass(
+                "emptyMessageDialog"
+            );
+
+
+            this._messageDialog.addContent(
+                oEmpty
+            );
+
+
+            this._messageDialog.open();
+
+            return;
+        }
+
+
+        // =================================================
+        // CREATE DIALOG
+        // =================================================
+
+        if (!this._messageDialog) {
+
+            this._messageDialog =
+                new sap.m.Dialog({
+
+                    title: "Messages",
+
+                    contentWidth: "550px",
+
+                    contentHeight: "450px",
+
+                    stretchOnPhone: true,
+
+                    verticalScrolling: true,
+
+                    buttons: [
+
+                        new sap.m.Button({
+
+                            text: "Close",
+
+                            type: "Transparent",
+
+                            press: function () {
+
+                                this._messageDialog.close();
+
+                            }.bind(this)
+
+                        })
+
+                    ]
+
+                });
+
+
+            this.getView()
+                .addDependent(
+                    this._messageDialog
+                );
+
+        }
+
+
+        this._messageDialog.removeAllContent();
+
+
+        // =================================================
+        // MESSAGE LIST
+        // =================================================
+
+        const oList =
+            new sap.m.List({
+
+                showSeparators: "Inner"
+
+            });
+
+
+        aMessages.forEach(
+            function (oMessage) {
+
+                const oText =
+                    new sap.m.Text({
+
+                        text:
+                            oMessage.subject ||
+                            oMessage.message ||
+                            "New message",
+
+                        wrapping: true
+
+                    });
+
+
+                const oDate =
+                    new sap.m.Text({
+
+                        text:
+                            this._formatMessageDate(
+                                oMessage.createdAt
+                            )
+
+                    });
+
+
+                const oBox =
+                    new sap.m.VBox({
+
+                        items: [
+
+                            oText,
+
+                            oDate
+
+                        ]
+
+                    });
+
+
+                oBox.addStyleClass(
+                    "simpleMessageItem"
+                );
+
+
+                oList.addItem(
+
+                    new sap.m.CustomListItem({
+
+                        content: [
+
+                            oBox
+
+                        ]
+
+                    })
+
+                );
+
+            }.bind(this)
+        );
+
+
+        this._messageDialog.addContent(
+            oList
+        );
+
+
+        // =================================================
+        // OPEN POPUP
+        // =================================================
+
+        this._messageDialog.open();
+
+
+        // =================================================
+        // AUTOMATICALLY MARK ALL AS READ
+        // =================================================
+
+        for (
+            const oMessage of aMessages
+        ) {
+
+            try {
+
+                await fetch(
+
+                    "/payment-service/Messages(" +
+                    oMessage.ID +
+                    ")",
+
+                    {
+
+                        method: "PATCH",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                isRead: true
+
+                            })
 
                     }
 
+                );
 
-                    this._messagePopover =
-                        new Popover({
+            } catch (error) {
 
-                            showHeader:
-                                false,
+                console.error(
+                    "Unable to mark message as read:",
+                    oMessage.ID,
+                    error
+                );
 
-                            placement:
-                                "Bottom",
+            }
 
-                            contentWidth:
-                                "380px",
-
-                            content: [
-                                oContent
-                            ]
-
-                        });
+        }
 
 
-                    this._messagePopover.openBy(
-                        this.byId(
-                            "messageNotificationButton"
-                        )
-                    );
-                },
+        // =================================================
+        // RESET MESSAGE BADGE
+        // =================================================
+
+        this._setMessageCount(0);
 
 
+    } catch (error) {
+
+        console.error(
+            "Unable to load messages:",
+            error
+        );
+
+        sap.m.MessageToast.show(
+            "Unable to load messages."
+        );
+
+    }
+
+},
             // =====================================================
             // GET UNREAD MESSAGES
             // =====================================================
@@ -962,162 +1085,142 @@ sap.ui.define([
                 const sUserName =
                     this._getCurrentUser();
 
-
                 if (!sUserName) {
-
                     return [];
                 }
 
 
+                const sFilter =
+                    "receiverUserName eq '" +
+                    this._escapeODataValue(sUserName) +
+                    "' and isRead eq false";
+
+
+                const sUrl =
+                    "/payment-service/Messages" +
+                    "?$filter=" +
+                    encodeURIComponent(sFilter) +
+                    "&$orderby=" +
+                    encodeURIComponent("createdAt desc");
+
+
+                const response =
+                    await fetch(
+                        sUrl,
+                        {
+                            method: "GET",
+
+                            headers: {
+                                "Accept":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "HTTP " + response.status
+                    );
+
+                }
+
+
+                const oData =
+                    await response.json();
+
+
+                return oData.value || [];
+
+            },
+
+            // =====================================================
+            // MARK MESSAGE AS READ
+            // =====================================================
+
+            _markMessageAsRead: async function (sMessageId) {
+
                 try {
 
-                    const sFilter =
-                        "receiverUserName eq '"
-                        + this._escapeODataValue(
-                            sUserName
-                        )
-                        + "' and isRead eq false";
+                    const response = await fetch(
+                        "/payment-service/Messages(" +
+                        sMessageId +
+                        ")",
+                        {
+                            method: "PATCH",
 
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "application/json"
+                            },
 
-                    const sUrl =
-                        "/payment-service/Messages"
-                        + "?$filter="
-                        + encodeURIComponent(
-                            sFilter
-                        )
-                        + "&$orderby="
-                        + encodeURIComponent(
-                            "createdAt desc"
-                        );
-
-
-                    const response =
-                        await fetch(
-                            sUrl,
-                            {
-                                method: "GET",
-
-                                headers: {
-                                    "Accept":
-                                        "application/json"
-                                }
-                            }
-                        );
+                            body: JSON.stringify({
+                                isRead: true
+                            })
+                        }
+                    );
 
 
                     if (!response.ok) {
 
                         throw new Error(
-                            "HTTP "
-                            + response.status
+                            "HTTP " + response.status
                         );
 
                     }
 
 
-                    const oData =
-                        await response.json();
+                    sap.m.MessageToast.show(
+                        "Message marked as read"
+                    );
 
 
-                    return oData.value || [];
+                    // Refresh unread message count
+                    await this._loadUnreadMessages();
+
+
+                    // Close current dialog
+                    if (this._messageDialog) {
+
+                        this._messageDialog.close();
+
+                    }
+
+
+                    // Reload the remaining unread messages
+                    const aMessages =
+                        await this._getUnreadMessages();
+
+
+                    this._setMessageCount(
+                        aMessages.length
+                    );
+
+
+                    // Reopen popup if messages remain
+                    if (aMessages.length > 0) {
+
+                        this.onMessageNotificationsPress();
+
+                    }
 
 
                 } catch (error) {
 
                     console.error(
-                        "Unable to load messages:",
+                        "Unable to mark message as read:",
                         error
                     );
 
 
-                    return [];
+                    sap.m.MessageToast.show(
+                        "Unable to mark message as read."
+                    );
+
                 }
+
             },
-
-
-            // =====================================================
-            // MARK MESSAGE READ
-            // =====================================================
-
-            _markMessageAsRead:
-                async function (
-                    sMessageId
-                ) {
-
-                    try {
-
-                        const response =
-                            await fetch(
-                                "/payment-service/Messages("
-                                + sMessageId
-                                + ")",
-                                {
-
-                                    method:
-                                        "PATCH",
-
-                                    headers: {
-
-                                        "Content-Type":
-                                            "application/json",
-
-                                        "Accept":
-                                            "application/json"
-
-                                    },
-
-                                    body:
-                                        JSON.stringify({
-
-                                            isRead:
-                                                true
-
-                                        })
-
-                                }
-                            );
-
-
-                        if (!response.ok) {
-
-                            throw new Error(
-                                "HTTP "
-                                + response.status
-                            );
-
-                        }
-
-
-                        MessageToast.show(
-                            "Message marked as read."
-                        );
-
-
-                        await this._loadUnreadMessages();
-
-
-                        if (
-                            this._messagePopover
-                        ) {
-
-                            this._messagePopover.close();
-
-                        }
-
-
-                    } catch (error) {
-
-                        console.error(
-                            "Unable to mark message as read:",
-                            error
-                        );
-
-
-                        MessageToast.show(
-                            "Unable to update message."
-                        );
-                    }
-                },
 
 
             // =====================================================
@@ -1260,7 +1363,640 @@ sap.ui.define([
                         {},
                         true
                     );
-            }
+            },
+
+            _formatMessageDate: function (sDate) {
+
+                if (!sDate) {
+                    return "";
+                }
+
+                const oDate = new Date(sDate);
+
+                if (isNaN(oDate.getTime())) {
+                    return "";
+                }
+
+                return oDate.toLocaleString(
+                    "en-IN",
+                    {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    }
+                );
+            },
+
+            // =====================================================
+            // MAIL COUNT
+            // =====================================================
+
+            _loadMailCount: async function () {
+
+                const sUserName =
+                    this._getCurrentUser();
+
+                if (!sUserName) {
+
+                    this._setMailCount(0);
+
+                    return;
+                }
+
+
+                try {
+
+                    const sFilter =
+                        "receiverUserName eq '" +
+                        this._escapeODataValue(
+                            sUserName
+                        ) +
+                        "' and isRead eq false";
+
+
+                    const sUrl =
+                        "/payment-service/Messages" +
+                        "?$filter=" +
+                        encodeURIComponent(
+                            sFilter
+                        );
+
+
+                    const response =
+                        await fetch(
+                            sUrl,
+                            {
+
+                                method: "GET",
+
+                                headers: {
+
+                                    "Accept":
+                                        "application/json"
+
+                                }
+
+                            }
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "HTTP " +
+                            response.status
+                        );
+
+                    }
+
+
+                    const oData =
+                        await response.json();
+
+
+                    const aMessages =
+                        oData.value || [];
+
+
+                    this._setMailCount(
+                        aMessages.length
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Failed to load mail count:",
+                        error
+                    );
+
+                    this._setMailCount(0);
+
+                }
+
+            },
+
+            // =====================================================
+            // MAIL BADGE
+            // =====================================================
+
+            _setMailCount: function (iCount) {
+
+                const oModel =
+                    this.getView()
+                        .getModel("appView");
+
+
+                oModel.setProperty(
+                    "/mailCount",
+                    iCount
+                );
+
+
+                const oBadge =
+                    this.byId(
+                        "mailNotificationCount"
+                    );
+
+
+                if (!oBadge) {
+                    return;
+                }
+
+
+                if (iCount > 0) {
+
+                    oBadge.setText(
+                        iCount > 99
+                            ? "99+"
+                            : String(iCount)
+                    );
+
+
+                    oBadge.setVisible(true);
+
+                } else {
+
+                    oBadge.setVisible(false);
+
+                }
+
+            },
+
+            // =====================================================
+            // MAIL
+            // =====================================================
+
+            onMailPress: async function () {
+
+                try {
+
+                    const sUserName =
+                        this._getCurrentUser();
+
+
+                    if (!sUserName) {
+
+                        MessageToast.show(
+                            "Please login first."
+                        );
+
+                        return;
+                    }
+
+
+                    // =============================================
+                    // LOAD ALL MAIL
+                    // =============================================
+
+                    const sFilter =
+                        "receiverUserName eq '" +
+                        this._escapeODataValue(
+                            sUserName
+                        ) +
+                        "'";
+
+
+                    const sUrl =
+                        "/payment-service/Messages" +
+                        "?$filter=" +
+                        encodeURIComponent(
+                            sFilter
+                        ) +
+                        "&$orderby=" +
+                        encodeURIComponent(
+                            "createdAt desc"
+                        );
+
+
+                    const response =
+                        await fetch(
+                            sUrl,
+                            {
+
+                                method: "GET",
+
+                                headers: {
+
+                                    "Accept":
+                                        "application/json"
+
+                                }
+
+                            }
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "HTTP " +
+                            response.status
+                        );
+
+                    }
+
+
+                    const oData =
+                        await response.json();
+
+
+                    const aMessages =
+                        oData.value || [];
+
+
+                    // =============================================
+                    // CREATE MAIL DIALOG
+                    // =============================================
+
+                    if (!this._mailDialog) {
+
+                        this._mailDialog =
+                            new sap.m.Dialog({
+
+                                title: "Mail",
+
+                                contentWidth:
+                                    "700px",
+
+                                contentHeight:
+                                    "600px",
+
+                                stretchOnPhone:
+                                    true,
+
+                                draggable:
+                                    true,
+
+                                resizable:
+                                    true,
+
+                                verticalScrolling:
+                                    true,
+
+                                buttons: [
+
+                                    new Button({
+
+                                        text:
+                                            "Close",
+
+                                        type:
+                                            "Transparent",
+
+                                        press:
+                                            function () {
+
+                                                this._mailDialog.close();
+
+                                            }.bind(this)
+
+                                    })
+
+                                ]
+
+                            });
+
+
+                        this.getView()
+                            .addDependent(
+                                this._mailDialog
+                            );
+
+                    }
+
+
+                    this._mailDialog
+                        .removeAllContent();
+
+
+                    // =============================================
+                    // EMPTY MAILBOX
+                    // =============================================
+
+                    if (aMessages.length === 0) {
+
+                        const oEmpty =
+                            new VBox({
+
+                                alignItems:
+                                    "Center",
+
+                                justifyContent:
+                                    "Center",
+
+                                items: [
+
+                                    new Icon({
+
+                                        src:
+                                            "sap-icon://email-read",
+
+                                        size:
+                                            "3rem"
+
+                                    }),
+
+                                    new Text({
+
+                                        text:
+                                            "Your mailbox is empty.",
+
+                                        textAlign:
+                                            "Center"
+
+                                    })
+
+                                ]
+
+                            });
+
+
+                        oEmpty.addStyleClass(
+                            "emptyMessageDialog"
+                        );
+
+
+                        this._mailDialog
+                            .addContent(oEmpty);
+
+
+                        this._mailDialog.open();
+
+                        return;
+                    }
+
+
+                    // =============================================
+                    // MAIL LIST
+                    // =============================================
+
+                    const oList =
+                        new List({
+
+                            showSeparators:
+                                "Inner"
+
+                        });
+
+
+                    aMessages.forEach(
+                        function (oMail) {
+
+                            const bUnread =
+                                oMail.isRead !== true;
+
+
+                            const oSubject =
+                                new Title({
+
+                                    text:
+                                        oMail.subject ||
+                                        "No Subject",
+
+                                    level:
+                                        "H5"
+
+                                });
+
+
+                            const oFrom =
+                                new Text({
+
+                                    text:
+                                        "From: " +
+                                        (
+                                            oMail.senderUserName ||
+                                            "System"
+                                        )
+
+                                });
+
+
+                            const oDate =
+                                new Text({
+
+                                    text:
+                                        this._formatMessageDate(
+                                            oMail.createdAt
+                                        )
+
+                                });
+
+
+                            const oBody =
+                                new Text({
+
+                                    text:
+                                        oMail.message ||
+                                        "",
+
+                                    wrapping:
+                                        true
+
+                                });
+
+
+                            const oMarkRead =
+                                new Button({
+
+                                    text:
+                                        bUnread
+                                            ? "Mark as Read"
+                                            : "Read",
+
+                                    icon:
+                                        bUnread
+                                            ? "sap-icon://email-read"
+                                            : "sap-icon://accept",
+
+                                    type:
+                                        bUnread
+                                            ? "Emphasized"
+                                            : "Transparent",
+
+                                    enabled:
+                                        bUnread,
+
+                                    press:
+                                        function () {
+
+                                            this._markMailAsRead(
+                                                oMail.ID
+                                            );
+
+                                        }.bind(this)
+
+                                });
+
+
+                            const oBox =
+                                new VBox({
+
+                                    items: [
+
+                                        oSubject,
+
+                                        oFrom,
+
+                                        oDate,
+
+                                        oBody,
+
+                                        oMarkRead
+
+                                    ]
+
+                                });
+
+
+                            oBox.addStyleClass(
+                                "mailDialogItem"
+                            );
+
+
+                            if (bUnread) {
+
+                                oBox.addStyleClass(
+                                    "unreadMailItem"
+                                );
+
+                            }
+
+
+                            oList.addItem(
+
+                                new sap.m.CustomListItem({
+
+                                    content: [
+
+                                        oBox
+
+                                    ]
+
+                                })
+
+                            );
+
+                        }.bind(this)
+                    );
+
+
+                    this._mailDialog
+                        .addContent(oList);
+
+
+                    this._mailDialog.open();
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Unable to load mailbox:",
+                        error
+                    );
+
+
+                    MessageToast.show(
+                        "Unable to load mailbox."
+                    );
+
+                }
+
+            },
+
+            // =====================================================
+            // MARK MAIL AS READ
+            // =====================================================
+
+            _markMailAsRead: async function (
+                sMessageId
+            ) {
+
+                try {
+
+                    const response =
+                        await fetch(
+
+                            "/payment-service/Messages(" +
+                            sMessageId +
+                            ")",
+
+                            {
+
+                                method:
+                                    "PATCH",
+
+                                headers: {
+
+                                    "Content-Type":
+                                        "application/json",
+
+                                    "Accept":
+                                        "application/json"
+
+                                },
+
+                                body:
+                                    JSON.stringify({
+
+                                        isRead:
+                                            true
+
+                                    })
+
+                            }
+
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "HTTP " +
+                            response.status
+                        );
+
+                    }
+
+
+                    MessageToast.show(
+                        "Mail marked as read."
+                    );
+
+
+                    await this._loadNotifications();
+
+
+                    if (this._mailDialog) {
+
+                        this._mailDialog.close();
+
+                    }
+
+
+                    // Reopen with updated mailbox
+
+                    this.onMailPress();
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Unable to mark mail as read:",
+                        error
+                    );
+
+
+                    MessageToast.show(
+                        "Unable to update mail."
+                    );
+
+                }
+
+            },
 
         }
     );
