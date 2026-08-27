@@ -1,0 +1,86 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Popover
+        id="messagesPopover"
+        title="Messages"
+        placement="Bottom"
+        contentWidth="380px"
+        contentHeight="420px"
+        showHeader="true"
+        class="messagesPopover">
+
+        <content>
+
+            <List
+                id="messagesList"
+                items="{messages>/items}"
+                mode="None"
+                growing="true"
+                growingThreshold="20"
+                noDataText="No unread messages."
+                showSeparators="Inner"
+                class="messagesList">
+
+                <CustomListItem
+                    type="Active"
+                    press=".onMessageItemPress"
+                    class="messageListItem">
+
+                    <HBox
+                        width="100%"
+                        alignItems="Start"
+                        class="messageItemBox">
+
+                        <core:Icon
+                            src="sap-icon://circle-task-2"
+                            visible="{= !${messages>isRead} }"
+                            class="messageUnreadDot"/>
+
+                        <VBox
+                            width="100%"
+                            class="messageItemContent">
+
+                            <Text
+                                text="{messages>subject}"
+                                wrapping="false"
+                                maxLines="1"
+                                class="messageSubject"/>
+
+                            <HBox
+                                width="100%"
+                                justifyContent="SpaceBetween"
+                                alignItems="Center">
+
+                                <Text
+                                    text="{= 'From: ' + ${messages>senderUserName} }"
+                                    wrapping="false"
+                                    class="messageSender"/>
+
+                                <Text
+                                    text="{messages>createdAt}"
+                                    wrapping="false"
+                                    class="messageTime"/>
+
+                            </HBox>
+
+                            <Text
+                                text="{messages>message}"
+                                wrapping="false"
+                                maxLines="1"
+                                class="messagePreview"/>
+
+                        </VBox>
+
+                    </HBox>
+
+                </CustomListItem>
+
+            </List>
+
+        </content>
+
+    </Popover>
+
+</core:FragmentDefinition>

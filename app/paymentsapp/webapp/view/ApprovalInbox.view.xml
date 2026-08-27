@@ -140,24 +140,44 @@
                     <!-- TABLE HEADER -->
 
                     <HBox
-                        class="approvalTableHeader"
-                        justifyContent="SpaceBetween"
-                        alignItems="Center">
+    class="approvalTableHeader"
+    justifyContent="SpaceBetween"
+    alignItems="Center">
 
-                        <VBox>
+    <VBox>
 
-                            <Title
-                                text="Pending Approval Queue"
-                                level="H2"
-                                class="approvalTableTitle"/>
+        <Title
+            text="Pending Approval Queue"
+            level="H2"
+            class="approvalTableTitle"/>
 
-                            <Text
-                                text="Payments currently awaiting review"
-                                class="approvalTableSubtitle"/>
+        <Text
+            text="Payments currently awaiting review"
+            class="approvalTableSubtitle"/>
 
-                        </VBox>
+    </VBox>
 
-                    </HBox>
+    <HBox
+        alignItems="Center"
+        class="bulkApprovalActions">
+
+        <Text
+            id="selectedCountText"
+            text="0 selected"
+            class="selectedCountText"/>
+
+        <Button
+            id="bulkApproveButton"
+            text="Approve All"
+            icon="sap-icon://accept"
+            type="Accept"
+            enabled="false"
+            press=".onBulkApprove"
+            class="bulkApproveButton"/>
+
+    </HBox>
+
+</HBox>
 
 
                     <!-- ================================================= -->
@@ -165,13 +185,16 @@
                     <!-- ================================================= -->
 
                     <Table
-                        id="approvalTable"
-                        items="{approval>/payments}"
-                        growing="true"
-                        growingThreshold="20"
-                        growingScrollToLoad="false"
-                        noDataText="No payments are currently awaiting approval."
-                        class="approvalTable">
+    id="approvalTable"
+    items="{approval>/payments}"
+    mode="MultiSelect"
+    includeItemInSelection="true"
+    growing="true"
+    growingThreshold="20"
+    growingScrollToLoad="false"
+    noDataText="No payments are currently awaiting approval."
+    selectionChange=".onPaymentSelectionChange"
+    class="approvalTable">
 
 
                         <!-- ================================================= -->

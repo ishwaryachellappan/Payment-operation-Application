@@ -10,7 +10,9 @@ sap.ui.define([
     "sap/m/List",
     "sap/m/StandardListItem",
     "sap/m/MessageToast",
-    "sap/ui/core/Icon"
+    "sap/m/MessageBox",
+    "sap/ui/core/Icon",
+    "sap/ui/core/Fragment"
 ], function (
     Controller,
     JSONModel,
@@ -23,7 +25,9 @@ sap.ui.define([
     List,
     StandardListItem,
     MessageToast,
-    Icon
+    MessageBox,
+    Icon,
+    Fragment
 ) {
 
     "use strict";
@@ -70,7 +74,16 @@ sap.ui.define([
                         this._onRouteMatched,
                         this
                     );
+                // =====================================================
+                // MESSAGES MODEL
+                // =====================================================
 
+                this.getView().setModel(
+                    new JSONModel({
+                        items: []
+                    }),
+                    "messages"
+                );
 
                 // Initial notification loading
 
@@ -317,32 +330,32 @@ sap.ui.define([
 
             _loadUnreadMessages: async function () {
 
-    try {
+                try {
 
-        const aMessages =
-            await this._getUnreadMessages();
+                    const aMessages =
+                        await this._getUnreadMessages();
 
-        console.log(
-            "UNREAD MESSAGE COUNT:",
-            aMessages.length
-        );
+                    console.log(
+                        "UNREAD MESSAGE COUNT:",
+                        aMessages.length
+                    );
 
-        this._setMessageCount(
-            aMessages.length
-        );
+                    this._setMessageCount(
+                        aMessages.length
+                    );
 
-    } catch (error) {
+                } catch (error) {
 
-        console.error(
-            "Unread message count error:",
-            error
-        );
+                    console.error(
+                        "Unread message count error:",
+                        error
+                    );
 
-        this._setMessageCount(0);
+                    this._setMessageCount(0);
 
-    }
+                }
 
-},
+            },
 
             // =====================================================
             // MESSAGE BADGE
@@ -405,760 +418,858 @@ sap.ui.define([
 
             onApprovalNotificationsPress: async function () {
 
-    try {
+                try {
 
-        // -------------------------------------------------
-        // Get all pending payments
-        // -------------------------------------------------
+                    // -------------------------------------------------
+                    // Get all pending payments
+                    // -------------------------------------------------
 
-        const response = await fetch(
-            "/payment-service/Payments?" +
-            "$filter=status%20eq%20'PENDING_APPROVAL'" +
-            "&$orderby=createdAt%20desc",
-            {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json"
-                }
-            }
-        );
-
-        if (!response.ok) {
-
-            throw new Error(
-                "HTTP " + response.status
-            );
-        }
-
-        const data =
-            await response.json();
-
-        const aPayments =
-            data.value || [];
-
-        console.log(
-            "APPROVAL BELL PAYMENTS:",
-            aPayments
-        );
-
-
-        // -------------------------------------------------
-        // Close existing popover
-        // -------------------------------------------------
-
-        if (
-            this._approvalPopover &&
-            this._approvalPopover.isOpen()
-        ) {
-
-            this._approvalPopover.close();
-
-            return;
-        }
-
-
-        // -------------------------------------------------
-        // Title
-        // -------------------------------------------------
-
-        const oTitle =
-            new Title({
-                text:
-                    "Pending Approvals (" +
-                    aPayments.length +
-                    ")",
-                level: "H4"
-            });
-
-        oTitle.addStyleClass(
-            "notificationPopoverTitle"
-        );
-
-
-        // -------------------------------------------------
-        // Empty state
-        // -------------------------------------------------
-
-        if (aPayments.length === 0) {
-
-            const oEmpty =
-                new VBox({
-
-                    alignItems: "Center",
-
-                    justifyContent: "Center",
-
-                    items: [
-
-                        new Icon({
-                            src:
-                                "sap-icon://accept",
-                            size:
-                                "2rem"
-                        }),
-
-                        new Text({
-                            text:
-                                "No payments are waiting for approval.",
-                            textAlign:
-                                "Center"
-                        })
-
-                    ]
-                });
-
-            oEmpty.addStyleClass(
-                "emptyMessageDialog"
-            );
-
-
-            const oContent =
-                new VBox({
-
-                    items: [
-                        oTitle,
-                        oEmpty
-                    ]
-
-                });
-
-            oContent.addStyleClass(
-                "notificationPopoverContent"
-            );
-
-
-            if (this._approvalPopover) {
-                this._approvalPopover.destroy();
-            }
-
-
-            this._approvalPopover =
-                new Popover({
-
-                    showHeader: false,
-
-                    placement: "Bottom",
-
-                    contentWidth: "380px",
-
-                    content: [
-                        oContent
-                    ]
-
-                });
-
-
-            this._approvalPopover.openBy(
-                this.byId(
-                    "approvalNotificationButton"
-                )
-            );
-
-            return;
-        }
-
-
-        // -------------------------------------------------
-        // Payment list
-        // -------------------------------------------------
-
-        const oList =
-            new List({
-                showSeparators: "Inner"
-            });
-
-
-        aPayments.forEach(
-            function (oPayment) {
-
-                const sAmount =
-                    oPayment.amount !== undefined &&
-                    oPayment.amount !== null
-                        ? Number(
-                            oPayment.amount
-                        ).toLocaleString(
-                            "en-IN",
-                            {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
+                    const response = await fetch(
+                        "/payment-service/Payments?" +
+                        "$filter=status%20eq%20'PENDING_APPROVAL'" +
+                        "&$orderby=createdAt%20desc",
+                        {
+                            method: "GET",
+                            headers: {
+                                "Accept": "application/json"
                             }
-                        )
-                        : "-";
+                        }
+                    );
 
+                    if (!response.ok) {
 
-                const oReference =
-                    new Title({
+                        throw new Error(
+                            "HTTP " + response.status
+                        );
+                    }
 
-                        text:
-                            oPayment.paymentReference ||
-                            "Payment",
+                    const data =
+                        await response.json();
 
-                        level: "H5"
+                    const aPayments =
+                        data.value || [];
 
-                    });
-
-
-                const oDetails =
-                    new Text({
-
-                        text:
-                            "Company: " +
-                            (oPayment.companyCode || "-") +
-                            "\nAmount: " +
-                            sAmount +
-                            " " +
-                            (oPayment.currency || "") +
-                            "\nCreated by: " +
-                            (oPayment.createdByUserName || "-"),
-
-                        wrapping: true
-
-                    });
-
-
-                const oViewButton =
-                    new Button({
-
-                        text:
-                            "View Approval",
-
-                        icon:
-                            "sap-icon://task",
-
-                        type:
-                            "Emphasized",
-
-                        press:
-                            function () {
-
-                                if (
-                                    this._approvalPopover
-                                ) {
-
-                                    this._approvalPopover.close();
-
-                                }
-
-
-                                this.getOwnerComponent()
-                                    .getRouter()
-                                    .navTo(
-                                        "ApprovalInbox"
-                                    );
-
-                            }.bind(this)
-
-                    });
-
-
-                const oBox =
-                    new VBox({
-
-                        items: [
-
-                            oReference,
-
-                            oDetails,
-
-                            oViewButton
-
-                        ]
-
-                    });
-
-
-                oBox.addStyleClass(
-                    "approvalNotificationItem"
-                );
-
-
-                oList.addItem(
-
-                    new sap.m.CustomListItem({
-
-                        content: [
-                            oBox
-                        ]
-
-                    })
-
-                );
-
-            }.bind(this)
-        );
-
-
-        // -------------------------------------------------
-        // Content
-        // -------------------------------------------------
-
-        const oContent =
-            new VBox({
-
-                items: [
-
-                    oTitle,
-
-                    oList
-
-                ]
-
-            });
-
-
-        oContent.addStyleClass(
-            "notificationPopoverContent"
-        );
-
-
-        // -------------------------------------------------
-        // Create popover
-        // -------------------------------------------------
-
-        if (this._approvalPopover) {
-
-            this._approvalPopover.destroy();
-
-        }
-
-
-        this._approvalPopover =
-            new Popover({
-
-                showHeader: false,
-
-                placement: "Bottom",
-
-                contentWidth: "400px",
-
-                contentHeight: "500px",
-
-                verticalScrolling: true,
-
-                content: [
-                    oContent
-                ]
-
-            });
-
-
-        // -------------------------------------------------
-        // Open
-        // -------------------------------------------------
-
-        this._approvalPopover.openBy(
-            this.byId(
-                "approvalNotificationButton"
-            )
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Unable to load pending approvals:",
-            error
-        );
-
-        MessageToast.show(
-            "Unable to load pending approvals."
-        );
-
-    }
-
-},
-
-            // =====================================================
-            // MESSAGES
-            // Short system notifications
-            // Opening the popup automatically marks them as read
-            // =====================================================
-
-            onMessageNotificationsPress: async function () {
-
-    try {
-
-        const aMessages =
-            await this._getUnreadMessages();
-
-        console.log(
-            "OPENING MESSAGES:",
-            aMessages
-        );
-
-
-        // ============================================
-        // CREATE POPUP
-        // ============================================
-
-        if (
-            this._messagePopover &&
-            this._messagePopover.isOpen()
-        ) {
-
-            this._messagePopover.close();
-
-            return;
-        }
-
-
-        const oList =
-            new List({
-                showSeparators: "Inner"
-            });
-
-
-        // ============================================
-        // NO MESSAGES
-        // ============================================
-
-        if (aMessages.length === 0) {
-
-            oList.addItem(
-
-                new sap.m.CustomListItem({
-
-                    content: [
-
-                        new Text({
-                            text:
-                                "No new messages."
-                        })
-
-                    ]
-
-                })
-
-            );
-
-        } else {
-
-
-            // ==========================================
-            // ONE LINE PER MESSAGE
-            // ==========================================
-
-            aMessages.forEach(
-                function (oMessage) {
-
-                    const sMessage =
-                        oMessage.subject ||
-                        oMessage.message ||
-                        "New message";
-
-
-                    const oText =
-                        new Text({
-
-                            text:
-                                sMessage,
-
-                            wrapping:
-                                false,
-
-                            maxLines:
-                                1
-
-                        });
-
-
-                    oText.addStyleClass(
-                        "simpleMessageText"
+                    console.log(
+                        "APPROVAL BELL PAYMENTS:",
+                        aPayments
                     );
 
 
-                    oList.addItem(
+                    // -------------------------------------------------
+                    // Close existing popover
+                    // -------------------------------------------------
 
-                        new sap.m.CustomListItem({
+                    if (
+                        this._approvalPopover &&
+                        this._approvalPopover.isOpen()
+                    ) {
 
-                            content: [
+                        this._approvalPopover.close();
 
-                                new HBox({
+                        return;
+                    }
 
-                                    alignItems:
-                                        "Center",
+
+                    // -------------------------------------------------
+                    // Title
+                    // -------------------------------------------------
+
+                    const oTitle =
+                        new Title({
+                            text:
+                                "Pending Approvals (" +
+                                aPayments.length +
+                                ")",
+                            level: "H4"
+                        });
+
+                    oTitle.addStyleClass(
+                        "notificationPopoverTitle"
+                    );
+
+
+                    // -------------------------------------------------
+                    // Empty state
+                    // -------------------------------------------------
+
+                    if (aPayments.length === 0) {
+
+                        const oEmpty =
+                            new VBox({
+
+                                alignItems: "Center",
+
+                                justifyContent: "Center",
+
+                                items: [
+
+                                    new Icon({
+                                        src:
+                                            "sap-icon://accept",
+                                        size:
+                                            "2rem"
+                                    }),
+
+                                    new Text({
+                                        text:
+                                            "No payments are waiting for approval.",
+                                        textAlign:
+                                            "Center"
+                                    })
+
+                                ]
+                            });
+
+                        oEmpty.addStyleClass(
+                            "emptyMessageDialog"
+                        );
+
+
+                        const oContent =
+                            new VBox({
+
+                                items: [
+                                    oTitle,
+                                    oEmpty
+                                ]
+
+                            });
+
+                        oContent.addStyleClass(
+                            "notificationPopoverContent"
+                        );
+
+
+                        if (this._approvalPopover) {
+                            this._approvalPopover.destroy();
+                        }
+
+
+                        this._approvalPopover =
+                            new Popover({
+
+                                showHeader: false,
+
+                                placement: "Bottom",
+
+                                contentWidth: "380px",
+
+                                content: [
+                                    oContent
+                                ]
+
+                            });
+
+
+                        this._approvalPopover.openBy(
+                            this.byId(
+                                "approvalNotificationButton"
+                            )
+                        );
+
+                        return;
+                    }
+
+
+                    // -------------------------------------------------
+                    // Payment list
+                    // -------------------------------------------------
+
+                    const oList =
+                        new List({
+                            showSeparators: "Inner"
+                        });
+
+
+                    aPayments.forEach(
+                        function (oPayment) {
+
+                            const sAmount =
+                                oPayment.amount !== undefined &&
+                                    oPayment.amount !== null
+                                    ? Number(
+                                        oPayment.amount
+                                    ).toLocaleString(
+                                        "en-IN",
+                                        {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        }
+                                    )
+                                    : "-";
+
+
+                            const oReference =
+                                new Title({
+
+                                    text:
+                                        oPayment.paymentReference ||
+                                        "Payment",
+
+                                    level: "H5"
+
+                                });
+
+
+                            const oDetails =
+                                new Text({
+
+                                    text:
+                                        "Company: " +
+                                        (oPayment.companyCode || "-") +
+                                        "\nAmount: " +
+                                        sAmount +
+                                        " " +
+                                        (oPayment.currency || "") +
+                                        "\nCreated by: " +
+                                        (oPayment.createdByUserName || "-"),
+
+                                    wrapping: true
+
+                                });
+
+
+                            const oViewButton =
+                                new Button({
+
+                                    text:
+                                        "View Approval",
+
+                                    icon:
+                                        "sap-icon://task",
+
+                                    type:
+                                        "Emphasized",
+
+                                    press:
+                                        function () {
+
+                                            if (
+                                                this._approvalPopover
+                                            ) {
+
+                                                this._approvalPopover.close();
+
+                                            }
+
+
+                                            this.getOwnerComponent()
+                                                .getRouter()
+                                                .navTo(
+                                                    "ApprovalInbox"
+                                                );
+
+                                        }.bind(this)
+
+                                });
+
+
+                            const oBox =
+                                new VBox({
 
                                     items: [
 
-                                        new Icon({
+                                        oReference,
 
-                                            src:
-                                                "sap-icon://message-information",
+                                        oDetails,
 
-                                            size:
-                                                "1rem"
+                                        oViewButton
 
-                                        }),
+                                    ]
 
-                                        oText
+                                });
 
+
+                            oBox.addStyleClass(
+                                "approvalNotificationItem"
+                            );
+
+
+                            oList.addItem(
+
+                                new sap.m.CustomListItem({
+
+                                    content: [
+                                        oBox
                                     ]
 
                                 })
 
-                            ]
+                            );
 
-                        })
-
+                        }.bind(this)
                     );
 
-                }.bind(this)
-            );
-        }
+
+                    // -------------------------------------------------
+                    // Content
+                    // -------------------------------------------------
+
+                    const oContent =
+                        new VBox({
+
+                            items: [
+
+                                oTitle,
+
+                                oList
+
+                            ]
+
+                        });
 
 
-        // ============================================
-        // POPUP CONTENT
-        // ============================================
-
-        const oContent =
-            new VBox({
-
-                items: [
-
-                    new Title({
-
-                        text:
-                            "Messages",
-
-                        level:
-                            "H4"
-
-                    }),
-
-                    oList
-
-                ]
-
-            });
+                    oContent.addStyleClass(
+                        "notificationPopoverContent"
+                    );
 
 
-        oContent.addStyleClass(
-            "messagePopoverContent"
-        );
+                    // -------------------------------------------------
+                    // Create popover
+                    // -------------------------------------------------
+
+                    if (this._approvalPopover) {
+
+                        this._approvalPopover.destroy();
+
+                    }
 
 
-        // ============================================
-        // CREATE POPOVER
-        // ============================================
+                    this._approvalPopover =
+                        new Popover({
 
-        if (this._messagePopover) {
+                            showHeader: false,
 
-            this._messagePopover.destroy();
+                            placement: "Bottom",
 
-        }
+                            contentWidth: "400px",
 
+                            contentHeight: "500px",
 
-        this._messagePopover =
-            new Popover({
+                            verticalScrolling: true,
 
-                showHeader:
-                    false,
+                            content: [
+                                oContent
+                            ]
 
-                placement:
-                    "Bottom",
-
-                contentWidth:
-                    "400px",
-
-                contentHeight:
-                    "350px",
-
-                verticalScrolling:
-                    true,
-
-                content: [
-
-                    oContent
-
-                ]
-
-            });
+                        });
 
 
-        // ============================================
-        // OPEN
-        // ============================================
+                    // -------------------------------------------------
+                    // Open
+                    // -------------------------------------------------
 
-        this._messagePopover.openBy(
-
-            this.byId(
-                "messageNotificationButton"
-            )
-
-        );
-
-
-        // ============================================
-        // AUTOMATICALLY MARK AS READ
-        // ============================================
-
-        for (
-            const oMessage of aMessages
-        ) {
-
-            if (
-                oMessage.ID &&
-                oMessage.isRead === false
-            ) {
-
-                try {
-
-                    await fetch(
-
-                        "/payment-service/Messages(" +
-                        oMessage.ID +
-                        ")",
-
-                        {
-
-                            method:
-                                "PATCH",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Accept":
-                                    "application/json"
-
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    isRead:
-                                        true
-
-                                })
-
-                        }
-
+                    this._approvalPopover.openBy(
+                        this.byId(
+                            "approvalNotificationButton"
+                        )
                     );
 
                 } catch (error) {
 
                     console.error(
-                        "Unable to mark message read:",
+                        "Unable to load pending approvals:",
+                        error
+                    );
+
+                    MessageToast.show(
+                        "Unable to load pending approvals."
+                    );
+
+                }
+
+            },
+
+            // =====================================================
+            // OPEN MESSAGES POPUP
+            // =====================================================
+
+           onMessageNotificationsPress: async function (oEvent) {
+
+    try {
+
+        // Create the popover only once
+        if (!this._messagesPopover) {
+
+            this._messagesPopover =
+                await Fragment.load({
+
+                    name:
+                        "paymentsapp.view.fragment.MessagesPopover",
+
+                    controller:
+                        this
+
+                });
+
+            this.getView().addDependent(
+                this._messagesPopover
+            );
+        }
+
+        // Load messages
+        await this._loadMessages();
+
+        // Open popup
+        this._messagesPopover.openBy(
+            oEvent.getSource()
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Unable to load messages:",
+            error
+        );
+
+        MessageBox.error(
+            "Unable to load messages."
+        );
+    }
+},
+            // =====================================================
+            // LOAD UNREAD MESSAGES
+            // =====================================================
+
+            _loadMessages: async function () {
+
+                var sUserName =
+                    sessionStorage.getItem("username") ||
+                    sessionStorage.getItem("userName");
+
+
+                if (!sUserName) {
+
+                    console.warn(
+                        "No logged-in username found."
+                    );
+
+                    return;
+                }
+
+
+                console.log(
+                    "Loading messages for:",
+                    sUserName
+                );
+
+
+                try {
+
+                    var sFilter =
+                        "receiverUserName eq '" +
+                        this._escapeODataValue(sUserName) +
+                        "' and isRead eq false";
+
+
+                    var sUrl =
+                        "/payment-service/Messages?" +
+                        "$filter=" +
+                        encodeURIComponent(sFilter) +
+                        "&$orderby=createdAt desc";
+
+
+                    console.log(
+                        "Messages URL:",
+                        sUrl
+                    );
+
+
+                    var response =
+                        await fetch(sUrl, {
+
+                            method: "GET",
+
+                            headers: {
+                                "Accept":
+                                    "application/json"
+                            }
+
+                        });
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "HTTP " + response.status
+                        );
+
+                    }
+
+
+                    var data =
+                        await response.json();
+
+
+                    console.log(
+                        "Messages response:",
+                        data
+                    );
+
+
+                    var aMessages =
+                        data.value || [];
+
+
+                    // -------------------------------------------------
+                    // Format date
+                    // -------------------------------------------------
+
+                    aMessages =
+                        aMessages.map(function (oMessage) {
+
+                            var oCopy =
+                                Object.assign(
+                                    {},
+                                    oMessage
+                                );
+
+
+                            if (oCopy.createdAt) {
+
+                                var oDate =
+                                    new Date(
+                                        oCopy.createdAt
+                                    );
+
+                                oCopy.createdAt =
+                                    oDate.toLocaleString(
+                                        "en-IN",
+                                        {
+                                            day: "2-digit",
+                                            month: "short",
+                                            hour: "2-digit",
+                                            minute: "2-digit"
+                                        }
+                                    );
+
+                            }
+
+
+                            return oCopy;
+
+                        });
+
+
+                    // -------------------------------------------------
+                    // Update model
+                    // -------------------------------------------------
+
+                    this.getView()
+                        .getModel("messages")
+                        .setProperty(
+                            "/items",
+                            aMessages
+                        );
+
+
+                    // -------------------------------------------------
+                    // Update notification badge
+                    // -------------------------------------------------
+
+                    this._updateMessageBadge(
+                        aMessages.length
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Failed to load messages:",
+                        error
+                    );
+
+                    throw error;
+
+                }
+
+            },
+
+            // =====================================================
+            // ESCAPE ODATA STRING
+            // =====================================================
+
+            _escapeODataValue: function (sValue) {
+
+                return String(
+                    sValue || ""
+                ).replace(
+                    /'/g,
+                    "''"
+                );
+
+            },
+
+            // =====================================================
+            // UPDATE MESSAGE BADGE
+            // =====================================================
+
+            _updateMessageBadge: function (iCount) {
+
+                var oBadge =
+                    this.byId(
+                        "messageNotificationCount"
+                    );
+
+
+                if (!oBadge) {
+                    return;
+                }
+
+
+                if (iCount > 0) {
+
+                    oBadge.setText(
+                        String(iCount)
+                    );
+
+                    oBadge.setVisible(true);
+
+                } else {
+
+                    oBadge.setText("0");
+
+                    oBadge.setVisible(false);
+
+                }
+
+            },
+
+            // =====================================================
+            // CLICK MESSAGE
+            // =====================================================
+
+            onMessageItemPress: async function (oEvent) {
+
+    var oItem = oEvent.getSource();
+
+    var oContext =
+        oItem.getBindingContext("messages");
+
+    if (!oContext) {
+
+        console.error(
+            "Message context not found"
+        );
+
+        return;
+    }
+
+    var oMessage =
+        oContext.getObject();
+
+    console.log(
+        "Selected message:",
+        oMessage
+    );
+
+
+    // ---------------------------------------------
+    // Mark as read immediately
+    // ---------------------------------------------
+
+    await this._markMessageAsRead(
+        oMessage.ID
+    );
+
+
+    // ---------------------------------------------
+    // Show complete message
+    // ---------------------------------------------
+
+    MessageBox.information(
+
+        oMessage.message ||
+        "No message content.",
+
+        {
+            title:
+                oMessage.subject ||
+                "Message",
+
+            details:
+                "From: " +
+                (oMessage.senderUserName || "") +
+                "\n\n" +
+
+                "To: " +
+                (oMessage.receiverUserName || "") +
+                "\n\n" +
+
+                "Date: " +
+                (oMessage.createdAt || "")
+        }
+
+    );
+
+},
+            // =====================================================
+            // MARK MESSAGE AS READ
+            // =====================================================
+
+            _markMessageAsRead: async function (sMessageId) {
+
+                if (!sMessageId) {
+                    return;
+                }
+
+
+                try {
+
+                    var response =
+                        await fetch(
+
+                            "/payment-service/Messages(" +
+                            sMessageId +
+                            ")",
+
+                            {
+
+                                method: "PATCH",
+
+                                headers: {
+
+                                    "Content-Type":
+                                        "application/json",
+
+                                    "Accept":
+                                        "application/json"
+
+                                },
+
+                                body: JSON.stringify({
+
+                                    isRead: true
+
+                                })
+
+                            }
+
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "HTTP " +
+                            response.status
+                        );
+
+                    }
+
+
+                    console.log(
+                        "Message marked as read:",
+                        sMessageId
+                    );
+
+
+                    // -------------------------------------------------
+                    // Reload messages
+                    // -------------------------------------------------
+
+                    await this._loadMessages();
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Failed to mark message as read:",
                         error
                     );
 
                 }
 
-            }
-
-        }
-
-
-        // ============================================
-        // CLEAR BADGE
-        // ============================================
-
-        this._setMessageCount(0);
-
-    } catch (error) {
-
-        console.error(
-            "Unable to open messages:",
-            error
-        );
-
-        MessageToast.show(
-            "Unable to load messages."
-        );
-
-    }
-
-},
+            },
             // =====================================================
             // GET UNREAD MESSAGES
             // =====================================================
 
-           _getUnreadMessages: async function () {
+            _getUnreadMessages: async function () {
 
-    const sUserName =
-        this._getCurrentUser();
+                const sUserName =
+                    this._getCurrentUser();
 
-    console.log(
-        "MESSAGE USER:",
-        sUserName
-    );
+                console.log(
+                    "MESSAGE USER:",
+                    sUserName
+                );
 
-    if (!sUserName) {
-        return [];
-    }
-
-    try {
-
-        const sFilter =
-            "receiverUserName eq '" +
-            String(sUserName).replace(
-                /'/g,
-                "''"
-            ) +
-            "' and isRead eq false";
-
-        const sUrl =
-            "/payment-service/Messages?" +
-            "$filter=" +
-            encodeURIComponent(sFilter);
-
-        console.log(
-            "MESSAGE URL:",
-            sUrl
-        );
-
-        const response =
-            await fetch(
-                sUrl,
-                {
-                    method: "GET",
-
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    }
+                if (!sUserName) {
+                    return [];
                 }
-            );
 
-        console.log(
-            "MESSAGE HTTP STATUS:",
-            response.status
-        );
+                try {
 
-        if (!response.ok) {
+                    const sFilter =
+                        "receiverUserName eq '" +
+                        String(sUserName).replace(
+                            /'/g,
+                            "''"
+                        ) +
+                        "' and isRead eq false";
 
-            const sError =
-                await response.text();
+                    const sUrl =
+                        "/payment-service/Messages?" +
+                        "$filter=" +
+                        encodeURIComponent(sFilter);
 
-            console.error(
-                "MESSAGE API ERROR:",
-                sError
-            );
+                    console.log(
+                        "MESSAGE URL:",
+                        sUrl
+                    );
 
-            return [];
-        }
+                    const response =
+                        await fetch(
+                            sUrl,
+                            {
+                                method: "GET",
 
-        const oData =
-            await response.json();
+                                headers: {
+                                    "Accept":
+                                        "application/json"
+                                }
+                            }
+                        );
 
-        console.log(
-            "MESSAGES:",
-            oData
-        );
+                    console.log(
+                        "MESSAGE HTTP STATUS:",
+                        response.status
+                    );
 
-        return oData.value || [];
+                    if (!response.ok) {
 
-    } catch (error) {
+                        const sError =
+                            await response.text();
 
-        console.error(
-            "MESSAGE LOAD ERROR:",
-            error
-        );
+                        console.error(
+                            "MESSAGE API ERROR:",
+                            sError
+                        );
 
-        return [];
-    }
-},
+                        return [];
+                    }
+
+                    const oData =
+                        await response.json();
+
+                    console.log(
+                        "MESSAGES:",
+                        oData
+                    );
+
+                    return oData.value || [];
+
+                } catch (error) {
+
+                    console.error(
+                        "MESSAGE LOAD ERROR:",
+                        error
+                    );
+
+                    return [];
+                }
+            },
             // =====================================================
             // MARK MESSAGE AS READ
             // =====================================================
@@ -1413,117 +1524,117 @@ sap.ui.define([
             // MAIL COUNT
             // =====================================================
 
-           _loadMailCount: async function () {
+            _loadMailCount: async function () {
 
-    const sUserName =
-        this._getCurrentUser();
+                const sUserName =
+                    this._getCurrentUser();
 
-    console.log(
-        "MAIL COUNT USER:",
-        sUserName
-    );
+                console.log(
+                    "MAIL COUNT USER:",
+                    sUserName
+                );
 
-    if (!sUserName) {
+                if (!sUserName) {
 
-        this._setMailCount(0);
+                    this._setMailCount(0);
 
-        return;
-    }
-
-    try {
-
-        // Escape single quotes for OData
-        const sSafeUserName =
-            String(sUserName).replace(
-                /'/g,
-                "''"
-            );
-
-
-        const sFilter =
-            "receiverUserName eq '" +
-            sSafeUserName +
-            "' and isRead eq false";
-
-
-        const sUrl =
-            "/payment-service/Messages" +
-            "?$filter=" +
-            encodeURIComponent(
-                sFilter
-            );
-
-
-        console.log(
-            "MAIL COUNT REQUEST:",
-            sUrl
-        );
-
-
-        const response =
-            await fetch(
-                sUrl,
-                {
-                    method: "GET",
-
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    }
+                    return;
                 }
-            );
+
+                try {
+
+                    // Escape single quotes for OData
+                    const sSafeUserName =
+                        String(sUserName).replace(
+                            /'/g,
+                            "''"
+                        );
 
 
-        console.log(
-            "MAIL COUNT STATUS:",
-            response.status
-        );
+                    const sFilter =
+                        "receiverUserName eq '" +
+                        sSafeUserName +
+                        "' and isRead eq false";
 
 
-        if (!response.ok) {
-
-            const sError =
-                await response.text();
-
-            console.error(
-                "MAIL COUNT API ERROR:",
-                sError
-            );
-
-            this._setMailCount(0);
-
-            return;
-        }
+                    const sUrl =
+                        "/payment-service/Messages" +
+                        "?$filter=" +
+                        encodeURIComponent(
+                            sFilter
+                        );
 
 
-        const oData =
-            await response.json();
+                    console.log(
+                        "MAIL COUNT REQUEST:",
+                        sUrl
+                    );
 
 
-        const aMessages =
-            oData.value || [];
+                    const response =
+                        await fetch(
+                            sUrl,
+                            {
+                                method: "GET",
+
+                                headers: {
+                                    "Accept":
+                                        "application/json"
+                                }
+                            }
+                        );
 
 
-        console.log(
-            "UNREAD MAIL COUNT:",
-            aMessages.length
-        );
+                    console.log(
+                        "MAIL COUNT STATUS:",
+                        response.status
+                    );
 
 
-        this._setMailCount(
-            aMessages.length
-        );
+                    if (!response.ok) {
 
-    } catch (error) {
+                        const sError =
+                            await response.text();
 
-        console.error(
-            "Failed to load mail count:",
-            error
-        );
+                        console.error(
+                            "MAIL COUNT API ERROR:",
+                            sError
+                        );
 
-        this._setMailCount(0);
-    }
-},
+                        this._setMailCount(0);
+
+                        return;
+                    }
+
+
+                    const oData =
+                        await response.json();
+
+
+                    const aMessages =
+                        oData.value || [];
+
+
+                    console.log(
+                        "UNREAD MAIL COUNT:",
+                        aMessages.length
+                    );
+
+
+                    this._setMailCount(
+                        aMessages.length
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Failed to load mail count:",
+                        error
+                    );
+
+                    this._setMailCount(0);
+                }
+            },
             // =====================================================
             // MAIL BADGE
             // =====================================================
@@ -1573,11 +1684,11 @@ sap.ui.define([
 
             onMailPress: function () {
 
-    this.getOwnerComponent()
-        .getRouter()
-        .navTo("Mail");
+                this.getOwnerComponent()
+                    .getRouter()
+                    .navTo("Mail");
 
-},
+            },
 
             // =====================================================
             // MARK MAIL AS READ

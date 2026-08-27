@@ -96,6 +96,16 @@ service PaymentService {
 
 
     // =====================================================
+    // BULK APPROVAL
+    // =====================================================
+
+    action bulkApprovePayments(
+        paymentIds  : LargeString,
+        performedBy : String
+    ) returns BulkApprovalResponse;
+
+
+    // =====================================================
     // BULK UPLOAD
     // =====================================================
 
@@ -106,10 +116,6 @@ service PaymentService {
 
 }
 
-action bulkApprovePayments(
-    paymentIds : LargeString,
-    performedBy : String
-) returns BulkApprovalResponse;
 
 // =========================================================
 // RESPONSE TYPES
@@ -121,11 +127,11 @@ type LoginResponse {
 
     username : String;
 
-    fullName : String;
+    fullName  : String;
 
-    role     : String;
+    role      : String;
 
-    message  : String;
+    message   : String;
 
 }
 
@@ -152,24 +158,31 @@ type PaymentResponse {
 
 type BulkUploadResponse {
 
-    success        : Boolean;
+    success         : Boolean;
 
-    totalRows      : Integer;
+    totalRows       : Integer;
 
-    successfulRows : Integer;
+    successfulRows  : Integer;
 
-    failedRows     : Integer;
+    failedRows      : Integer;
 
-    message        : String;
+    message         : String;
 
-    errors         : String;
+    errors          : String;
 
 }
 
+
 type BulkApprovalResponse {
-    success : Boolean;
-    totalSelected : Integer;
-    successful : Integer;
-    failed : Integer;
-    message : String;
+
+    success         : Boolean;
+
+    totalSelected   : Integer;
+
+    successful      : Integer;
+
+    failed          : Integer;
+
+    message         : String;
+
 };

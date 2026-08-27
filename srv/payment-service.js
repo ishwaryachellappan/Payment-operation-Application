@@ -886,6 +886,319 @@ if (!paymentCreator) {
         };
     });
 
+    // =========================================================
+// BULK APPROVE PAYMENTS
+// =========================================================
+
+this.on('bulkApprovePayments', async (req) => {
+
+    const {
+        paymentIds,
+        performedBy
+    } = req.data;
+
+
+    // ---------------------------------------------------------
+    // Validate input
+    // ---------------------------------------------------------
+
+    if (!paymentIds) {
+
+        return {
+            success: false,
+            totalSelected: 0,
+            successful: 0,
+            failed: 0,
+            message: 'No payments selected'
+        };
+
+    }
+
+
+    // ---------------------------------------------------------
+    // Convert paymentIds into array
+    //
+    // UI will normally send:
+    //
+    // ["id1","id2","id3"]
+    //
+    // We also support comma-separated IDs just in case.
+    // ---------------------------------------------------------
+
+    let ids = [];
+
+    try {
+
+        if (typeof paymentIds === 'string') {
+
+            const trimmed = paymentIds.trim();
+
+            if (trimmed.startsWith('[')) {
+
+                ids = JSON.parse(trimmed);
+
+            } else {
+
+                ids = trimmed
+                    .split(',')
+                    .map(id => id.trim())
+                    .filter(Boolean);
+
+            }
+
+        } else if (Array.isArray(paymentIds)) {
+
+            ids = paymentIds;
+
+        }
+
+    } catch (error) {
+
+        return {
+            success: false,
+            totalSelected: 0,
+            successful: 0,
+            failed: 0,
+            message: 'Invalid payment IDs'
+        };
+
+    }
+
+
+    // ---------------------------------------------------------
+    // Remove duplicate IDs
+    // ---------------------------------------------------------
+
+    ids = [
+        ...new Set(
+            ids
+                .map(id => String(id).trim())
+                .filter(Boolean)
+        )
+    ];
+
+
+    if (ids.length === 0) {
+
+        return {
+            success: false,
+            totalSelected: 0,
+            successful: 0,
+            failed: 0,
+            message: 'No valid payments selected'
+        };
+
+    }
+
+
+    // ---------------------------------------------------------
+    // Get administrator performing the action
+    // ---------------------------------------------------------
+
+    const actor =
+        await getActorDetails(performedBy);
+
+
+    let successful = 0;
+    let failed = 0;
+
+    const errors = [];
+
+
+    // ---------------------------------------------------------
+    // Process each payment
+    // ---------------------------------------------------------
+
+    for (const paymentId of ids) {
+
+        try {
+
+            // -------------------------------------------------
+            // Find payment
+            // -------------------------------------------------
+
+            const payment =
+                await SELECT.one
+                    .from(Payments)
+                    .where({
+                        ID: paymentId
+                    });
+
+
+            if (!payment) {
+
+                failed++;
+
+                errors.push(
+                    `${paymentId}: Payment not found`
+                );
+
+                continue;
+
+            }
+
+
+            // -------------------------------------------------
+            // Only PENDING_APPROVAL can be approved
+            // -------------------------------------------------
+
+            if (
+                payment.status !==
+                'PENDING_APPROVAL'
+            ) {
+
+                failed++;
+
+                errors.push(
+                    `${payment.paymentReference}: Payment is not pending approval`
+                );
+
+                continue;
+
+            }
+
+
+            // -------------------------------------------------
+            // Update payment
+            // -------------------------------------------------
+
+            await UPDATE(Payments)
+                .set({
+                    status: 'APPROVED'
+                })
+                .where({
+                    ID: paymentId
+                });
+
+
+            // -------------------------------------------------
+            // Create User Log
+            // -------------------------------------------------
+
+            await writeUserLog({
+
+                userName:
+                    actor.userName,
+
+                fullName:
+                    actor.fullName,
+
+                role:
+                    actor.role,
+
+                action:
+                    'Approve',
+
+                module:
+                    'Approvals',
+
+                status:
+                    'Success',
+
+                details:
+                    `Payment ${payment.paymentReference} approved through bulk approval`
+
+            });
+
+
+            // -------------------------------------------------
+            // Send internal message to payment creator
+            // -------------------------------------------------
+
+            if (payment.createdByUserName) {
+
+                await createInternalMessage({
+
+                    senderUserName:
+                        actor.userName,
+
+                    receiverUserName:
+                        payment.createdByUserName,
+
+                    paymentId:
+                        payment.ID,
+
+                    subject:
+                        `Payment ${payment.paymentReference} approved`,
+
+                    message:
+                        `Your payment ${payment.paymentReference} has been approved successfully.`,
+
+                    messageType:
+                        'PAYMENT_APPROVED'
+
+                });
+
+            }
+
+
+            // -------------------------------------------------
+            // Count success
+            // -------------------------------------------------
+
+            successful++;
+
+
+            console.log(
+                `BULK APPROVED: ${payment.paymentReference}`
+            );
+
+
+        } catch (error) {
+
+            failed++;
+
+            errors.push(
+                `${paymentId}: ${error.message}`
+            );
+
+
+            console.error(
+                `BULK APPROVAL ERROR for ${paymentId}:`,
+                error
+            );
+
+        }
+
+    }
+
+
+    // ---------------------------------------------------------
+    // Final response
+    // ---------------------------------------------------------
+
+    let message =
+        `${successful} payment(s) approved successfully`;
+
+
+    if (failed > 0) {
+
+        message +=
+            `. ${failed} payment(s) failed.`;
+
+    }
+
+
+    return {
+
+        success:
+            failed === 0,
+
+        totalSelected:
+            ids.length,
+
+        successful:
+            successful,
+
+        failed:
+            failed,
+
+        message:
+            message
+
+    };
+
+});
 
     // =========================================================
     // CREATE PAYMENT

@@ -601,6 +601,574 @@ await this._loadPendingPayments();
     }
 },
 
+// =====================================================
+// PAYMENT SELECTION
+// =====================================================
+
+onPaymentSelectionChange: function (oEvent) {
+
+    var oTable = this.byId("approvalTable");
+
+    if (!oTable) {
+        return;
+    }
+
+    var aSelectedItems = oTable.getSelectedItems();
+
+    var iSelected = aSelectedItems.length;
+
+    console.log(
+        "Selected payments:",
+        iSelected
+    );
+
+    // -------------------------------------------------
+    // Update selected count
+    // -------------------------------------------------
+
+    var oCount = this.byId("selectedCountText");
+
+    if (oCount) {
+
+        oCount.setText(
+            iSelected + " selected"
+        );
+
+    }
+
+
+    // -------------------------------------------------
+    // Enable / disable Approve All
+    // -------------------------------------------------
+
+    var oApproveButton =
+        this.byId("bulkApproveButton");
+
+    if (oApproveButton) {
+
+        oApproveButton.setEnabled(
+            iSelected > 0
+        );
+
+    }
+
+},
+
+// =====================================================
+// APPROVE ALL SELECTED
+// =====================================================
+
+onBulkApprove: function () {
+
+    var oTable =
+        this.byId("approvalTable");
+
+    if (!oTable) {
+        return;
+    }
+
+    var aSelectedItems =
+        oTable.getSelectedItems();
+
+
+    // -------------------------------------------------
+    // Validate selection
+    // -------------------------------------------------
+
+    if (aSelectedItems.length === 0) {
+
+        MessageToast.show(
+            "Please select at least one payment."
+        );
+
+        return;
+    }
+
+
+    // -------------------------------------------------
+    // Get selected payment IDs
+    // -------------------------------------------------
+
+    var aPaymentIds =
+        aSelectedItems.map(function (oItem) {
+
+            var oContext =
+                oItem.getBindingContext("approval");
+
+            return oContext
+                ? oContext.getProperty("ID")
+                : null;
+
+        }).filter(function (sId) {
+
+            return !!sId;
+
+        });
+
+
+    if (aPaymentIds.length === 0) {
+
+        MessageBox.error(
+            "Unable to identify the selected payments."
+        );
+
+        return;
+    }
+
+
+    console.log(
+        "Bulk approve payment IDs:",
+        aPaymentIds
+    );
+
+
+    // -------------------------------------------------
+    // Confirmation
+    // -------------------------------------------------
+
+    MessageBox.confirm(
+
+        "Are you sure you want to approve " +
+        aPaymentIds.length +
+        " selected payment(s)?",
+
+        {
+
+            title: "Approve Selected Payments",
+
+            icon: MessageBox.Icon.SUCCESS,
+
+            actions: [
+                "Approve All",
+                MessageBox.Action.CANCEL
+            ],
+
+            emphasizedAction: "Approve All",
+
+            onClose: function (sAction) {
+
+                if (
+                    sAction === "Approve All"
+                ) {
+
+                    this._bulkApprovePayments(
+                        aPaymentIds
+                    );
+
+                }
+
+            }.bind(this)
+
+        }
+    );
+
+},
+
+// =====================================================
+// BULK APPROVE PAYMENTS
+// =====================================================
+
+_bulkApprovePayments: async function (
+    aPaymentIds
+) {
+
+    var oButton =
+        this.byId("bulkApproveButton");
+
+
+    // Disable button while processing
+    if (oButton) {
+
+        oButton.setEnabled(false);
+
+    }
+
+
+    var sPerformedBy =
+        sessionStorage.getItem("username") ||
+        sessionStorage.getItem("userName") ||
+        "SYSTEM";
+
+
+    console.log(
+        "Bulk approval started"
+    );
+
+    console.log(
+        "Payment IDs:",
+        aPaymentIds
+    );
+
+    console.log(
+        "Performed by:",
+        sPerformedBy
+    );
+
+
+    try {
+
+        // =================================================
+        // CALL CAP ACTION
+        // =================================================
+
+        var response = await fetch(
+            "/payment-service/bulkApprovePayments",
+            {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json",
+
+                    "Accept":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    paymentIds:
+                        JSON.stringify(aPaymentIds),
+
+                    performedBy:
+                        sPerformedBy
+
+                })
+
+            }
+        );
+
+
+        console.log(
+            "Bulk approval HTTP status:",
+            response.status
+        );
+
+
+        // =================================================
+        // READ RESPONSE
+        // =================================================
+
+        var text =
+            await response.text();
+
+        console.log(
+            "Bulk approval response:",
+            text
+        );
+
+
+        var result = {};
+
+        try {
+
+            result =
+                text
+                    ? JSON.parse(text)
+                    : {};
+
+        } catch (e) {
+
+            console.error(
+                "Bulk approval response is not JSON:",
+                e
+            );
+
+        }
+
+
+        // =================================================
+        // ERROR
+        // =================================================
+
+        if (!response.ok) {
+
+            MessageBox.error(
+
+                result?.error?.message ||
+                result?.message ||
+                "Unable to approve selected payments."
+
+            );
+
+            return;
+        }
+
+
+        if (result.success === false) {
+
+            MessageBox.error(
+
+                result.message ||
+                "Unable to approve selected payments."
+
+            );
+
+            return;
+        }
+
+
+        // =================================================
+        // SUCCESS
+        // =================================================
+
+        var iSuccessful =
+            result.successful ??
+            aPaymentIds.length;
+
+        var iFailed =
+            result.failed ??
+            0;
+
+
+        if (iFailed === 0) {
+
+            MessageToast.show(
+
+                iSuccessful +
+                " payment(s) approved successfully."
+
+            );
+
+        } else {
+
+            MessageBox.warning(
+
+                iSuccessful +
+                " payment(s) approved successfully.\n\n" +
+
+                iFailed +
+                " payment(s) failed."
+
+            );
+
+        }
+
+
+        // =================================================
+        // CLEAR SELECTION
+        // =================================================
+
+        var oTable =
+            this.byId("approvalTable");
+
+        if (oTable) {
+
+            oTable.removeSelections(true);
+
+        }
+
+
+        // =================================================
+        // RESET COUNT
+        // =================================================
+
+        var oCount =
+            this.byId("selectedCountText");
+
+        if (oCount) {
+
+            oCount.setText(
+                "0 selected"
+            );
+
+        }
+
+
+        // =================================================
+        // DISABLE APPROVE ALL
+        // =================================================
+
+        if (oButton) {
+
+            oButton.setEnabled(false);
+
+        }
+
+
+        // =================================================
+        // REFRESH APPROVAL LIST
+        // =================================================
+
+        await this._loadPendingPayments();
+
+
+    } catch (error) {
+
+        console.error(
+            "Bulk approval error:",
+            error
+        );
+
+
+        MessageBox.error(
+            "Unable to connect to payment service."
+        );
+
+
+    } finally {
+
+        // Recalculate button state
+        var oCurrentTable =
+            this.byId("approvalTable");
+
+        if (oCurrentTable) {
+
+            var iCurrentSelected =
+                oCurrentTable
+                    .getSelectedItems()
+                    .length;
+
+            if (oButton) {
+
+                oButton.setEnabled(
+                    iCurrentSelected > 0
+                );
+
+            }
+
+        }
+
+    }
+
+},
+
+// =====================================================
+// SELECT ALL
+// =====================================================
+
+onSelectAll: function (oEvent) {
+
+    const bSelected =
+        oEvent.getParameter(
+            "selected"
+        );
+
+    const oList =
+        this.byId(
+            "approvalList"
+        );
+
+    const aItems =
+        oList.getItems();
+
+    aItems.forEach(
+        function (oItem) {
+
+            const oCheckBox =
+                oItem.data(
+                    "selectionCheckBox"
+                );
+
+            if (oCheckBox) {
+
+                oCheckBox.setSelected(
+                    bSelected
+                );
+
+            }
+
+            const oContext =
+                oItem.getBindingContext(
+                    "approval"
+                );
+
+            if (oContext) {
+
+                const oPayment =
+                    oContext.getObject();
+
+                oPayment._selected =
+                    bSelected;
+
+            }
+
+        }
+    );
+
+    this._updateSelectionUI();
+
+},
+
+// =====================================================
+// UPDATE SELECTION UI
+// =====================================================
+
+_updateSelectionUI: function () {
+
+    const oList =
+        this.byId(
+            "approvalList"
+        );
+
+    const aItems =
+        oList.getItems();
+
+    let iSelected =
+        0;
+
+
+    aItems.forEach(
+        function (oItem) {
+
+            const oContext =
+                oItem.getBindingContext(
+                    "approval"
+                );
+
+            if (!oContext) {
+                return;
+            }
+
+            const oPayment =
+                oContext.getObject();
+
+            if (oPayment._selected) {
+
+                iSelected++;
+
+            }
+
+        }
+    );
+
+
+    // Selected count
+
+    const oCount =
+        this.byId(
+            "selectedCountText"
+        );
+
+    if (oCount) {
+
+        oCount.setText(
+            iSelected +
+            " selected"
+        );
+
+    }
+
+
+    // Bulk approve button
+
+    const oButton =
+        this.byId(
+            "bulkApproveButton"
+        );
+
+    if (oButton) {
+
+        oButton.setEnabled(
+            iSelected > 0
+        );
+
+    }
+
+},
+
+
+
         }
     );
 });

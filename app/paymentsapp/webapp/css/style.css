@@ -2973,3 +2973,72 @@
 .messagePopoverContent .sapMList {
     margin-top: 10px;
 }
+
+/* =========================================================
+   MESSAGES POPOVER
+   ========================================================= */
+
+.messagesPopover {
+    border-radius: 10px;
+}
+
+.messagesPopover .sapMPopoverCont {
+    padding: 0;
+}
+
+.messagesContainer {
+    width: 100%;
+}
+
+.messagesList {
+    width: 100%;
+}
+
+.messageListItem {
+    min-height: 72px;
+    cursor: pointer;
+}
+
+.messageListItem:hover {
+    background: #f5f9ff;
+}
+
+.messageItemBox {
+    padding: 12px 14px;
+    box-sizing: border-box;
+}
+
+.messageUnreadDot {
+    font-size: 0.55rem;
+    margin-top: 5px;
+    margin-right: 8px;
+}
+
+.messageItemContent {
+    min-width: 0;
+}
+
+.messageSubject {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: #172b4d;
+    margin-bottom: 4px;
+}
+
+.messageSender {
+    font-size: 0.72rem;
+    color: #5f6b7a;
+}
+
+.messageTime {
+    font-size: 0.68rem;
+    color: #8993a4;
+    margin-left: 8px;
+}
+
+.messagePreview {
+    font-size: 0.75rem;
+    color: #5f6b7a;
+    margin-top: 4px;
+    width: 100%;
+}
