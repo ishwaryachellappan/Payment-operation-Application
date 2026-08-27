@@ -122,6 +122,17 @@ sap.ui.define([
                     .navTo("UserManagement");
             },
 
+            onUserLogs: function () {
+
+    if (this._getNormalizedRole() !== "ADMIN") {
+        return;
+    }
+
+    this.getOwnerComponent()
+        .getRouter()
+        .navTo("UserLogs");
+},
+
 
             // =====================================================
             // LOGOUT

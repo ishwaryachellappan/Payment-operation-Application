@@ -75,6 +75,13 @@
                             visible="{appView>/isAdmin}"
                             select=".onUserManagement"/>
 
+                             <tnt:NavigationListItem
+        text="User Logs"
+        icon="sap-icon://activity-items"
+        key="UserLogs"
+        visible="{appView>/isAdmin}"
+        select=".onUserLogs"/>
+
                     </tnt:NavigationList>
 
                 </tnt:item>

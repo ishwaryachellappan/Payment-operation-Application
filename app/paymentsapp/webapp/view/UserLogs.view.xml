@@ -1,0 +1,279 @@
+<mvc:View
+    controllerName="paymentsapp.controller.UserLogs"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Page
+        showHeader="false"
+        class="userLogsPage">
+
+        <content>
+
+            <VBox
+                class="userLogsContainer"
+                width="100%">
+
+                <!-- ========================================= -->
+                <!-- PAGE HEADER -->
+                <!-- ========================================= -->
+
+                <VBox class="userLogsHeader">
+
+                    <Title
+                        text="User Logs"
+                        level="H1"
+                        class="userLogsTitle"/>
+
+                    <Text
+                        text="Track user activity across the Payment Operations platform"
+                        class="userLogsSubtitle"/>
+
+                </VBox>
+
+
+                <!-- ========================================= -->
+                <!-- SUMMARY CARDS -->
+                <!-- ========================================= -->
+
+                <HBox
+                    class="userLogsSummary"
+                    width="100%"
+                    wrap="Wrap">
+
+                    <VBox class="userLogCard">
+
+                        <Text
+                            text="Total Activities"
+                            class="userLogCardLabel"/>
+
+                        <Title
+                            id="totalLogs"
+                            text="0"
+                            level="H2"
+                            class="userLogCardValue"/>
+
+                    </VBox>
+
+
+                    <VBox class="userLogCard">
+
+                        <Text
+                            text="Successful"
+                            class="userLogCardLabel"/>
+
+                        <Title
+                            id="successfulLogs"
+                            text="0"
+                            level="H2"
+                            class="userLogCardValue"/>
+
+                    </VBox>
+
+
+                    <VBox class="userLogCard">
+
+                        <Text
+                            text="Failed"
+                            class="userLogCardLabel"/>
+
+                        <Title
+                            id="failedLogs"
+                            text="0"
+                            level="H2"
+                            class="userLogCardValue"/>
+
+                    </VBox>
+
+
+                    <VBox class="userLogCard">
+
+                        <Text
+                            text="Today's Activities"
+                            class="userLogCardLabel"/>
+
+                        <Title
+                            id="todayLogs"
+                            text="0"
+                            level="H2"
+                            class="userLogCardValue"/>
+
+                    </VBox>
+
+                </HBox>
+
+
+                <!-- ========================================= -->
+                <!-- FILTER BAR -->
+                <!-- ========================================= -->
+
+                <HBox
+                    class="userLogsToolbar"
+                    alignItems="Center"
+                    width="100%"
+                    wrap="Wrap">
+
+                    <SearchField
+                        id="logSearch"
+                        width="280px"
+                        placeholder="Search user or action..."
+                        liveChange=".onSearch"/>
+
+
+                    <Select
+                        id="actionFilter"
+                        width="180px"
+                        selectedKey="ALL"
+                        change=".onFilterChange">
+
+                        <core:Item
+                            key="ALL"
+                            text="All Actions"/>
+
+                        <core:Item
+                            key="LOGIN"
+                            text="Login"/>
+
+                        <core:Item
+                            key="LOGOUT"
+                            text="Logout"/>
+
+                        <core:Item
+                            key="CREATE"
+                            text="Create"/>
+
+                        <core:Item
+                            key="UPDATE"
+                            text="Update"/>
+
+                        <core:Item
+                            key="APPROVE"
+                            text="Approve"/>
+
+                        <core:Item
+                            key="REJECT"
+                            text="Reject"/>
+
+                    </Select>
+
+
+                    <Select
+                        id="statusFilter"
+                        width="160px"
+                        selectedKey="ALL"
+                        change=".onFilterChange">
+
+                        <core:Item
+                            key="ALL"
+                            text="All Status"/>
+
+                        <core:Item
+                            key="SUCCESS"
+                            text="Success"/>
+
+                        <core:Item
+                            key="FAILED"
+                            text="Failed"/>
+
+                    </Select>
+
+
+                    <ToolbarSpacer/>
+
+
+                    <Button
+                        text="Refresh"
+                        icon="sap-icon://refresh"
+                        type="Transparent"
+                        press=".onRefresh"/>
+
+                </HBox>
+
+
+                <!-- ========================================= -->
+                <!-- TABLE -->
+                <!-- ========================================= -->
+
+                <VBox
+                    class="userLogsTableContainer"
+                    width="100%">
+
+               <Table
+    id="userLogsTable"
+    items="{logs>/Logs}"
+    growing="true"
+    growingThreshold="10">
+
+    <columns>
+
+        <Column>
+            <Text text="Date &amp; Time"/>
+        </Column>
+
+        <Column>
+            <Text text="User"/>
+        </Column>
+
+        <Column>
+            <Text text="Role"/>
+        </Column>
+
+        <Column>
+            <Text text="Action"/>
+        </Column>
+
+        <Column>
+            <Text text="Module"/>
+        </Column>
+
+        <Column>
+            <Text text="Status"/>
+        </Column>
+
+        <Column>
+            <Text text="Details"/>
+        </Column>
+
+    </columns>
+
+    <items>
+
+        <ColumnListItem>
+
+            <cells>
+
+                <Text text="{logs>dateTime}"/>
+
+                <ObjectIdentifier
+                    title="{logs>user}"
+                    text="{logs>fullName}"/>
+
+                <Text text="{logs>role}"/>
+
+                <Text text="{logs>action}"/>
+
+                <Text text="{logs>module}"/>
+
+                <ObjectStatus
+                    text="{logs>status}"
+                    state="{logs>statusState}"/>
+
+                <Text text="{logs>details}"/>
+
+            </cells>
+
+        </ColumnListItem>
+
+    </items>
+
+</Table>
+
+                </VBox>
+
+            </VBox>
+
+        </content>
+
+    </Page>
+
+</mvc:View>

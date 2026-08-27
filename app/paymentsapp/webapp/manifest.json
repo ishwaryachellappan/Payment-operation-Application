@@ -113,7 +113,13 @@
             "pattern": "user-management",
             "name": "UserManagement",
             "target": "UserManagement"
-        }
+        },
+
+           {
+        "pattern": "user-logs",
+        "name": "UserLogs",
+        "target": "UserLogs"
+    }
 ],
 
       "targets": {
@@ -141,7 +147,12 @@
         "UserManagement": {
             "viewName": "UserManagement",
             "viewType": "XML"
-        }
+        },
+
+        "UserLogs": {
+    "viewName": "UserLogs",
+    "viewType": "XML"
+}
     
 
       }

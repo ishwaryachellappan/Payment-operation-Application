@@ -2504,3 +2504,112 @@
 
     background: #f4f7fa;
 }
+
+/* =========================================================
+   USER LOGS
+   ========================================================= */
+
+.userLogsPage {
+    background: #f7f8fa;
+}
+
+.userLogsContainer {
+    padding: 32px;
+    box-sizing: border-box;
+}
+
+
+/* PAGE HEADER */
+
+.userLogsHeader {
+    margin-bottom: 24px;
+}
+
+.userLogsTitle {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.userLogsSubtitle {
+    margin-top: 6px;
+    color: #6a6d70;
+    font-size: 14px;
+}
+
+
+/* SUMMARY */
+
+.userLogsSummary {
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.userLogCard {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 18px 22px;
+    min-width: 190px;
+    box-sizing: border-box;
+}
+
+.userLogCardLabel {
+    color: #6a6d70;
+    font-size: 13px;
+}
+
+.userLogCardValue {
+    margin-top: 8px;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+
+/* FILTER BAR */
+
+.userLogsToolbar {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px 10px 0 0;
+    padding: 14px 16px;
+    gap: 12px;
+}
+
+
+/* TABLE */
+
+.userLogsTableContainer {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+}
+
+.userLogsTable {
+    background: white;
+}
+
+.userLogsTable .sapMListTblHeaderCell {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.userLogsTable .sapMListTblHeaderCell .sapMText {
+    font-weight: 600;
+    color: #444746;
+}
+
+.userLogsTable .sapMListTblCell {
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.userLogActionIcon {
+    margin-right: 7px;
+    font-size: 14px;
+}
+
+.userLogActionText {
+    font-weight: 500;
+}

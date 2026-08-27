@@ -42,3 +42,22 @@ type PaymentStatus : String enum {
     APPROVED;
     REJECTED;
 }
+
+entity UserLogs {
+
+    key ID        : UUID;
+
+    userName      : String(100);
+    fullName      : String(200);
+    role          : String(50);
+
+    action        : String(50);
+    module        : String(100);
+
+    status        : String(20);
+
+    details       : String(500);
+
+    createdAt     : Timestamp;
+
+}
