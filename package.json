@@ -4,13 +4,19 @@
     "@sap/cds": "^10.0.6",
     "node.js": "^0.0.1-security"
   },
-  "cds": {
-    "requires": {
-      "[production]": {
-        "db": "hana"
+ "cds": {
+  "requires": {
+    "db": {
+      "kind": "sqlite",
+      "credentials": {
+        "url": "db.sqlite"
       }
+    },
+    "[production]": {
+      "db": "hana"
     }
-  },
+  }
+},
   "workspaces": [
     "app/*"
   ],
