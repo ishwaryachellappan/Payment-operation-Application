@@ -108,64 +108,86 @@ module.exports = cds.service.impl(async function () {
 
 
     // =========================================================
-    // HELPER - CREATE INTERNAL MESSAGE
-    // =========================================================
+// HELPER - CREATE INTERNAL MESSAGE
+// =========================================================
 
-    async function createInternalMessage({
-        senderUserName,
-        receiverUserName,
-        subject,
-        message,
-        messageType
-    }) {
+async function createInternalMessage({
+    senderUserName,
+    receiverUserName,
+    paymentId,
+    subject,
+    message,
+    messageType
+}) {
 
-        if (!receiverUserName) {
+    if (!receiverUserName) {
 
-            console.warn(
-                'Message not created: receiverUserName missing'
-            );
+        console.warn(
+            "MESSAGE NOT CREATED: receiverUserName missing"
+        );
 
-            return;
+        return;
+    }
+
+    try {
+
+        const oEntry = {
+
+            ID:
+                cds.utils.uuid(),
+
+            senderUserName:
+                senderUserName || "SYSTEM",
+
+            receiverUserName:
+                receiverUserName,
+
+            subject:
+                subject || "Message",
+
+            message:
+                message || "",
+
+            messageType:
+                messageType || "SYSTEM",
+
+            isRead:
+                false
+
+        };
+
+        // Link message to payment only when available
+        if (paymentId) {
+
+            oEntry.paymentId =
+                paymentId;
+
         }
-
 
         await INSERT
             .into(Messages)
-            .entries({
-
-                ID:
-                    cds.utils.uuid(),
-
-                senderUserName:
-                    senderUserName || 'SYSTEM',
-
-                receiverUserName:
-                    receiverUserName,
-
-                subject:
-                    subject,
-
-                message:
-                    message,
-
-                messageType:
-                    messageType || 'SYSTEM',
-
-                isRead:
-                    false,
-
-                createdAt:
-                    new Date()
-
-            });
-
+            .entries(oEntry);
 
         console.log(
-            `Internal message created: ${senderUserName} -> ${receiverUserName}`
+            "MESSAGE CREATED:",
+            oEntry.senderUserName,
+            "->",
+            oEntry.receiverUserName,
+            "| paymentId:",
+            oEntry.paymentId || "none"
         );
+
+    } catch (error) {
+
+        console.error(
+            "MESSAGE CREATION ERROR:",
+            error
+        );
+
+        // Don't break payment creation
+        // if message creation fails.
     }
-
-
+}
     // =========================================================
     // LOGIN
     // =========================================================
@@ -653,24 +675,24 @@ if (!paymentCreator) {
 
     await createInternalMessage({
 
-        senderUserName:
-            actor.userName || 'admin',
+    senderUserName:
+        actor.userName,
 
-        receiverUserName:
-            paymentCreator,
+    receiverUserName:
+        payment.createdByUserName,
 
-        subject:
-            `Payment ${payment.paymentReference} approved`,
+    paymentId:
+        payment.ID,
 
-        message:
-            `Your payment ${payment.paymentReference} `
-            + `has been approved successfully by `
-            + `${actor.fullName || actor.userName}.`,
+    subject:
+        `Payment ${payment.paymentReference} approved`,
 
-        messageType:
-            'PAYMENT_APPROVED'
+    message:
+        `Your payment ${payment.paymentReference} has been approved successfully.`,
 
-    });
+    messageType:
+        "PAYMENT_APPROVED"
+});
 
     console.log(
         `Approval message sent to ${paymentCreator}`
@@ -824,30 +846,31 @@ if (!paymentCreator) {
             payment.createdByUserName
         ) {
 
-            await createInternalMessage({
+        await createInternalMessage({
 
-                senderUserName:
-                    actor.userName,
+    senderUserName:
+        actor.userName,
 
-                receiverUserName:
-                    payment.createdByUserName,
+    receiverUserName:
+        payment.createdByUserName,
 
-                subject:
-                    `Payment ${payment.paymentReference} rejected`,
+    paymentId:
+        payment.ID,
 
-                message:
-                    `Your payment ${payment.paymentReference} `
-                    + `has been rejected.`
-                    + (
-                        reason
-                            ? ` Reason: ${reason}`
-                            : ''
-                    ),
+    subject:
+        `Payment ${payment.paymentReference} rejected`,
 
-                messageType:
-                    'PAYMENT_REJECTED'
+    message:
+        `Your payment ${payment.paymentReference} has been rejected.`
+        + (
+            reason
+                ? ` Reason: ${reason}`
+                : ""
+        ),
 
-            });
+    messageType:
+        "PAYMENT_REJECTED"
+});
 
         }
 
@@ -947,20 +970,19 @@ await createInternalMessage({
         actor.userName,
 
     receiverUserName:
-        'admin',
+        "admin",
+
+    paymentId:
+        paymentId,
 
     subject:
         `New payment ${paymentReference} requires approval`,
 
     message:
-        `Payment ${paymentReference} `
-        + `has been created by `
-        + `${actor.fullName} `
-        + `and is waiting for approval.`,
+        `Payment ${paymentReference} requires approval.`,
 
     messageType:
-        'PAYMENT_PENDING_APPROVAL'
-
+        "PAYMENT_PENDING_APPROVAL"
 });
 
 

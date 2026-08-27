@@ -1136,33 +1136,33 @@ _createCopiedPayment: async function (payment, dialog) {
         // ==========================================
         // PAYLOAD FOR CAP ACTION
         // ==========================================
+const payload = {
+    paymentReference: newReference,
 
-        const payload = {
+    companyCode:
+        payment.companyCode,
 
-            paymentReference:
-                newReference,
+    debtorAccount:
+        payment.debtorAccount,
 
-            companyCode:
-                payment.companyCode,
+    creditorAccount:
+        payment.creditorAccount,
 
-            debtorAccount:
-                payment.debtorAccount,
+    amount:
+        Number(payment.amount),
 
-            creditorAccount:
-                payment.creditorAccount,
+    currency:
+        payment.currency,
 
-            amount:
-                Number(payment.amount),
+    paymentMethod:
+        payment.paymentMethod,
 
-            currency:
-                payment.currency,
+    paymentDate:
+        payment.paymentDate,
 
-            paymentMethod:
-                payment.paymentMethod,
-
-            paymentDate:
-                payment.paymentDate
-        };
+    performedBy:
+        sessionStorage.getItem("username")
+};
 
 
         console.log(

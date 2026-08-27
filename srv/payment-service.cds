@@ -106,6 +106,10 @@ service PaymentService {
 
 }
 
+action bulkApprovePayments(
+    paymentIds : LargeString,
+    performedBy : String
+) returns BulkApprovalResponse;
 
 // =========================================================
 // RESPONSE TYPES
@@ -161,3 +165,11 @@ type BulkUploadResponse {
     errors         : String;
 
 }
+
+type BulkApprovalResponse {
+    success : Boolean;
+    totalSelected : Integer;
+    successful : Integer;
+    failed : Integer;
+    message : String;
+};

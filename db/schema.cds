@@ -72,6 +72,9 @@ entity Messages {
     senderUserName   : String(100);
     receiverUserName : String(100);
 
+    // Link message directly to payment
+    paymentId        : UUID;
+
     subject          : String(200);
     message          : LargeString;
 

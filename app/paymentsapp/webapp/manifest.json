@@ -102,7 +102,13 @@
           "pattern": "user-logs",
           "name": "UserLogs",
           "target": "UserLogs"
-        }
+        },
+
+        {
+    "pattern": "mail",
+    "name": "Mail",
+    "target": "Mail"
+}
       ],
       "targets": {
         "Login": {
@@ -128,7 +134,13 @@
         "UserLogs": {
           "viewName": "UserLogs",
           "viewType": "XML"
-        }
+        },
+        "Mail": {
+    "viewName": "Mail",
+    "viewType": "XML",
+    "viewLevel": 2,
+    "controlAggregation": "pages"
+}
       }
     }
   },

@@ -1,0 +1,19 @@
+<mvc:View
+    controllerName="paymentsapp.controller.Mail"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
+
+    <Page
+        title="Mailbox">
+
+        <content>
+
+            <List
+                id="mailList"
+                noDataText="No mail messages"/>
+
+        </content>
+
+    </Page>
+
+</mvc:View>

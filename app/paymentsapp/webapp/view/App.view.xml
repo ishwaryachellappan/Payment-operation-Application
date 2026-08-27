@@ -91,26 +91,30 @@
 
     </HBox>
 
-      <HBox
-        id="mailNotificationArea"
-        alignItems="Center"
-        class="notificationItem">
+      <!-- =====================================================
+     MAILBOX
+     ===================================================== -->
 
-        <Button
-            id="mailNotificationButton"
-            icon="sap-icon://email"
-            type="Transparent"
-            tooltip="Mail"
-            press=".onMailPress"
-            class="notificationButton"/>
+<HBox
+    id="mailArea"
+    alignItems="Center"
+    class="notificationItem">
 
-        <Text
-            id="mailNotificationCount"
-            text="0"
-            visible="false"
-            class="notificationBadge mailBadge"/>
+    <Button
+        id="mailButton"
+        icon="sap-icon://email"
+        type="Transparent"
+        tooltip="Mailbox"
+        press=".onMailPress"
+        class="notificationButton"/>
 
-    </HBox>
+    <Text
+        id="mailCount"
+        text="0"
+        visible="false"
+        class="notificationBadge mailBadge"/>
+
+</HBox>
 
 </HBox>
 
