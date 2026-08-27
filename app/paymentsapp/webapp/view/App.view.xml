@@ -26,12 +26,29 @@
                     size="1.3rem"
                     class="topBarIcon"/>
 
+
+
                 <Title
                     text="Payment Operations"
                     level="H2"
                     class="topBarTitle"/>
 
-                <ToolbarSpacer/>
+             <ToolbarSpacer/>
+
+<!-- Notification -->
+<Button
+    id="notificationButton"
+    icon="sap-icon://bell"
+    type="Transparent"
+    tooltip="Notifications"
+    press=".onNotificationsPress"
+    class="notificationButton"/>
+
+<Text
+    id="notificationCount"
+    text="0"
+    visible="false"
+    class="notificationBadge"/>
 
             </tnt:ToolHeader>
 
