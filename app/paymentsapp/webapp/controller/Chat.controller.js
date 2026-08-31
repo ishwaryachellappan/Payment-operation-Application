@@ -4119,44 +4119,21 @@ sap.ui.define([
 
                 try {
 
-                    const csrfToken =
-                        await this._getCsrfToken();
+                    const csrfToken = await this._getCsrfToken();
 
-
-                    const response =
-                        await fetch(
-                            "/payment-service/downloadChatAttachment",
-                            {
-
-                                method:
-                                    "POST",
-
-                                credentials:
-                                    "same-origin",
-
-                                headers: {
-
-                                    "Content-Type":
-                                        "application/json",
-
-                                    "Accept":
-                                        "application/json",
-
-                                    "X-CSRF-Token":
-                                        csrfToken
-
-                                },
-
-                                body:
-                                    JSON.stringify({
-
-                                        attachmentId:
-                                            attachmentId
-
-                                    })
-
-                            }
-                        );
+                    const response = await fetch(
+                        "/payment-service/downloadChatAttachment",
+                        {
+                            method: "POST",
+                            credentials: "same-origin",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "application/json",
+                                "X-CSRF-Token": csrfToken   // ❌ if csrfToken is null, this becomes the literal string "null"
+                            },
+                            body: JSON.stringify({ attachmentId: attachmentId })
+                        }
+                    );
 
 
                     const result =

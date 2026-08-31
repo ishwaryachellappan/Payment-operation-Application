@@ -9,15 +9,15 @@ const {
 
 module.exports = cds.service.impl(async function () {
 
-  const {
-    Users,
-    Payments,
-    UserLogs,
-    Messages,
-    ChatGroups,
-    ChatGroupMembers,
-    ChatAttachments
-} = this.entities;
+    const {
+        Users,
+        Payments,
+        UserLogs,
+        Messages,
+        ChatGroups,
+        ChatGroupMembers,
+        ChatAttachments
+    } = this.entities;
 
 
     // =========================================================
@@ -26,18 +26,18 @@ module.exports = cds.service.impl(async function () {
 
     function formatFileSizeServer(bytes) {
 
-    if (!bytes) {
-        return "";
+        if (!bytes) {
+            return "";
+        }
+
+        const kb = bytes / 1024;
+
+        if (kb < 1024) {
+            return kb.toFixed(1) + " KB";
+        }
+
+        return (kb / 1024).toFixed(1) + " MB";
     }
-
-    const kb = bytes / 1024;
-
-    if (kb < 1024) {
-        return kb.toFixed(1) + " KB";
-    }
-
-    return (kb / 1024).toFixed(1) + " MB";
-}
 
     async function getActorDetails(userName) {
 
@@ -126,86 +126,86 @@ module.exports = cds.service.impl(async function () {
 
 
     // =========================================================
-// HELPER - CREATE INTERNAL MESSAGE
-// =========================================================
+    // HELPER - CREATE INTERNAL MESSAGE
+    // =========================================================
 
-async function createInternalMessage({
-    senderUserName,
-    receiverUserName,
-    paymentId,
-    subject,
-    message,
-    messageType
-}) {
+    async function createInternalMessage({
+        senderUserName,
+        receiverUserName,
+        paymentId,
+        subject,
+        message,
+        messageType
+    }) {
 
-    if (!receiverUserName) {
+        if (!receiverUserName) {
 
-        console.warn(
-            "MESSAGE NOT CREATED: receiverUserName missing"
-        );
+            console.warn(
+                "MESSAGE NOT CREATED: receiverUserName missing"
+            );
 
-        return;
-    }
-
-    try {
-
-        const oEntry = {
-
-            ID:
-                cds.utils.uuid(),
-
-            senderUserName:
-                senderUserName || "SYSTEM",
-
-            receiverUserName:
-                receiverUserName,
-
-            subject:
-                subject || "Message",
-
-            message:
-                message || "",
-
-            messageType:
-                messageType || "SYSTEM",
-
-            isRead:
-                false
-
-        };
-
-        // Link message to payment only when available
-        if (paymentId) {
-
-            oEntry.paymentId =
-                paymentId;
-
+            return;
         }
 
-        await INSERT
-            .into(Messages)
-            .entries(oEntry);
+        try {
 
-        console.log(
-            "MESSAGE CREATED:",
-            oEntry.senderUserName,
-            "->",
-            oEntry.receiverUserName,
-            "| paymentId:",
-            oEntry.paymentId || "none"
-        );
+            const oEntry = {
 
-    } catch (error) {
+                ID:
+                    cds.utils.uuid(),
 
-        console.error(
-            "MESSAGE CREATION ERROR:",
-            error
-        );
+                senderUserName:
+                    senderUserName || "SYSTEM",
 
-        // Don't break payment creation
-        // if message creation fails.
+                receiverUserName:
+                    receiverUserName,
+
+                subject:
+                    subject || "Message",
+
+                message:
+                    message || "",
+
+                messageType:
+                    messageType || "SYSTEM",
+
+                isRead:
+                    false
+
+            };
+
+            // Link message to payment only when available
+            if (paymentId) {
+
+                oEntry.paymentId =
+                    paymentId;
+
+            }
+
+            await INSERT
+                .into(Messages)
+                .entries(oEntry);
+
+            console.log(
+                "MESSAGE CREATED:",
+                oEntry.senderUserName,
+                "->",
+                oEntry.receiverUserName,
+                "| paymentId:",
+                oEntry.paymentId || "none"
+            );
+
+        } catch (error) {
+
+            console.error(
+                "MESSAGE CREATION ERROR:",
+                error
+            );
+
+            // Don't break payment creation
+            // if message creation fails.
+        }
     }
-}
     // =========================================================
     // LOGIN
     // =========================================================
@@ -652,71 +652,71 @@ async function createInternalMessage({
         // -----------------------------------------------------
 
         // -----------------------------------------------------
-// Create internal message
-// -----------------------------------------------------
+        // Create internal message
+        // -----------------------------------------------------
 
-// -----------------------------------------------------
-// CREATE MESSAGE FOR PAYMENT CREATOR
-// -----------------------------------------------------
+        // -----------------------------------------------------
+        // CREATE MESSAGE FOR PAYMENT CREATOR
+        // -----------------------------------------------------
 
-const paymentCreator =
-    payment.createdByUserName;
-
-
-console.log(
-    "========== APPROVAL MESSAGE =========="
-);
-
-console.log(
-    "Payment:",
-    payment.paymentReference
-);
-
-console.log(
-    "Payment Creator:",
-    paymentCreator
-);
-
-console.log(
-    "Approved By:",
-    actor.userName
-);
+        const paymentCreator =
+            payment.createdByUserName;
 
 
-if (!paymentCreator) {
+        console.log(
+            "========== APPROVAL MESSAGE =========="
+        );
 
-    console.warn(
-        `No createdByUserName found for payment ${payment.paymentReference}`
-    );
+        console.log(
+            "Payment:",
+            payment.paymentReference
+        );
 
-} else {
+        console.log(
+            "Payment Creator:",
+            paymentCreator
+        );
 
-    await createInternalMessage({
+        console.log(
+            "Approved By:",
+            actor.userName
+        );
 
-    senderUserName:
-        actor.userName,
 
-    receiverUserName:
-        payment.createdByUserName,
+        if (!paymentCreator) {
 
-    paymentId:
-        payment.ID,
+            console.warn(
+                `No createdByUserName found for payment ${payment.paymentReference}`
+            );
 
-    subject:
-        `Payment ${payment.paymentReference} approved`,
+        } else {
 
-    message:
-        `Your payment ${payment.paymentReference} has been approved successfully.`,
+            await createInternalMessage({
 
-    messageType:
-        "PAYMENT_APPROVED"
-});
+                senderUserName:
+                    actor.userName,
 
-    console.log(
-        `Approval message sent to ${paymentCreator}`
-    );
+                receiverUserName:
+                    payment.createdByUserName,
 
-}
+                paymentId:
+                    payment.ID,
+
+                subject:
+                    `Payment ${payment.paymentReference} approved`,
+
+                message:
+                    `Your payment ${payment.paymentReference} has been approved successfully.`,
+
+                messageType:
+                    "PAYMENT_APPROVED"
+            });
+
+            console.log(
+                `Approval message sent to ${paymentCreator}`
+            );
+
+        }
 
 
         return {
@@ -864,31 +864,31 @@ if (!paymentCreator) {
             payment.createdByUserName
         ) {
 
-        await createInternalMessage({
+            await createInternalMessage({
 
-    senderUserName:
-        actor.userName,
+                senderUserName:
+                    actor.userName,
 
-    receiverUserName:
-        payment.createdByUserName,
+                receiverUserName:
+                    payment.createdByUserName,
 
-    paymentId:
-        payment.ID,
+                paymentId:
+                    payment.ID,
 
-    subject:
-        `Payment ${payment.paymentReference} rejected`,
+                subject:
+                    `Payment ${payment.paymentReference} rejected`,
 
-    message:
-        `Your payment ${payment.paymentReference} has been rejected.`
-        + (
-            reason
-                ? ` Reason: ${reason}`
-                : ""
-        ),
+                message:
+                    `Your payment ${payment.paymentReference} has been rejected.`
+                    + (
+                        reason
+                            ? ` Reason: ${reason}`
+                            : ""
+                    ),
 
-    messageType:
-        "PAYMENT_REJECTED"
-});
+                messageType:
+                    "PAYMENT_REJECTED"
+            });
 
         }
 
@@ -905,318 +905,318 @@ if (!paymentCreator) {
     });
 
     // =========================================================
-// BULK APPROVE PAYMENTS
-// =========================================================
+    // BULK APPROVE PAYMENTS
+    // =========================================================
 
-this.on('bulkApprovePayments', async (req) => {
+    this.on('bulkApprovePayments', async (req) => {
 
-    const {
-        paymentIds,
-        performedBy
-    } = req.data;
-
-
-    // ---------------------------------------------------------
-    // Validate input
-    // ---------------------------------------------------------
-
-    if (!paymentIds) {
-
-        return {
-            success: false,
-            totalSelected: 0,
-            successful: 0,
-            failed: 0,
-            message: 'No payments selected'
-        };
-
-    }
+        const {
+            paymentIds,
+            performedBy
+        } = req.data;
 
 
-    // ---------------------------------------------------------
-    // Convert paymentIds into array
-    //
-    // UI will normally send:
-    //
-    // ["id1","id2","id3"]
-    //
-    // We also support comma-separated IDs just in case.
-    // ---------------------------------------------------------
+        // ---------------------------------------------------------
+        // Validate input
+        // ---------------------------------------------------------
 
-    let ids = [];
+        if (!paymentIds) {
 
-    try {
-
-        if (typeof paymentIds === 'string') {
-
-            const trimmed = paymentIds.trim();
-
-            if (trimmed.startsWith('[')) {
-
-                ids = JSON.parse(trimmed);
-
-            } else {
-
-                ids = trimmed
-                    .split(',')
-                    .map(id => id.trim())
-                    .filter(Boolean);
-
-            }
-
-        } else if (Array.isArray(paymentIds)) {
-
-            ids = paymentIds;
+            return {
+                success: false,
+                totalSelected: 0,
+                successful: 0,
+                failed: 0,
+                message: 'No payments selected'
+            };
 
         }
 
-    } catch (error) {
 
-        return {
-            success: false,
-            totalSelected: 0,
-            successful: 0,
-            failed: 0,
-            message: 'Invalid payment IDs'
-        };
+        // ---------------------------------------------------------
+        // Convert paymentIds into array
+        //
+        // UI will normally send:
+        //
+        // ["id1","id2","id3"]
+        //
+        // We also support comma-separated IDs just in case.
+        // ---------------------------------------------------------
 
-    }
-
-
-    // ---------------------------------------------------------
-    // Remove duplicate IDs
-    // ---------------------------------------------------------
-
-    ids = [
-        ...new Set(
-            ids
-                .map(id => String(id).trim())
-                .filter(Boolean)
-        )
-    ];
-
-
-    if (ids.length === 0) {
-
-        return {
-            success: false,
-            totalSelected: 0,
-            successful: 0,
-            failed: 0,
-            message: 'No valid payments selected'
-        };
-
-    }
-
-
-    // ---------------------------------------------------------
-    // Get administrator performing the action
-    // ---------------------------------------------------------
-
-    const actor =
-        await getActorDetails(performedBy);
-
-
-    let successful = 0;
-    let failed = 0;
-
-    const errors = [];
-
-
-    // ---------------------------------------------------------
-    // Process each payment
-    // ---------------------------------------------------------
-
-    for (const paymentId of ids) {
+        let ids = [];
 
         try {
 
-            // -------------------------------------------------
-            // Find payment
-            // -------------------------------------------------
+            if (typeof paymentIds === 'string') {
 
-            const payment =
-                await SELECT.one
-                    .from(Payments)
+                const trimmed = paymentIds.trim();
+
+                if (trimmed.startsWith('[')) {
+
+                    ids = JSON.parse(trimmed);
+
+                } else {
+
+                    ids = trimmed
+                        .split(',')
+                        .map(id => id.trim())
+                        .filter(Boolean);
+
+                }
+
+            } else if (Array.isArray(paymentIds)) {
+
+                ids = paymentIds;
+
+            }
+
+        } catch (error) {
+
+            return {
+                success: false,
+                totalSelected: 0,
+                successful: 0,
+                failed: 0,
+                message: 'Invalid payment IDs'
+            };
+
+        }
+
+
+        // ---------------------------------------------------------
+        // Remove duplicate IDs
+        // ---------------------------------------------------------
+
+        ids = [
+            ...new Set(
+                ids
+                    .map(id => String(id).trim())
+                    .filter(Boolean)
+            )
+        ];
+
+
+        if (ids.length === 0) {
+
+            return {
+                success: false,
+                totalSelected: 0,
+                successful: 0,
+                failed: 0,
+                message: 'No valid payments selected'
+            };
+
+        }
+
+
+        // ---------------------------------------------------------
+        // Get administrator performing the action
+        // ---------------------------------------------------------
+
+        const actor =
+            await getActorDetails(performedBy);
+
+
+        let successful = 0;
+        let failed = 0;
+
+        const errors = [];
+
+
+        // ---------------------------------------------------------
+        // Process each payment
+        // ---------------------------------------------------------
+
+        for (const paymentId of ids) {
+
+            try {
+
+                // -------------------------------------------------
+                // Find payment
+                // -------------------------------------------------
+
+                const payment =
+                    await SELECT.one
+                        .from(Payments)
+                        .where({
+                            ID: paymentId
+                        });
+
+
+                if (!payment) {
+
+                    failed++;
+
+                    errors.push(
+                        `${paymentId}: Payment not found`
+                    );
+
+                    continue;
+
+                }
+
+
+                // -------------------------------------------------
+                // Only PENDING_APPROVAL can be approved
+                // -------------------------------------------------
+
+                if (
+                    payment.status !==
+                    'PENDING_APPROVAL'
+                ) {
+
+                    failed++;
+
+                    errors.push(
+                        `${payment.paymentReference}: Payment is not pending approval`
+                    );
+
+                    continue;
+
+                }
+
+
+                // -------------------------------------------------
+                // Update payment
+                // -------------------------------------------------
+
+                await UPDATE(Payments)
+                    .set({
+                        status: 'APPROVED'
+                    })
                     .where({
                         ID: paymentId
                     });
 
 
-            if (!payment) {
+                // -------------------------------------------------
+                // Create User Log
+                // -------------------------------------------------
 
-                failed++;
+                await writeUserLog({
 
-                errors.push(
-                    `${paymentId}: Payment not found`
-                );
-
-                continue;
-
-            }
-
-
-            // -------------------------------------------------
-            // Only PENDING_APPROVAL can be approved
-            // -------------------------------------------------
-
-            if (
-                payment.status !==
-                'PENDING_APPROVAL'
-            ) {
-
-                failed++;
-
-                errors.push(
-                    `${payment.paymentReference}: Payment is not pending approval`
-                );
-
-                continue;
-
-            }
-
-
-            // -------------------------------------------------
-            // Update payment
-            // -------------------------------------------------
-
-            await UPDATE(Payments)
-                .set({
-                    status: 'APPROVED'
-                })
-                .where({
-                    ID: paymentId
-                });
-
-
-            // -------------------------------------------------
-            // Create User Log
-            // -------------------------------------------------
-
-            await writeUserLog({
-
-                userName:
-                    actor.userName,
-
-                fullName:
-                    actor.fullName,
-
-                role:
-                    actor.role,
-
-                action:
-                    'Approve',
-
-                module:
-                    'Approvals',
-
-                status:
-                    'Success',
-
-                details:
-                    `Payment ${payment.paymentReference} approved through bulk approval`
-
-            });
-
-
-            // -------------------------------------------------
-            // Send internal message to payment creator
-            // -------------------------------------------------
-
-            if (payment.createdByUserName) {
-
-                await createInternalMessage({
-
-                    senderUserName:
+                    userName:
                         actor.userName,
 
-                    receiverUserName:
-                        payment.createdByUserName,
+                    fullName:
+                        actor.fullName,
 
-                    paymentId:
-                        payment.ID,
+                    role:
+                        actor.role,
 
-                    subject:
-                        `Payment ${payment.paymentReference} approved`,
+                    action:
+                        'Approve',
 
-                    message:
-                        `Your payment ${payment.paymentReference} has been approved successfully.`,
+                    module:
+                        'Approvals',
 
-                    messageType:
-                        'PAYMENT_APPROVED'
+                    status:
+                        'Success',
+
+                    details:
+                        `Payment ${payment.paymentReference} approved through bulk approval`
 
                 });
 
+
+                // -------------------------------------------------
+                // Send internal message to payment creator
+                // -------------------------------------------------
+
+                if (payment.createdByUserName) {
+
+                    await createInternalMessage({
+
+                        senderUserName:
+                            actor.userName,
+
+                        receiverUserName:
+                            payment.createdByUserName,
+
+                        paymentId:
+                            payment.ID,
+
+                        subject:
+                            `Payment ${payment.paymentReference} approved`,
+
+                        message:
+                            `Your payment ${payment.paymentReference} has been approved successfully.`,
+
+                        messageType:
+                            'PAYMENT_APPROVED'
+
+                    });
+
+                }
+
+
+                // -------------------------------------------------
+                // Count success
+                // -------------------------------------------------
+
+                successful++;
+
+
+                console.log(
+                    `BULK APPROVED: ${payment.paymentReference}`
+                );
+
+
+            } catch (error) {
+
+                failed++;
+
+                errors.push(
+                    `${paymentId}: ${error.message}`
+                );
+
+
+                console.error(
+                    `BULK APPROVAL ERROR for ${paymentId}:`,
+                    error
+                );
+
             }
-
-
-            // -------------------------------------------------
-            // Count success
-            // -------------------------------------------------
-
-            successful++;
-
-
-            console.log(
-                `BULK APPROVED: ${payment.paymentReference}`
-            );
-
-
-        } catch (error) {
-
-            failed++;
-
-            errors.push(
-                `${paymentId}: ${error.message}`
-            );
-
-
-            console.error(
-                `BULK APPROVAL ERROR for ${paymentId}:`,
-                error
-            );
 
         }
 
-    }
+
+        // ---------------------------------------------------------
+        // Final response
+        // ---------------------------------------------------------
+
+        let message =
+            `${successful} payment(s) approved successfully`;
 
 
-    // ---------------------------------------------------------
-    // Final response
-    // ---------------------------------------------------------
+        if (failed > 0) {
 
-    let message =
-        `${successful} payment(s) approved successfully`;
+            message +=
+                `. ${failed} payment(s) failed.`;
 
-
-    if (failed > 0) {
-
-        message +=
-            `. ${failed} payment(s) failed.`;
-
-    }
+        }
 
 
-    return {
+        return {
 
-        success:
-            failed === 0,
+            success:
+                failed === 0,
 
-        totalSelected:
-            ids.length,
+            totalSelected:
+                ids.length,
 
-        successful:
-            successful,
+            successful:
+                successful,
 
-        failed:
-            failed,
+            failed:
+                failed,
 
-        message:
-            message
+            message:
+                message
 
-    };
+        };
 
-});
+    });
 
     // =========================================================
     // CREATE PAYMENT
@@ -1291,30 +1291,30 @@ this.on('bulkApprovePayments', async (req) => {
             });
 
 
-            // =====================================================
-// NOTIFY ADMIN ABOUT NEW PAYMENT
-// =====================================================
+        // =====================================================
+        // NOTIFY ADMIN ABOUT NEW PAYMENT
+        // =====================================================
 
-await createInternalMessage({
+        await createInternalMessage({
 
-    senderUserName:
-        actor.userName,
+            senderUserName:
+                actor.userName,
 
-    receiverUserName:
-        "admin",
+            receiverUserName:
+                "admin",
 
-    paymentId:
-        paymentId,
+            paymentId:
+                paymentId,
 
-    subject:
-        `New payment ${paymentReference} requires approval`,
+            subject:
+                `New payment ${paymentReference} requires approval`,
 
-    message:
-        `Payment ${paymentReference} requires approval.`,
+            message:
+                `Payment ${paymentReference} requires approval.`,
 
-    messageType:
-        "PAYMENT_PENDING_APPROVAL"
-});
+            messageType:
+                "PAYMENT_PENDING_APPROVAL"
+        });
 
 
         await writeUserLog({
@@ -1576,201 +1576,26 @@ await createInternalMessage({
     });
 
 
-  // =========================================================
-// SEND CHAT MESSAGE
-// =========================================================
+    // =========================================================
+    // SEND CHAT MESSAGE
+    // =========================================================
 
-this.on('sendChatMessage', async (req) => {
-
-    const {
-        receiverUserName,
-        message,
-        performedBy
-    } = req.data;
-
-
-    console.log(
-        "========== SEND CHAT MESSAGE =========="
-    );
-
-    console.log(
-        "Sender:",
-        performedBy
-    );
-
-    console.log(
-        "Receiver:",
-        receiverUserName
-    );
-
-    console.log(
-        "Message:",
-        message
-    );
-
-
-    // ---------------------------------------------------------
-    // VALIDATION
-    // ---------------------------------------------------------
-
-    if (!performedBy) {
-
-        return {
-            success: false,
-            message: "Sender is required."
-        };
-
-    }
-
-
-    if (!receiverUserName) {
-
-        return {
-            success: false,
-            message: "Receiver is required."
-        };
-
-    }
-
-
-    if (!message || !String(message).trim()) {
-
-        return {
-            success: false,
-            message: "Message cannot be empty."
-        };
-
-    }
-
-
-    if (
-        String(performedBy).toLowerCase() ===
-        String(receiverUserName).toLowerCase()
-    ) {
-
-        return {
-            success: false,
-            message: "You cannot send a message to yourself."
-        };
-
-    }
-
-
-    // ---------------------------------------------------------
-    // CHECK RECEIVER
-    // ---------------------------------------------------------
-
-    const receiver = await SELECT.one
-        .from(Users)
-        .where({
-            userName: receiverUserName
-        });
-
-
-    if (!receiver) {
-
-        return {
-            success: false,
-            message:
-                `User '${receiverUserName}' does not exist.`
-        };
-
-    }
-
-
-    if (!receiver.isActive) {
-
-        return {
-            success: false,
-            message:
-                `User '${receiverUserName}' is inactive.`
-        };
-
-    }
-
-
-    // ---------------------------------------------------------
-    // CREATE MESSAGE
-    // ---------------------------------------------------------
-
-    const messageId =
-        cds.utils.uuid();
-
-
-    await INSERT.into(Messages).entries({
-
-        ID: messageId,
-
-        senderUserName:
-            performedBy,
-
-        receiverUserName:
-            receiverUserName,
-
-        subject:
-            "Chat",
-
-        message:
-            String(message).trim(),
-
-        messageType:
-            "CHAT",
-
-        isRead:
-            false,
-
-        createdAt:
-            new Date()
-
-    });
-
-
-    console.log(
-        "CHAT MESSAGE CREATED:",
-        messageId
-    );
-
-
-    console.log(
-        `${performedBy} -> ${receiverUserName}`
-    );
-
-
-    // ---------------------------------------------------------
-    // SUCCESS
-    // ---------------------------------------------------------
-
-    return {
-
-        success: true,
-
-        message:
-            "Message sent successfully."
-
-    };
-
-});
-// =========================================================
-// MARK CHAT MESSAGES AS READ
-// =========================================================
-
-this.on(
-    'markChatMessagesRead',
-    async (req) => {
+    this.on('sendChatMessage', async (req) => {
 
         const {
-            senderUserName,
-            receiverUserName
+            receiverUserName,
+            message,
+            performedBy
         } = req.data;
 
 
         console.log(
-            "========== MARK CHAT READ =========="
+            "========== SEND CHAT MESSAGE =========="
         );
 
         console.log(
             "Sender:",
-            senderUserName
+            performedBy
         );
 
         console.log(
@@ -1778,56 +1603,231 @@ this.on(
             receiverUserName
         );
 
+        console.log(
+            "Message:",
+            message
+        );
 
-        if (
-            !senderUserName ||
-            !receiverUserName
-        ) {
+
+        // ---------------------------------------------------------
+        // VALIDATION
+        // ---------------------------------------------------------
+
+        if (!performedBy) {
 
             return {
                 success: false,
-                message:
-                    "Sender and receiver are required."
+                message: "Sender is required."
             };
 
         }
 
 
-        await UPDATE(Messages)
-            .set({
-                isRead: true
-            })
+        if (!receiverUserName) {
+
+            return {
+                success: false,
+                message: "Receiver is required."
+            };
+
+        }
+
+
+        if (!message || !String(message).trim()) {
+
+            return {
+                success: false,
+                message: "Message cannot be empty."
+            };
+
+        }
+
+
+        if (
+            String(performedBy).toLowerCase() ===
+            String(receiverUserName).toLowerCase()
+        ) {
+
+            return {
+                success: false,
+                message: "You cannot send a message to yourself."
+            };
+
+        }
+
+
+        // ---------------------------------------------------------
+        // CHECK RECEIVER
+        // ---------------------------------------------------------
+
+        const receiver = await SELECT.one
+            .from(Users)
             .where({
-                senderUserName:
-                    senderUserName,
-
-                receiverUserName:
-                    receiverUserName,
-
-                messageType:
-                    "CHAT",
-
-                isRead:
-                    false
+                userName: receiverUserName
             });
 
 
+        if (!receiver) {
+
+            return {
+                success: false,
+                message:
+                    `User '${receiverUserName}' does not exist.`
+            };
+
+        }
+
+
+        if (!receiver.isActive) {
+
+            return {
+                success: false,
+                message:
+                    `User '${receiverUserName}' is inactive.`
+            };
+
+        }
+
+
+        // ---------------------------------------------------------
+        // CREATE MESSAGE
+        // ---------------------------------------------------------
+
+        const messageId =
+            cds.utils.uuid();
+
+
+        await INSERT.into(Messages).entries({
+
+            ID: messageId,
+
+            senderUserName:
+                performedBy,
+
+            receiverUserName:
+                receiverUserName,
+
+            subject:
+                "Chat",
+
+            message:
+                String(message).trim(),
+
+            messageType:
+                "CHAT",
+
+            isRead:
+                false,
+
+            createdAt:
+                new Date()
+
+        });
+
+
         console.log(
-            "CHAT MESSAGES MARKED AS READ"
+            "CHAT MESSAGE CREATED:",
+            messageId
         );
 
+
+        console.log(
+            `${performedBy} -> ${receiverUserName}`
+        );
+
+
+        // ---------------------------------------------------------
+        // SUCCESS
+        // ---------------------------------------------------------
 
         return {
 
             success: true,
 
             message:
-                "Messages marked as read."
+                "Message sent successfully."
 
         };
 
-    }
-);
+    });
+    // =========================================================
+    // MARK CHAT MESSAGES AS READ
+    // =========================================================
+
+    this.on(
+        'markChatMessagesRead',
+        async (req) => {
+
+            const {
+                senderUserName,
+                receiverUserName
+            } = req.data;
+
+
+            console.log(
+                "========== MARK CHAT READ =========="
+            );
+
+            console.log(
+                "Sender:",
+                senderUserName
+            );
+
+            console.log(
+                "Receiver:",
+                receiverUserName
+            );
+
+
+            if (
+                !senderUserName ||
+                !receiverUserName
+            ) {
+
+                return {
+                    success: false,
+                    message:
+                        "Sender and receiver are required."
+                };
+
+            }
+
+
+            await UPDATE(Messages)
+                .set({
+                    isRead: true
+                })
+                .where({
+                    senderUserName:
+                        senderUserName,
+
+                    receiverUserName:
+                        receiverUserName,
+
+                    messageType:
+                        "CHAT",
+
+                    isRead:
+                        false
+                });
+
+
+            console.log(
+                "CHAT MESSAGES MARKED AS READ"
+            );
+
+
+            return {
+
+                success: true,
+
+                message:
+                    "Messages marked as read."
+
+            };
+
+        }
+    );
 
     // =========================================================
     // BULK UPLOAD PAYMENTS
@@ -1905,31 +1905,31 @@ this.on(
         }
 
 
-       let headerLine = lines[0].trim();
+        let headerLine = lines[0].trim();
 
-// Remove BOM if present
-headerLine = headerLine.replace(/^\uFEFF/, "");
+        // Remove BOM if present
+        headerLine = headerLine.replace(/^\uFEFF/, "");
 
-// Remove surrounding quotes from the complete header line
-if (
-    headerLine.startsWith('"') &&
-    headerLine.endsWith('"')
-) {
-    headerLine =
-        headerLine.substring(
-            1,
-            headerLine.length - 1
-        );
-}
+        // Remove surrounding quotes from the complete header line
+        if (
+            headerLine.startsWith('"') &&
+            headerLine.endsWith('"')
+        ) {
+            headerLine =
+                headerLine.substring(
+                    1,
+                    headerLine.length - 1
+                );
+        }
 
-const headers =
-    headerLine
-        .split(',')
-        .map(
-            h =>
-                h.trim()
-                 .replace(/^"|"$/g, '')
-        );
+        const headers =
+            headerLine
+                .split(',')
+                .map(
+                    h =>
+                        h.trim()
+                            .replace(/^"|"$/g, '')
+                );
 
 
         const expectedHeaders = [
@@ -1946,38 +1946,38 @@ const headers =
         ];
 
 
-       const headersValid =
-    headers.length === expectedHeaders.length &&
-    expectedHeaders.every(
-        (header, index) =>
-            headers[index] === header
-    );
+        const headersValid =
+            headers.length === expectedHeaders.length &&
+            expectedHeaders.every(
+                (header, index) =>
+                    headers[index] === header
+            );
 
 
-if (!headersValid) {
+        if (!headersValid) {
 
-    return {
+            return {
 
-        success: false,
+                success: false,
 
-        totalRows:
-            lines.length - 1,
+                totalRows:
+                    lines.length - 1,
 
-        successfulRows: 0,
+                successfulRows: 0,
 
-        failedRows:
-            lines.length - 1,
+                failedRows:
+                    lines.length - 1,
 
-        message:
-            'Invalid CSV headers',
+                message:
+                    'Invalid CSV headers',
 
-        errors:
-            `Expected: ${expectedHeaders.join(', ')}`
-            + ` | Received: ${headers.join(', ')}`
+                errors:
+                    `Expected: ${expectedHeaders.join(', ')}`
+                    + ` | Received: ${headers.join(', ')}`
 
-    };
-}
-             
+            };
+        }
+
 
 
         let successfulRows = 0;
@@ -2148,994 +2148,532 @@ if (!headersValid) {
     });
 
 
-    
 
-// =========================================================
-// CREATE CHAT GROUP
-// =========================================================
 
-this.on("createChatGroup", async (req) => {
+    // =========================================================
+    // CREATE CHAT GROUP
+    // =========================================================
 
-    const {
-        groupName,
-        description,
-        performedBy
-    } = req.data;
+    this.on("createChatGroup", async (req) => {
 
-    console.log("========== CREATE CHAT GROUP ==========");
-    console.log("Group:", groupName);
-    console.log("Created By:", performedBy);
-
-    // -----------------------------------------------------
-    // VALIDATION
-    // -----------------------------------------------------
-
-    if (!groupName || !String(groupName).trim()) {
-
-        return {
-            success: false,
-            groupId: null,
-            message: "Group name is required."
-        };
-
-    }
-
-    if (!performedBy) {
-
-        return {
-            success: false,
-            groupId: null,
-            message: "User information is missing."
-        };
-
-    }
-
-    // -----------------------------------------------------
-    // CHECK CREATOR
-    // -----------------------------------------------------
-
-    const creator =
-        await SELECT.one
-            .from(Users)
-            .where({
-                userName: performedBy,
-                isActive: true
-            });
-
-    if (!creator) {
-
-        return {
-            success: false,
-            groupId: null,
-            message:
-                "The logged-in user is inactive or does not exist."
-        };
-
-    }
-
-    // -----------------------------------------------------
-    // CREATE GROUP
-    // -----------------------------------------------------
-
-    const groupId =
-        cds.utils.uuid();
-
-    await INSERT
-        .into(ChatGroups)
-        .entries({
-
-            ID: groupId,
-
-            groupName:
-                String(groupName).trim(),
-
-            description:
-                String(description || "").trim(),
-
-            createdBy:
-                performedBy,
-
-            createdAt:
-                new Date(),
-
-            isActive:
-                true
-
-        });
-
-    // -----------------------------------------------------
-    // ADD CREATOR AS MEMBER
-    // -----------------------------------------------------
-
-    await INSERT
-        .into(ChatGroupMembers)
-        .entries({
-
-            ID:
-                cds.utils.uuid(),
-
-            group_ID:
-                groupId,
-
-            userName:
-                performedBy,
-
-            joinedAt:
-                new Date(),
-
-            isActive:
-                true
-
-        });
-
-    console.log(
-        "CHAT GROUP CREATED:",
-        groupId
-    );
-
-    // -----------------------------------------------------
-    // RETURN RESULT
-    // -----------------------------------------------------
-
-    return {
-
-        success: true,
-
-        groupId: groupId,
-
-        message:
-            "Group created successfully."
-
-    };
-
-});
-
-// =========================================================
-// DELETE CHAT GROUP
-// ONLY GROUP CREATOR CAN DELETE
-// =========================================================
-
-this.on("deleteChatGroup", async (req) => {
-
-    const {
-        groupId,
-        performedBy
-    } = req.data;
-
-
-    console.log(
-        "========== DELETE CHAT GROUP =========="
-    );
-
-    console.log(
-        "Group:",
-        groupId
-    );
-
-    console.log(
-        "Performed By:",
-        performedBy
-    );
-
-
-    // -----------------------------------------------------
-    // VALIDATION
-    // -----------------------------------------------------
-
-    if (!groupId) {
-
-        return {
-            success: false,
-            message:
-                "Group ID is required."
-        };
-
-    }
-
-
-    if (!performedBy) {
-
-        return {
-            success: false,
-            message:
-                "Logged-in user is required."
-        };
-
-    }
-
-
-    // -----------------------------------------------------
-    // FIND GROUP
-    // -----------------------------------------------------
-
-    const group =
-        await SELECT.one
-            .from(ChatGroups)
-            .where({
-                ID: groupId
-            });
-
-
-    if (!group) {
-
-        return {
-            success: false,
-            message:
-                "Chat group not found."
-        };
-
-    }
-
-
-    // -----------------------------------------------------
-    // ONLY CREATOR CAN DELETE
-    // -----------------------------------------------------
-
-    if (
-        String(group.createdBy || "")
-            .toLowerCase() !==
-        String(performedBy || "")
-            .toLowerCase()
-    ) {
-
-        return {
-            success: false,
-            message:
-                "Only the group creator can delete this group."
-        };
-
-    }
-
-
-    // -----------------------------------------------------
-    // ALREADY DELETED
-    // -----------------------------------------------------
-
-    if (!group.isActive) {
-
-        return {
-            success: true,
-            message:
-                "Group is already deleted."
-        };
-
-    }
-
-
-    // -----------------------------------------------------
-    // SOFT DELETE GROUP
-    // -----------------------------------------------------
-
-    await UPDATE(ChatGroups)
-        .set({
-            isActive: false
-        })
-        .where({
-            ID: groupId
-        });
-
-
-    // -----------------------------------------------------
-    // DISABLE MEMBERS
-    // -----------------------------------------------------
-
-    await UPDATE(ChatGroupMembers)
-        .set({
-            isActive: false
-        })
-        .where({
-            group_ID: groupId
-        });
-
-
-    // -----------------------------------------------------
-    // USER LOG
-    // -----------------------------------------------------
-
-    const actor =
-        await getActorDetails(
+        const {
+            groupName,
+            description,
             performedBy
+        } = req.data;
+
+        console.log("========== CREATE CHAT GROUP ==========");
+        console.log("Group:", groupName);
+        console.log("Created By:", performedBy);
+
+        // -----------------------------------------------------
+        // VALIDATION
+        // -----------------------------------------------------
+
+        if (!groupName || !String(groupName).trim()) {
+
+            return {
+                success: false,
+                groupId: null,
+                message: "Group name is required."
+            };
+
+        }
+
+        if (!performedBy) {
+
+            return {
+                success: false,
+                groupId: null,
+                message: "User information is missing."
+            };
+
+        }
+
+        // -----------------------------------------------------
+        // CHECK CREATOR
+        // -----------------------------------------------------
+
+        const creator =
+            await SELECT.one
+                .from(Users)
+                .where({
+                    userName: performedBy,
+                    isActive: true
+                });
+
+        if (!creator) {
+
+            return {
+                success: false,
+                groupId: null,
+                message:
+                    "The logged-in user is inactive or does not exist."
+            };
+
+        }
+
+        // -----------------------------------------------------
+        // CREATE GROUP
+        // -----------------------------------------------------
+
+        const groupId =
+            cds.utils.uuid();
+
+        await INSERT
+            .into(ChatGroups)
+            .entries({
+
+                ID: groupId,
+
+                groupName:
+                    String(groupName).trim(),
+
+                description:
+                    String(description || "").trim(),
+
+                createdBy:
+                    performedBy,
+
+                createdAt:
+                    new Date(),
+
+                isActive:
+                    true
+
+            });
+
+        // -----------------------------------------------------
+        // ADD CREATOR AS MEMBER
+        // -----------------------------------------------------
+
+        await INSERT
+            .into(ChatGroupMembers)
+            .entries({
+
+                ID:
+                    cds.utils.uuid(),
+
+                group_ID:
+                    groupId,
+
+                userName:
+                    performedBy,
+
+                joinedAt:
+                    new Date(),
+
+                isActive:
+                    true
+
+            });
+
+        console.log(
+            "CHAT GROUP CREATED:",
+            groupId
         );
 
+        // -----------------------------------------------------
+        // RETURN RESULT
+        // -----------------------------------------------------
 
-    await writeUserLog({
+        return {
 
-        userName:
-            actor.userName,
+            success: true,
 
-        fullName:
-            actor.fullName,
+            groupId: groupId,
 
-        role:
-            actor.role,
+            message:
+                "Group created successfully."
 
-        action:
-            "Delete",
-
-        module:
-            "Chat Group",
-
-        status:
-            "Success",
-
-        details:
-            `Chat group "${group.groupName}" deleted by creator`
+        };
 
     });
 
-
-    console.log(
-        "CHAT GROUP DELETED:",
-        group.groupName
-    );
-
-
-    return {
-
-        success: true,
-
-        message:
-            "Group deleted successfully."
-
-    };
-
-});
-
-// =========================================================
-// ADD USER TO CHAT GROUP
-// =========================================================
-
-this.on("addChatGroupMember", async (req) => {
-
-    const {
-        groupId,
-        userName,
-        performedBy
-    } = req.data;
-
-    console.log("========== ADD GROUP MEMBER ==========");
-    console.log("Group:", groupId);
-    console.log("User:", userName);
-    console.log("Performed By:", performedBy);
-
-    // -----------------------------------------------------
-    // VALIDATION
-    // -----------------------------------------------------
-
-    if (!groupId) {
-
-        return {
-            success: false,
-            message: "Group ID is required."
-        };
-
-    }
-
-    if (!userName) {
-
-        return {
-            success: false,
-            message: "User name is required."
-        };
-
-    }
-
-    if (!performedBy) {
-
-        return {
-            success: false,
-            message: "Logged-in user is required."
-        };
-
-    }
-
-    // -----------------------------------------------------
-    // CHECK GROUP
-    // -----------------------------------------------------
-
-    const group =
-        await SELECT.one
-            .from(ChatGroups)
-            .where({
-                ID: groupId,
-                isActive: true
-            });
-
-    if (!group) {
-
-        return {
-            success: false,
-            message: "Chat group not found."
-        };
-
-    }
-
-    // -----------------------------------------------------
-    // CHECK USER
-    // -----------------------------------------------------
-
-    const user =
-        await SELECT.one
-            .from(Users)
-            .where({
-                userName: userName,
-                isActive: true
-            });
-
-    if (!user) {
-
-        return {
-            success: false,
-            message:
-                `User '${userName}' does not exist or is inactive.`
-        };
-
-    }
-
-    // -----------------------------------------------------
-    // CHECK EXISTING MEMBER
-    // -----------------------------------------------------
-
-    const existingMember =
-        await SELECT.one
-            .from(ChatGroupMembers)
-            .where({
-                group_ID: groupId,
-                userName: userName
-            });
-
-    if (existingMember) {
-
-        if (!existingMember.isActive) {
-
-            await UPDATE(ChatGroupMembers)
-                .set({
-                    isActive: true,
-                    joinedAt: new Date()
-                })
-                .where({
-                    ID: existingMember.ID
-                });
-
-        }
-
-        return {
-            success: true,
-            message: "User is already a group member."
-        };
-
-    }
-
-    // -----------------------------------------------------
-    // ADD MEMBER
-    // -----------------------------------------------------
-
-    await INSERT
-        .into(ChatGroupMembers)
-        .entries({
-
-            ID:
-                cds.utils.uuid(),
-
-            group_ID:
-                groupId,
-
-            userName:
-                userName,
-
-            joinedAt:
-                new Date(),
-
-            isActive:
-                true
-
-        });
-
-    console.log(
-        `GROUP MEMBER ADDED: ${userName} -> ${groupId}`
-    );
-
-    return {
-
-        success: true,
-
-        message:
-            `${userName} added to the group.`
-
-    };
-
-});
-
-// =========================================================
-// SEND GROUP CHAT MESSAGE
-// =========================================================
-
-this.on("sendGroupChatMessage", async (req) => {
-
-    const {
-        groupId,
-        message,
-        performedBy
-    } = req.data;
-
-    console.log("========== SEND GROUP MESSAGE ==========");
-    console.log("Group:", groupId);
-    console.log("Sender:", performedBy);
-
-    // -----------------------------------------------------
-    // VALIDATION
-    // -----------------------------------------------------
-
-    if (!groupId) {
-
-        return {
-            success: false,
-            message: "Group ID is required."
-        };
-
-    }
-
-    if (!performedBy) {
-
-        return {
-            success: false,
-            message: "Sender is required."
-        };
-
-    }
-
-    if (!message || !String(message).trim()) {
-
-        return {
-            success: false,
-            message: "Message cannot be empty."
-        };
-
-    }
-
-    // -----------------------------------------------------
-    // CHECK MEMBERSHIP
-    // -----------------------------------------------------
-
-    const membership =
-        await SELECT.one
-            .from(ChatGroupMembers)
-            .where({
-                group_ID: groupId,
-                userName: performedBy,
-                isActive: true
-            });
-
-    if (!membership) {
-
-        return {
-            success: false,
-            message:
-                "You are not a member of this group."
-        };
-
-    }
-
-    // -----------------------------------------------------
-    // CHECK GROUP
-    // -----------------------------------------------------
-
-    const group =
-        await SELECT.one
-            .from(ChatGroups)
-            .where({
-                ID: groupId,
-                isActive: true
-            });
-
-    if (!group) {
-
-        return {
-            success: false,
-            message: "Group not found."
-        };
-
-    }
-
-    // -----------------------------------------------------
-    // CREATE THE GROUP MESSAGE
-    //
-    // IMPORTANT: a group message is stored as a SINGLE row,
-    // shared by every member of the group (like WhatsApp).
-    // The previous implementation inserted one row per
-    // recipient (and skipped the sender entirely), which
-    // caused the same message to be duplicated once per
-    // member and never appear for the person who sent it.
-    //
-    // receiverUserName is not meaningful for a group message
-    // (there are many recipients), so it is set to the
-    // sender just to satisfy the field; getGroupMessages()
-    // below always looks the conversation up by groupId.
-    // -----------------------------------------------------
-
-    await INSERT
-        .into(Messages)
-        .entries({
-
-            ID:
-                cds.utils.uuid(),
-
-            senderUserName:
-                performedBy,
-
-            receiverUserName:
-                performedBy,
-
-            groupId:
-                groupId,
-
-            subject:
-                group.groupName,
-
-            message:
-                String(message).trim(),
-
-            messageType:
-                "GROUP_CHAT",
-
-            isRead:
-                false,
-
-            createdAt:
-                new Date()
-
-        });
-
-    console.log(
-        "GROUP MESSAGE CREATED:",
-        groupId
-    );
-
-    return {
-
-        success: true,
-
-        message:
-            "Group message sent successfully."
-
-    };
-
-});
-
-// =========================================================
-// GET GROUP MESSAGES
-// =========================================================
-
-this.on("getGroupMessages", async (req) => {
-
-    const {
-        groupId,
-        performedBy
-    } = req.data;
-
-    console.log("========== GET GROUP MESSAGES ==========");
-    console.log("Group:", groupId);
-    console.log("User:", performedBy);
-
-    if (!groupId) {
-
-        return {
-            success: false,
-            messages: "[]",
-            message: "Group ID is required."
-        };
-
-    }
-
-    if (!performedBy) {
-
-        return {
-            success: false,
-            messages: "[]",
-            message: "User is required."
-        };
-
-    }
-
-    // -----------------------------------------------------
-    // CHECK MEMBERSHIP
-    // -----------------------------------------------------
-
-    const membership =
-        await SELECT.one
-            .from(ChatGroupMembers)
-            .where({
-                group_ID: groupId,
-                userName: performedBy,
-                isActive: true
-            });
-
-    if (!membership) {
-
-        return {
-            success: false,
-            messages: "[]",
-            message:
-                "You are not a member of this group."
-        };
-
-    }
-
-    // -----------------------------------------------------
-    // LOAD MESSAGES
-    // -----------------------------------------------------
-
-   // -----------------------------------------------------
-// LOAD MESSAGES
-// -----------------------------------------------------
-
-const messages =
-    await SELECT
-        .from(Messages)
-        .where({
-            groupId: groupId,
-            messageType: "GROUP_CHAT"
-        })
-        .orderBy({
-            createdAt: "asc"
-        });
-
-
-// -----------------------------------------------------
-// ATTACH ANY FILE ATTACHMENTS TO THEIR MESSAGES
-// -----------------------------------------------------
-
-const messageIds =
-    messages.map(
-        (m) => m.ID
-    );
-
-const attachments =
-    messageIds.length
-        ? await SELECT
-            .from(ChatAttachments)
-            .where({
-                messageId: {
-                    in: messageIds
-                }
-            })
-        : [];
-
-const attachmentByMessageId = {};
-
-attachments.forEach(
-    (a) => {
-
-        attachmentByMessageId[a.messageId] = a;
-
-    }
-);
-
-messages.forEach(
-    (m) => {
-
-        const attachment =
-            attachmentByMessageId[m.ID];
-
-        m.attachmentId =
-            attachment
-                ? attachment.ID
-                : null;
-
-        m.attachmentName =
-            attachment
-                ? attachment.fileName
-                : "";
-
-        m.attachmentSizeText =
-            attachment
-                ? formatFileSizeServer(attachment.fileSize)
-                : "";
-
-    }
-);
-
-
-return {
-
-    success: true,
-
-    messages:
-        JSON.stringify(messages),
-
-    message:
-        "Group messages loaded."
-
-};
-
-});
-
-// =========================================================
-// SEND DIRECT CHAT MESSAGE + ATTACHMENT
-// =========================================================
-
-this.on(
-    "sendChatMessageWithAttachment",
-    async (req) => {
-
-        const {
-            receiverUserName,
-            message,
-            fileName,
-            mimeType,
-            fileSize,
-            fileContent,
-            performedBy
-        } = req.data;
-
-        console.log("========== SEND CHAT ATTACHMENT ==========");
-        console.log("Sender:", performedBy);
-        console.log("Receiver:", receiverUserName);
-        console.log("File:", fileName);
-        console.log("Mime:", mimeType);
-        console.log("Size:", fileSize);
-        console.log("ATTACHMENT DEBUG - fileContent type:", typeof fileContent);
-        console.log("ATTACHMENT DEBUG - fileContent length:", fileContent ? fileContent.length : 0);
-
-        // -------------------------------------------------
-        // VALIDATION
-        // -------------------------------------------------
-
-        if (!performedBy) {
-            return { success: false, message: "Sender is required." };
-        }
-
-        if (!receiverUserName) {
-            return { success: false, message: "Receiver is required." };
-        }
-
-        if (!fileName || !fileContent) {
-            return { success: false, message: "Attachment is required." };
-        }
-
-        if (
-            String(performedBy).toLowerCase() ===
-            String(receiverUserName).toLowerCase()
-        ) {
-            return { success: false, message: "You cannot send a message to yourself." };
-        }
-
-        // -------------------------------------------------
-        // CHECK RECEIVER
-        // -------------------------------------------------
-
-        const receiver = await SELECT.one
-            .from(Users)
-            .where({ userName: receiverUserName });
-
-        if (!receiver) {
-            return {
-                success: false,
-                message: `User '${receiverUserName}' does not exist.`
-            };
-        }
-
-        if (!receiver.isActive) {
-            return {
-                success: false,
-                message: `User '${receiverUserName}' is inactive.`
-            };
-        }
-
-        // -------------------------------------------------
-        // CREATE THE MESSAGE ROW FIRST
-        // (this was missing — without it there is nothing
-        // for the attachment to attach to, and nothing for
-        // _loadConversation to $expand)
-        // -------------------------------------------------
-
-        const messageId = cds.utils.uuid();
-
-        await INSERT.into(Messages).entries({
-
-            ID: messageId,
-
-            senderUserName: performedBy,
-
-            receiverUserName: receiverUserName,
-
-            subject: "Chat",
-
-            message: String(message || "").trim(),
-
-            messageType: "CHAT",
-
-            isRead: false,
-
-            createdAt: new Date()
-
-        });
-
-        // -------------------------------------------------
-        // CREATE ATTACHMENT, LINKED TO THE MESSAGE
-        // -------------------------------------------------
-
-        await INSERT
-            .into(ChatAttachments)
-            .entries({
-
-                ID: cds.utils.uuid(),
-
-                messageId: messageId,
-
-                fileName: fileName,
-
-                mimeType: mimeType || "application/octet-stream",
-
-                fileSize: Number(fileSize || 0),
-
-                // IMPORTANT: content is LargeBinary. The browser
-                // sends a base64 STRING; decode it into a Buffer
-                // before storing it, otherwise it gets corrupted.
-                content: Buffer.from(fileContent, "base64"),
-
-                createdAt: new Date()
-
-            });
-
-        console.log("CHAT ATTACHMENT MESSAGE CREATED:", messageId);
-
-        return {
-            success: true,
-            message: "Message and attachment sent successfully."
-        };
-
-    }
-);
-// =========================================================
-// SEND GROUP CHAT MESSAGE + ATTACHMENT
-// =========================================================
-
-this.on(
-    "sendGroupChatMessageWithAttachment",
-    async (req) => {
+    // =========================================================
+    // DELETE CHAT GROUP
+    // ONLY GROUP CREATOR CAN DELETE
+    // =========================================================
+
+    this.on("deleteChatGroup", async (req) => {
 
         const {
             groupId,
-            message,
-            fileName,
-            mimeType,
-            fileSize,
-            fileContent,
             performedBy
         } = req.data;
 
 
         console.log(
-            "========== SEND GROUP ATTACHMENT =========="
-        );
-
-        console.log("Group:", groupId);
-        console.log("Sender:", performedBy);
-        console.log("File:", fileName);
-        console.log(
-            "ATTACHMENT DEBUG - fileContent type:",
-            typeof fileContent
+            "========== DELETE CHAT GROUP =========="
         );
 
         console.log(
-            "ATTACHMENT DEBUG - fileContent length:",
-            fileContent ? fileContent.length : 0
+            "Group:",
+            groupId
         );
 
-        // -------------------------------------------------
+        console.log(
+            "Performed By:",
+            performedBy
+        );
+
+
+        // -----------------------------------------------------
         // VALIDATION
-        // -------------------------------------------------
+        // -----------------------------------------------------
 
         if (!groupId) {
 
             return {
                 success: false,
-                message: "Group is required."
+                message:
+                    "Group ID is required."
             };
 
         }
 
+
+        if (!performedBy) {
+
+            return {
+                success: false,
+                message:
+                    "Logged-in user is required."
+            };
+
+        }
+
+
+        // -----------------------------------------------------
+        // FIND GROUP
+        // -----------------------------------------------------
+
+        const group =
+            await SELECT.one
+                .from(ChatGroups)
+                .where({
+                    ID: groupId
+                });
+
+
+        if (!group) {
+
+            return {
+                success: false,
+                message:
+                    "Chat group not found."
+            };
+
+        }
+
+
+        // -----------------------------------------------------
+        // ONLY CREATOR CAN DELETE
+        // -----------------------------------------------------
+
+        if (
+            String(group.createdBy || "")
+                .toLowerCase() !==
+            String(performedBy || "")
+                .toLowerCase()
+        ) {
+
+            return {
+                success: false,
+                message:
+                    "Only the group creator can delete this group."
+            };
+
+        }
+
+
+        // -----------------------------------------------------
+        // ALREADY DELETED
+        // -----------------------------------------------------
+
+        if (!group.isActive) {
+
+            return {
+                success: true,
+                message:
+                    "Group is already deleted."
+            };
+
+        }
+
+
+        // -----------------------------------------------------
+        // SOFT DELETE GROUP
+        // -----------------------------------------------------
+
+        await UPDATE(ChatGroups)
+            .set({
+                isActive: false
+            })
+            .where({
+                ID: groupId
+            });
+
+
+        // -----------------------------------------------------
+        // DISABLE MEMBERS
+        // -----------------------------------------------------
+
+        await UPDATE(ChatGroupMembers)
+            .set({
+                isActive: false
+            })
+            .where({
+                group_ID: groupId
+            });
+
+
+        // -----------------------------------------------------
+        // USER LOG
+        // -----------------------------------------------------
+
+        const actor =
+            await getActorDetails(
+                performedBy
+            );
+
+
+        await writeUserLog({
+
+            userName:
+                actor.userName,
+
+            fullName:
+                actor.fullName,
+
+            role:
+                actor.role,
+
+            action:
+                "Delete",
+
+            module:
+                "Chat Group",
+
+            status:
+                "Success",
+
+            details:
+                `Chat group "${group.groupName}" deleted by creator`
+
+        });
+
+
+        console.log(
+            "CHAT GROUP DELETED:",
+            group.groupName
+        );
+
+
+        return {
+
+            success: true,
+
+            message:
+                "Group deleted successfully."
+
+        };
+
+    });
+
+    // =========================================================
+    // ADD USER TO CHAT GROUP
+    // =========================================================
+
+    this.on("addChatGroupMember", async (req) => {
+
+        const {
+            groupId,
+            userName,
+            performedBy
+        } = req.data;
+
+        console.log("========== ADD GROUP MEMBER ==========");
+        console.log("Group:", groupId);
+        console.log("User:", userName);
+        console.log("Performed By:", performedBy);
+
+        // -----------------------------------------------------
+        // VALIDATION
+        // -----------------------------------------------------
+
+        if (!groupId) {
+
+            return {
+                success: false,
+                message: "Group ID is required."
+            };
+
+        }
+
+        if (!userName) {
+
+            return {
+                success: false,
+                message: "User name is required."
+            };
+
+        }
+
+        if (!performedBy) {
+
+            return {
+                success: false,
+                message: "Logged-in user is required."
+            };
+
+        }
+
+        // -----------------------------------------------------
+        // CHECK GROUP
+        // -----------------------------------------------------
+
+        const group =
+            await SELECT.one
+                .from(ChatGroups)
+                .where({
+                    ID: groupId,
+                    isActive: true
+                });
+
+        if (!group) {
+
+            return {
+                success: false,
+                message: "Chat group not found."
+            };
+
+        }
+
+        // -----------------------------------------------------
+        // CHECK USER
+        // -----------------------------------------------------
+
+        const user =
+            await SELECT.one
+                .from(Users)
+                .where({
+                    userName: userName,
+                    isActive: true
+                });
+
+        if (!user) {
+
+            return {
+                success: false,
+                message:
+                    `User '${userName}' does not exist or is inactive.`
+            };
+
+        }
+
+        // -----------------------------------------------------
+        // CHECK EXISTING MEMBER
+        // -----------------------------------------------------
+
+        const existingMember =
+            await SELECT.one
+                .from(ChatGroupMembers)
+                .where({
+                    group_ID: groupId,
+                    userName: userName
+                });
+
+        if (existingMember) {
+
+            if (!existingMember.isActive) {
+
+                await UPDATE(ChatGroupMembers)
+                    .set({
+                        isActive: true,
+                        joinedAt: new Date()
+                    })
+                    .where({
+                        ID: existingMember.ID
+                    });
+
+            }
+
+            return {
+                success: true,
+                message: "User is already a group member."
+            };
+
+        }
+
+        // -----------------------------------------------------
+        // ADD MEMBER
+        // -----------------------------------------------------
+
+        await INSERT
+            .into(ChatGroupMembers)
+            .entries({
+
+                ID:
+                    cds.utils.uuid(),
+
+                group_ID:
+                    groupId,
+
+                userName:
+                    userName,
+
+                joinedAt:
+                    new Date(),
+
+                isActive:
+                    true
+
+            });
+
+        console.log(
+            `GROUP MEMBER ADDED: ${userName} -> ${groupId}`
+        );
+
+        return {
+
+            success: true,
+
+            message:
+                `${userName} added to the group.`
+
+        };
+
+    });
+
+    // =========================================================
+    // SEND GROUP CHAT MESSAGE
+    // =========================================================
+
+    this.on("sendGroupChatMessage", async (req) => {
+
+        const {
+            groupId,
+            message,
+            performedBy
+        } = req.data;
+
+        console.log("========== SEND GROUP MESSAGE ==========");
+        console.log("Group:", groupId);
+        console.log("Sender:", performedBy);
+
+        // -----------------------------------------------------
+        // VALIDATION
+        // -----------------------------------------------------
+
+        if (!groupId) {
+
+            return {
+                success: false,
+                message: "Group ID is required."
+            };
+
+        }
 
         if (!performedBy) {
 
@@ -3146,69 +2684,29 @@ this.on(
 
         }
 
-
-        if (!fileName || !fileContent) {
+        if (!message || !String(message).trim()) {
 
             return {
                 success: false,
-                message:
-                    "Attachment is required."
+                message: "Message cannot be empty."
             };
 
         }
 
-
-        // -------------------------------------------------
-        // CHECK GROUP
-        // -------------------------------------------------
-
-        const group =
-            await SELECT.one
-                .from(ChatGroups)
-                .where({
-
-                    ID:
-                        groupId,
-
-                    isActive:
-                        true
-
-                });
-
-
-        if (!group) {
-
-            return {
-                success: false,
-                message:
-                    "Group not found."
-            };
-
-        }
-
-
-        // -------------------------------------------------
+        // -----------------------------------------------------
         // CHECK MEMBERSHIP
-        // -------------------------------------------------
+        // -----------------------------------------------------
 
-        const member =
+        const membership =
             await SELECT.one
                 .from(ChatGroupMembers)
                 .where({
-
-                    group_ID:
-                        groupId,
-
-                    userName:
-                        performedBy,
-
-                    isActive:
-                        true
-
+                    group_ID: groupId,
+                    userName: performedBy,
+                    isActive: true
                 });
 
-
-        if (!member) {
+        if (!membership) {
 
             return {
                 success: false,
@@ -3218,30 +2716,55 @@ this.on(
 
         }
 
+        // -----------------------------------------------------
+        // CHECK GROUP
+        // -----------------------------------------------------
 
-        // -------------------------------------------------
-        // CREATE MESSAGE
-        // -------------------------------------------------
+        const group =
+            await SELECT.one
+                .from(ChatGroups)
+                .where({
+                    ID: groupId,
+                    isActive: true
+                });
 
-        const messageId =
-            cds.utils.uuid();
+        if (!group) {
 
+            return {
+                success: false,
+                message: "Group not found."
+            };
+
+        }
+
+        // -----------------------------------------------------
+        // CREATE THE GROUP MESSAGE
+        //
+        // IMPORTANT: a group message is stored as a SINGLE row,
+        // shared by every member of the group (like WhatsApp).
+        // The previous implementation inserted one row per
+        // recipient (and skipped the sender entirely), which
+        // caused the same message to be duplicated once per
+        // member and never appear for the person who sent it.
+        //
+        // receiverUserName is not meaningful for a group message
+        // (there are many recipients), so it is set to the
+        // sender just to satisfy the field; getGroupMessages()
+        // below always looks the conversation up by groupId.
+        // -----------------------------------------------------
 
         await INSERT
             .into(Messages)
             .entries({
 
                 ID:
-                    messageId,
+                    cds.utils.uuid(),
 
                 senderUserName:
                     performedBy,
 
                 receiverUserName:
-                    null,
-
-                paymentId:
-                    null,
+                    performedBy,
 
                 groupId:
                     groupId,
@@ -3250,7 +2773,7 @@ this.on(
                     group.groupName,
 
                 message:
-                    String(message || "").trim(),
+                    String(message).trim(),
 
                 messageType:
                     "GROUP_CHAT",
@@ -3263,53 +2786,552 @@ this.on(
 
             });
 
-
-        // -------------------------------------------------
-        // CREATE ATTACHMENT
-        // -------------------------------------------------
-
-        await INSERT
-    .into(ChatAttachments)
-    .entries({
-
-        ID:
-            cds.utils.uuid(),
-
-        messageId:
-            messageId,
-
-        fileName:
-            fileName,
-
-        mimeType:
-            mimeType ||
-            "application/octet-stream",
-
-        fileSize:
-            Number(fileSize || 0),
-
-        content:
-            Buffer.from(
-                fileContent,
-                "base64"
-            ),
-
-        createdAt:
-            new Date()
-
-    });
+        console.log(
+            "GROUP MESSAGE CREATED:",
+            groupId
+        );
 
         return {
 
             success: true,
 
             message:
-                "Group attachment sent successfully."
+                "Group message sent successfully."
 
         };
 
+    });
+
+    // =========================================================
+    // GET GROUP MESSAGES
+    // =========================================================
+
+    this.on("getGroupMessages", async (req) => {
+
+        const {
+            groupId,
+            performedBy
+        } = req.data;
+
+        console.log("========== GET GROUP MESSAGES ==========");
+        console.log("Group:", groupId);
+        console.log("User:", performedBy);
+
+        if (!groupId) {
+
+            return {
+                success: false,
+                messages: "[]",
+                message: "Group ID is required."
+            };
+
+        }
+
+        if (!performedBy) {
+
+            return {
+                success: false,
+                messages: "[]",
+                message: "User is required."
+            };
+
+        }
+
+        // -----------------------------------------------------
+        // CHECK MEMBERSHIP
+        // -----------------------------------------------------
+
+        const membership =
+            await SELECT.one
+                .from(ChatGroupMembers)
+                .where({
+                    group_ID: groupId,
+                    userName: performedBy,
+                    isActive: true
+                });
+
+        if (!membership) {
+
+            return {
+                success: false,
+                messages: "[]",
+                message:
+                    "You are not a member of this group."
+            };
+
+        }
+
+        // -----------------------------------------------------
+        // LOAD MESSAGES
+        // -----------------------------------------------------
+
+        // -----------------------------------------------------
+        // LOAD MESSAGES
+        // -----------------------------------------------------
+
+        const messages =
+            await SELECT
+                .from(Messages)
+                .where({
+                    groupId: groupId,
+                    messageType: "GROUP_CHAT"
+                })
+                .orderBy({
+                    createdAt: "asc"
+                });
+
+
+        // -----------------------------------------------------
+        // ATTACH ANY FILE ATTACHMENTS TO THEIR MESSAGES
+        // -----------------------------------------------------
+
+        const messageIds =
+            messages.map(
+                (m) => m.ID
+            );
+
+        const attachments =
+            messageIds.length
+                ? await SELECT
+                    .from(ChatAttachments)
+                    .where({
+                        messageId: {
+                            in: messageIds
+                        }
+                    })
+                : [];
+
+        const attachmentByMessageId = {};
+
+        attachments.forEach(
+            (a) => {
+
+                attachmentByMessageId[a.messageId] = a;
+
+            }
+        );
+
+        messages.forEach(
+            (m) => {
+
+                const attachment =
+                    attachmentByMessageId[m.ID];
+
+                m.attachmentId =
+                    attachment
+                        ? attachment.ID
+                        : null;
+
+                m.attachmentName =
+                    attachment
+                        ? attachment.fileName
+                        : "";
+
+                m.attachmentSizeText =
+                    attachment
+                        ? formatFileSizeServer(attachment.fileSize)
+                        : "";
+
+            }
+        );
+
+
+        return {
+
+            success: true,
+
+            messages:
+                JSON.stringify(messages),
+
+            message:
+                "Group messages loaded."
+
+        };
+
+    });
+
+    // =========================================================
+    // SEND DIRECT CHAT MESSAGE + ATTACHMENT
+    // =========================================================
+
+    this.on(
+        "sendChatMessageWithAttachment",
+        async (req) => {
+
+            const {
+                receiverUserName,
+                message,
+                fileName,
+                mimeType,
+                fileSize,
+                fileContent,
+                performedBy
+            } = req.data;
+
+            console.log("========== SEND CHAT ATTACHMENT ==========");
+            console.log("Sender:", performedBy);
+            console.log("Receiver:", receiverUserName);
+            console.log("File:", fileName);
+            console.log("Mime:", mimeType);
+            console.log("Size:", fileSize);
+            console.log("ATTACHMENT DEBUG - fileContent type:", typeof fileContent);
+            console.log("ATTACHMENT DEBUG - fileContent length:", fileContent ? fileContent.length : 0);
+
+            // -------------------------------------------------
+            // VALIDATION
+            // -------------------------------------------------
+
+            if (!performedBy) {
+                return { success: false, message: "Sender is required." };
+            }
+
+            if (!receiverUserName) {
+                return { success: false, message: "Receiver is required." };
+            }
+
+            if (!fileName || !fileContent) {
+                return { success: false, message: "Attachment is required." };
+            }
+
+            if (
+                String(performedBy).toLowerCase() ===
+                String(receiverUserName).toLowerCase()
+            ) {
+                return { success: false, message: "You cannot send a message to yourself." };
+            }
+
+            // -------------------------------------------------
+            // CHECK RECEIVER
+            // -------------------------------------------------
+
+            const receiver = await SELECT.one
+                .from(Users)
+                .where({ userName: receiverUserName });
+
+            if (!receiver) {
+                return {
+                    success: false,
+                    message: `User '${receiverUserName}' does not exist.`
+                };
+            }
+
+            if (!receiver.isActive) {
+                return {
+                    success: false,
+                    message: `User '${receiverUserName}' is inactive.`
+                };
+            }
+
+            // -------------------------------------------------
+            // CREATE THE MESSAGE ROW FIRST
+            // (this was missing — without it there is nothing
+            // for the attachment to attach to, and nothing for
+            // _loadConversation to $expand)
+            // -------------------------------------------------
+
+            const messageId = cds.utils.uuid();
+
+            console.log("RECEIVED fileContent length:", fileContent ? fileContent.length : 0);
+
+            const decoded = Buffer.from(fileContent, "base64");
+
+            console.log("DECODED buffer length:", decoded.length);
+            console.log("EXPECTED fileSize from client:", fileSize);
+
+            await INSERT.into(Messages).entries({
+
+                ID: messageId,
+
+                senderUserName: performedBy,
+
+                receiverUserName: receiverUserName,
+
+                subject: "Chat",
+
+                message: String(message || "").trim(),
+
+                messageType: "CHAT",
+
+                isRead: false,
+
+                createdAt: new Date()
+
+            });
+
+            // -------------------------------------------------
+            // CREATE ATTACHMENT, LINKED TO THE MESSAGE
+            // -------------------------------------------------
+
+            await INSERT
+                .into(ChatAttachments)
+                .entries({
+
+                    ID: cds.utils.uuid(),
+
+                    messageId: messageId,
+
+                    fileName: fileName,
+
+                    mimeType: mimeType || "application/octet-stream",
+
+                    fileSize: Number(fileSize || 0),
+
+                    // IMPORTANT: content is LargeBinary. The browser
+                    // sends a base64 STRING; decode it into a Buffer
+                    // before storing it, otherwise it gets corrupted.
+                    content: Buffer.from(fileContent, "base64"),
+
+                    createdAt: new Date()
+
+                });
+
+            console.log("CHAT ATTACHMENT MESSAGE CREATED:", messageId);
+
+            return {
+                success: true,
+                message: "Message and attachment sent successfully."
+            };
+
+        }
+    );
+    // =========================================================
+    // SEND GROUP CHAT MESSAGE + ATTACHMENT
+    // =========================================================
+
+    this.on(
+        "sendGroupChatMessageWithAttachment",
+        async (req) => {
+
+            const {
+                groupId,
+                message,
+                fileName,
+                mimeType,
+                fileSize,
+                fileContent,
+                performedBy
+            } = req.data;
+
+
+            console.log(
+                "========== SEND GROUP ATTACHMENT =========="
+            );
+
+            console.log("Group:", groupId);
+            console.log("Sender:", performedBy);
+            console.log("File:", fileName);
+            console.log(
+                "ATTACHMENT DEBUG - fileContent type:",
+                typeof fileContent
+            );
+
+            console.log(
+                "ATTACHMENT DEBUG - fileContent length:",
+                fileContent ? fileContent.length : 0
+            );
+
+            // -------------------------------------------------
+            // VALIDATION
+            // -------------------------------------------------
+
+            if (!groupId) {
+
+                return {
+                    success: false,
+                    message: "Group is required."
+                };
+
+            }
+
+
+            if (!performedBy) {
+
+                return {
+                    success: false,
+                    message: "Sender is required."
+                };
+
+            }
+
+
+            if (!fileName || !fileContent) {
+
+                return {
+                    success: false,
+                    message:
+                        "Attachment is required."
+                };
+
+            }
+
+
+            // -------------------------------------------------
+            // CHECK GROUP
+            // -------------------------------------------------
+
+            const group =
+                await SELECT.one
+                    .from(ChatGroups)
+                    .where({
+
+                        ID:
+                            groupId,
+
+                        isActive:
+                            true
+
+                    });
+
+
+            if (!group) {
+
+                return {
+                    success: false,
+                    message:
+                        "Group not found."
+                };
+
+            }
+
+
+            // -------------------------------------------------
+            // CHECK MEMBERSHIP
+            // -------------------------------------------------
+
+            const member =
+                await SELECT.one
+                    .from(ChatGroupMembers)
+                    .where({
+
+                        group_ID:
+                            groupId,
+
+                        userName:
+                            performedBy,
+
+                        isActive:
+                            true
+
+                    });
+
+
+            if (!member) {
+
+                return {
+                    success: false,
+                    message:
+                        "You are not a member of this group."
+                };
+
+            }
+
+
+            // -------------------------------------------------
+            // CREATE MESSAGE
+            // -------------------------------------------------
+
+            const messageId =
+                cds.utils.uuid();
+
+
+            await INSERT
+                .into(Messages)
+                .entries({
+
+                    ID:
+                        messageId,
+
+                    senderUserName:
+                        performedBy,
+
+                    receiverUserName:
+                        null,
+
+                    paymentId:
+                        null,
+
+                    groupId:
+                        groupId,
+
+                    subject:
+                        group.groupName,
+
+                    message:
+                        String(message || "").trim(),
+
+                    messageType:
+                        "GROUP_CHAT",
+
+                    isRead:
+                        false,
+
+                    createdAt:
+                        new Date()
+
+                });
+
+
+            // -------------------------------------------------
+            // CREATE ATTACHMENT
+            // -------------------------------------------------
+
+            await INSERT
+                .into(ChatAttachments)
+                .entries({
+
+                    ID:
+                        cds.utils.uuid(),
+
+                    messageId:
+                        messageId,
+
+                    fileName:
+                        fileName,
+
+                    mimeType:
+                        mimeType ||
+                        "application/octet-stream",
+
+                    fileSize:
+                        Number(fileSize || 0),
+
+                    content:
+                        Buffer.from(
+                            fileContent,
+                            "base64"
+                        ),
+
+                    createdAt:
+                        new Date()
+
+                });
+
+            return {
+
+                success: true,
+
+                message:
+                    "Group attachment sent successfully."
+
+            };
+
+        }
+    );
+
+// =========================================================
+// HELPER - STREAM TO BUFFER
+// =========================================================
+
+async function streamToBuffer(stream) {
+
+    const chunks = [];
+
+    for await (const chunk of stream) {
+        chunks.push(chunk);
     }
-);
+
+    return Buffer.concat(chunks);
+}
 
 
 // =========================================================
@@ -3320,101 +3342,97 @@ this.on(
     "downloadChatAttachment",
     async (req) => {
 
-        const {
-            attachmentId
-        } = req.data;
-
+        const { attachmentId } = req.data;
 
         if (!attachmentId) {
-
             return {
-
                 success: false,
-
                 fileName: "",
-
                 mimeType: "",
-
                 fileSize: 0,
-
                 fileContent: "",
-
-                message:
-                    "Attachment ID is required."
-
+                message: "Attachment ID is required."
             };
-
         }
-
 
         const attachment =
             await SELECT.one
                 .from(ChatAttachments)
-                .where({
-
-                    ID:
-                        attachmentId
-
-                });
-
+                .columns(
+                    'ID',
+                    'fileName',
+                    'mimeType',
+                    'fileSize',
+                    'content',
+                    'createdAt'
+                )
+                .where({ ID: attachmentId });
 
         if (!attachment) {
-
             return {
-
                 success: false,
-
                 fileName: "",
-
                 mimeType: "",
-
                 fileSize: 0,
-
                 fileContent: "",
-
-                message:
-                    "Attachment not found."
-
+                message: "Attachment not found."
             };
+        }
+
+        // -------------------------------------------------
+        // NORMALIZE content INTO A REAL BUFFER
+        //
+        // Depending on the DB driver, LargeBinary columns
+        // can come back as:
+        //   - a Buffer (ideal case)
+        //   - a Readable stream (must be drained first)
+        //   - occasionally a plain string
+        // -------------------------------------------------
+
+        let contentBuffer;
+
+        if (Buffer.isBuffer(attachment.content)) {
+
+            contentBuffer = attachment.content;
+
+        } else if (
+            attachment.content &&
+            typeof attachment.content.pipe === "function"
+        ) {
+
+            contentBuffer = await streamToBuffer(attachment.content);
+
+        } else if (
+            attachment.content &&
+            typeof attachment.content[Symbol.asyncIterator] === "function"
+        ) {
+
+            contentBuffer = await streamToBuffer(attachment.content);
+
+        } else {
+
+            contentBuffer = Buffer.from(String(attachment.content || ""));
 
         }
 
+        console.log("ATTACHMENT ROW:", {
+            ID: attachment.ID,
+            fileName: attachment.fileName,
+            fileSize: attachment.fileSize,
+            rawContentType: typeof attachment.content,
+            wasStream: !Buffer.isBuffer(attachment.content),
+            resolvedBufferLength: contentBuffer.length
+        });
 
-        // -------------------------------------------------
-        // IMPORTANT: attachment.content comes back from the
-        // sqlite driver as a Node Buffer (LargeBinary column).
-        // It must be explicitly re-encoded to base64 here -
-        // returning the raw Buffer directly would serialize
-        // it as a JSON object, not a base64 string, and the
-        // browser's atob() would then throw "not correctly
-        // encoded" trying to decode that.
-        // -------------------------------------------------
-
-        const base64Content =
-            Buffer.isBuffer(attachment.content)
-                ? attachment.content.toString("base64")
-                : String(attachment.content || "");
-
+        const base64Content = contentBuffer.toString("base64");
 
         return {
-
             success: true,
-
-            fileName:
-                attachment.fileName,
-
-            mimeType:
-                attachment.mimeType,
-
-            fileSize:
-                attachment.fileSize,
-
-            fileContent:
-                base64Content,
-
-            message:
-                "Attachment loaded."
-
+            fileName: attachment.fileName,
+            mimeType: attachment.mimeType,
+            fileSize: attachment.fileSize,
+            fileContent: base64Content,
+            message: "Attachment loaded."
         };
 
     }
