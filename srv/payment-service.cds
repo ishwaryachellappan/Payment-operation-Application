@@ -20,6 +20,8 @@ service PaymentService {
     entity ChatGroups       as projection on db.ChatGroups;
 
     entity ChatGroupMembers as projection on db.ChatGroupMembers;
+    
+    entity ChatAttachments as projection on db.ChatAttachments;
 
 
     // =====================================================
@@ -27,7 +29,7 @@ service PaymentService {
     // =====================================================
 
     action login(userName: String,
-                 password: String)                        returns LoginResponse;
+                 password: String)                                 returns LoginResponse;
 
 
     // =====================================================
@@ -40,7 +42,7 @@ service PaymentService {
                       password: String,
                       role: db.Role,
                       isActive: Boolean,
-                      performedBy: String)                returns ActionResponse;
+                      performedBy: String)                         returns ActionResponse;
 
 
     action updateUser(userId: UUID,
@@ -50,11 +52,11 @@ service PaymentService {
                       password: String,
                       role: db.Role,
                       isActive: Boolean,
-                      performedBy: String)                returns ActionResponse;
+                      performedBy: String)                         returns ActionResponse;
 
 
     action deleteUser(userId: UUID,
-                      performedBy: String)                returns ActionResponse;
+                      performedBy: String)                         returns ActionResponse;
 
 
     // =====================================================
@@ -69,7 +71,7 @@ service PaymentService {
                          currency: String,
                          paymentMethod: String,
                          paymentDate: Date,
-                         performedBy: String)             returns PaymentResponse;
+                         performedBy: String)                      returns PaymentResponse;
 
 
     // =====================================================
@@ -77,12 +79,12 @@ service PaymentService {
     // =====================================================
 
     action approvePayment(paymentId: UUID,
-                          performedBy: String)            returns ActionResponse;
+                          performedBy: String)                     returns ActionResponse;
 
 
     action rejectPayment(paymentId: UUID,
                          reason: String,
-                         performedBy: String)             returns ActionResponse;
+                         performedBy: String)                      returns ActionResponse;
 
 
     // =====================================================
@@ -90,7 +92,7 @@ service PaymentService {
     // =====================================================
 
     action bulkApprovePayments(paymentIds: LargeString,
-                               performedBy: String)       returns BulkApprovalResponse;
+                               performedBy: String)                returns BulkApprovalResponse;
 
 
     // =====================================================
@@ -98,14 +100,14 @@ service PaymentService {
     // =====================================================
 
     action bulkUploadPayments(csvData: LargeString,
-                              performedBy: String)        returns BulkUploadResponse;
+                              performedBy: String)                 returns BulkUploadResponse;
 
     action sendChatMessage(receiverUserName: String,
                            message: LargeString,
-                           performedBy: String)           returns ActionResponse;
+                           performedBy: String)                    returns ActionResponse;
 
     action markChatMessagesRead(senderUserName: String,
-                                receiverUserName: String) returns ActionResponse;
+                                receiverUserName: String)          returns ActionResponse;
 
     // =====================================================
     // GROUP CHAT
@@ -113,25 +115,46 @@ service PaymentService {
 
     action createChatGroup(groupName: String,
                            description: String,
-                           performedBy: String)           returns ChatGroupResponse;
+                           performedBy: String)                    returns ChatGroupResponse;
 
 
     action deleteChatGroup(groupId: UUID,
-                           performedBy: String)           returns ActionResponse;
+                           performedBy: String)                    returns ActionResponse;
 
 
     action addChatGroupMember(groupId: UUID,
                               userName: String,
-                              performedBy: String)        returns ActionResponse;
+                              performedBy: String)                 returns ActionResponse;
 
 
     action sendGroupChatMessage(groupId: UUID,
                                 message: LargeString,
-                                performedBy: String)      returns ActionResponse;
+                                performedBy: String)               returns ActionResponse;
 
 
     action getGroupMessages(groupId: UUID,
-                            performedBy: String)          returns GroupMessagesResponse;
+                            performedBy: String)                   returns GroupMessagesResponse;
+
+    action sendChatMessageWithAttachment(receiverUserName: String,
+                                         message: LargeString,
+                                         fileName: String(255),
+                                         mimeType: String(100),
+                                         fileSize: Integer,
+                                         fileContent: LargeString,
+                                         performedBy: String)      returns ActionResponse;
+
+
+    action sendGroupChatMessageWithAttachment(groupId: UUID,
+                                              message: LargeString,
+                                              fileName: String(255),
+                                              mimeType: String(100),
+                                              fileSize: Integer,
+                                              fileContent: LargeString,
+                                              performedBy: String) returns ActionResponse;
+
+                                              action downloadChatAttachment(
+    attachmentId : UUID
+) returns ChatAttachmentResponse;
 
 }
 
@@ -227,3 +250,19 @@ type GroupMessagesResponse {
 
 };
 
+
+type ChatAttachmentResponse {
+
+    success   : Boolean;
+
+    fileName  : String;
+
+    mimeType  : String;
+
+    fileSize  : Integer;
+
+    fileContent : LargeString;
+
+    message : String;
+
+};

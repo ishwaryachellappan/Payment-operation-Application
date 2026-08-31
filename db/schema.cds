@@ -83,6 +83,13 @@ entity Messages {
     isRead           : Boolean default false;
 
     createdAt        : Timestamp;
+
+    // -----------------------------------------------------
+    // NEW: lets us $expand the attachment when loading
+    // a conversation, instead of it being an orphan row
+    // -----------------------------------------------------
+    attachment : Association to one ChatAttachments
+                     on attachment.messageId = ID;
 }
 
 entity ChatGroups {
@@ -106,4 +113,22 @@ entity ChatGroupMembers {
         joinedAt : Timestamp;
 
         isActive : Boolean default true;
+}
+
+entity ChatAttachments {
+
+    key ID : UUID;
+
+    messageId : UUID not null;
+
+    fileName  : String(255) not null;
+
+    mimeType  : String(100);
+
+    fileSize  : Integer;
+
+    content   : LargeBinary not null;
+
+    createdAt : Timestamp;
+
 }

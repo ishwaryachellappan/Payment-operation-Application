@@ -20,78 +20,100 @@ sap.ui.define([
             // INIT
             // =====================================================
 
-         onInit: function () {
+            onInit: function () {
 
-    // =====================================================
-    // USERS MODEL
-    // =====================================================
+                // =====================================================
+                // USERS MODEL
+                // =====================================================
 
-    this.getView().setModel(
-        new JSONModel({
-            items: [],
-            allItems: []
-        }),
-        "users"
-    );
-
-
-    // =====================================================
-    // GROUPS MODEL
-    // =====================================================
-
-    this.getView().setModel(
-        new JSONModel({
-            items: []
-        }),
-        "groups"
-    );
+                this.getView().setModel(
+                    new JSONModel({
+                        items: [],
+                        allItems: []
+                    }),
+                    "users"
+                );
 
 
-    // =====================================================
-    // CHAT MODEL
-    // =====================================================
+                // =====================================================
+                // GROUPS MODEL
+                // =====================================================
 
-    this.getView().setModel(
-        new JSONModel({
-
-            currentUser:
-                this._getCurrentUser(),
-
-            isAdmin:
-                this._isAdmin(),
-
-            chatType:
-                "DIRECT",
-
-            selectedUserName:
-                "",
-
-            selectedFullName:
-                "",
-
-            selectedGroupId:
-                "",
-
-            selectedGroupName:
-                "",
-
-            messages:
-                []
-
-        }),
-        "chat"
-    );
+                this.getView().setModel(
+                    new JSONModel({
+                        items: []
+                    }),
+                    "groups"
+                );
 
 
-    // =====================================================
-    // LOAD DATA
-    // =====================================================
+                // =====================================================
+                // CHAT MODEL
+                // =====================================================
 
-    this._loadUsers();
+                this.getView().setModel(
+                    new JSONModel({
 
-    this._loadGroups();
+                        currentUser:
+                            this._getCurrentUser(),
 
-},
+                        isAdmin:
+                            this._isAdmin(),
+
+                        chatType:
+                            "DIRECT",
+
+                        selectedUserName:
+                            "",
+
+                        selectedFullName:
+                            "",
+
+                        selectedGroupId:
+                            "",
+
+                        selectedGroupName:
+                            "",
+
+
+                        // =============================================
+                        // ATTACHMENT DATA
+                        // =============================================
+
+                        selectedFileName:
+                            "",
+
+                        selectedFileType:
+                            "",
+
+                        selectedFileSize:
+                            0,
+
+                        selectedFileContent:
+                            "",
+
+
+                        // =============================================
+                        // CHAT MESSAGES
+                        // =============================================
+
+                        messages:
+                            []
+
+                    }),
+                    "chat"
+                );
+
+
+                // =====================================================
+                // LOAD DATA
+                // =====================================================
+
+                this._loadUsers();
+
+                this._loadGroups();
+
+            },
 
             // =====================================================
             // CURRENT USER
@@ -138,6 +160,29 @@ sap.ui.define([
                     /'/g,
                     "''"
                 );
+
+            },
+
+
+            // =====================================================
+            // FORMAT FILE SIZE
+            // =====================================================
+
+            _formatFileSize: function (bytes) {
+
+                if (!bytes) {
+                    return "";
+                }
+
+                const kb = bytes / 1024;
+
+                if (kb < 1024) {
+
+                    return kb.toFixed(1) + " KB";
+
+                }
+
+                return (kb / 1024).toFixed(1) + " MB";
 
             },
 
@@ -201,97 +246,97 @@ sap.ui.define([
 
 
                     // -------------------------------------------------
-// LOAD ALL CHAT MESSAGES FOR CURRENT USER
-// -------------------------------------------------
+                    // LOAD ALL CHAT MESSAGES FOR CURRENT USER
+                    // -------------------------------------------------
 
-let chatMessages = [];
+                    let chatMessages = [];
 
-try {
+                    try {
 
-    const escapedUser =
-        this._escapeODataValue(currentUser);
+                        const escapedUser =
+                            this._escapeODataValue(currentUser);
 
-    const chatFilter =
-        "(" +
-        "senderUserName eq '" +
-        escapedUser +
-        "'" +
-        " or " +
-        "receiverUserName eq '" +
-        escapedUser +
-        "'" +
-        ")" +
-        " and messageType eq 'CHAT'";
+                        const chatFilter =
+                            "(" +
+                            "senderUserName eq '" +
+                            escapedUser +
+                            "'" +
+                            " or " +
+                            "receiverUserName eq '" +
+                            escapedUser +
+                            "'" +
+                            ")" +
+                            " and messageType eq 'CHAT'";
 
-    const messagesUrl =
-        "/payment-service/Messages?" +
-        "$filter=" +
-        encodeURIComponent(chatFilter) +
-        "&$orderby=createdAt desc";
+                        const messagesUrl =
+                            "/payment-service/Messages?" +
+                            "$filter=" +
+                            encodeURIComponent(chatFilter) +
+                            "&$orderby=createdAt desc";
 
-    console.log(
-        "CHAT MESSAGES URL:",
-        messagesUrl
-    );
+                        console.log(
+                            "CHAT MESSAGES URL:",
+                            messagesUrl
+                        );
 
-    const messagesResponse =
-        await fetch(
-            messagesUrl,
-            {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json"
-                }
-            }
-        );
+                        const messagesResponse =
+                            await fetch(
+                                messagesUrl,
+                                {
+                                    method: "GET",
+                                    headers: {
+                                        "Accept": "application/json"
+                                    }
+                                }
+                            );
 
-    console.log(
-        "CHAT MESSAGES HTTP STATUS:",
-        messagesResponse.status
-    );
+                        console.log(
+                            "CHAT MESSAGES HTTP STATUS:",
+                            messagesResponse.status
+                        );
 
-    if (messagesResponse.ok) {
+                        if (messagesResponse.ok) {
 
-        const messagesData =
-            await messagesResponse.json();
+                            const messagesData =
+                                await messagesResponse.json();
 
-        chatMessages =
-            Array.isArray(messagesData.value)
-                ? messagesData.value
-                : [];
+                            chatMessages =
+                                Array.isArray(messagesData.value)
+                                    ? messagesData.value
+                                    : [];
 
-        console.log(
-            "CHAT MESSAGES:",
-            chatMessages
-        );
+                            console.log(
+                                "CHAT MESSAGES:",
+                                chatMessages
+                            );
 
-    } else {
+                        } else {
 
-        const errorText =
-            await messagesResponse.text();
+                            const errorText =
+                                await messagesResponse.text();
 
-        console.error(
-            "CHAT MESSAGES API ERROR:",
-            errorText
-        );
+                            console.error(
+                                "CHAT MESSAGES API ERROR:",
+                                errorText
+                            );
 
-        // IMPORTANT:
-        // Do not prevent users from loading
-        // just because there are no messages.
-        chatMessages = [];
+                            // IMPORTANT:
+                            // Do not prevent users from loading
+                            // just because there are no messages.
+                            chatMessages = [];
 
-    }
+                        }
 
-} catch (messageError) {
+                    } catch (messageError) {
 
-    console.error(
-        "CHAT MESSAGE LOAD ERROR:",
-        messageError
-    );
+                        console.error(
+                            "CHAT MESSAGE LOAD ERROR:",
+                            messageError
+                        );
 
-    chatMessages = [];
+                        chatMessages = [];
 
-}
+                    }
 
                     // -------------------------------------------------
                     // BUILD USER CHAT SUMMARY
@@ -732,6 +777,12 @@ try {
 
 
                 chatModel.setProperty(
+                    "/chatType",
+                    "DIRECT"
+                );
+
+
+                chatModel.setProperty(
                     "/selectedUserName",
                     username
                 );
@@ -740,6 +791,20 @@ try {
                 chatModel.setProperty(
                     "/selectedFullName",
                     user.fullName
+                );
+
+
+                // Clear group selection when switching to direct
+
+                chatModel.setProperty(
+                    "/selectedGroupId",
+                    ""
+                );
+
+
+                chatModel.setProperty(
+                    "/selectedGroupName",
+                    ""
                 );
 
 
@@ -892,176 +957,213 @@ try {
 
             _loadConversation: async function (sender, receiver) {
 
-    try {
+                try {
 
-        const escapedSender =
-            this._escapeODataValue(sender);
+                    const escapedSender =
+                        this._escapeODataValue(sender);
 
-        const escapedReceiver =
-            this._escapeODataValue(receiver);
+                    const escapedReceiver =
+                        this._escapeODataValue(receiver);
 
-        const filter =
-            "(" +
-            "senderUserName eq '" +
-            escapedSender +
-            "' and receiverUserName eq '" +
-            escapedReceiver +
-            "' and messageType eq 'CHAT'" +
-            ")" +
-            " or " +
-            "(" +
-            "senderUserName eq '" +
-            escapedReceiver +
-            "' and receiverUserName eq '" +
-            escapedSender +
-            "' and messageType eq 'CHAT'" +
-            ")";
+                    const filter =
+                        "(" +
+                        "senderUserName eq '" +
+                        escapedSender +
+                        "' and receiverUserName eq '" +
+                        escapedReceiver +
+                        "' and messageType eq 'CHAT'" +
+                        ")" +
+                        " or " +
+                        "(" +
+                        "senderUserName eq '" +
+                        escapedReceiver +
+                        "' and receiverUserName eq '" +
+                        escapedSender +
+                        "' and messageType eq 'CHAT'" +
+                        ")";
 
-        const url =
-            "/payment-service/Messages?" +
-            "$select=ID,senderUserName,receiverUserName,message,paymentId,groupId,subject,messageType,isRead,createdAt" +
-            "&$filter=" +
-            encodeURIComponent(filter) +
-            "&$orderby=createdAt asc";
+                    // -------------------------------------------------
+                    // NOTE: $expand=attachment pulls in the linked
+                    // ChatAttachments row (if any) via the "attachment"
+                    // association added to Messages in db/schema.cds.
+                    // Without this, attachmentId is never present on
+                    // the message and the attachment bubble in the
+                    // view never renders.
+                    // -------------------------------------------------
 
-        console.log(
-            "CHAT REQUEST:",
-            url
-        );
+                    const url =
+                        "/payment-service/Messages?" +
+                        "$select=ID,senderUserName,receiverUserName,message,paymentId,groupId,subject,messageType,isRead,createdAt" +
+                        "&$expand=attachment" +
+                        "&$filter=" +
+                        encodeURIComponent(filter) +
+                        "&$orderby=createdAt asc";
 
-        const response =
-            await fetch(
-                url,
-                {
-                    method: "GET",
-                    credentials: "same-origin",
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    }
-                }
-            );
+                    console.log(
+                        "CHAT REQUEST:",
+                        url
+                    );
 
-        const responseText =
-            await response.text();
-
-        console.log(
-            "CHAT HTTP STATUS:",
-            response.status
-        );
-
-        console.log(
-            "CHAT RESPONSE:",
-            responseText
-        );
-
-        if (!response.ok) {
-
-            let errorMessage =
-                "HTTP " + response.status;
-
-            try {
-
-                const errorData =
-                    JSON.parse(responseText);
-
-                errorMessage =
-                    errorData?.error?.message?.value ||
-                    errorData?.error?.message ||
-                    errorMessage;
-
-            } catch (e) {
-                // response was not JSON
-            }
-
-            throw new Error(
-                errorMessage
-            );
-        }
-
-        let data = {};
-
-        if (responseText) {
-
-            data =
-                JSON.parse(responseText);
-
-        }
-
-        const currentUser =
-            this._getCurrentUser();
-
-        const messages =
-            (data.value || []).map(
-                function (message) {
-
-                    const copy =
-                        Object.assign(
-                            {},
-                            message
+                    const response =
+                        await fetch(
+                            url,
+                            {
+                                method: "GET",
+                                credentials: "same-origin",
+                                headers: {
+                                    "Accept":
+                                        "application/json"
+                                }
+                            }
                         );
 
-                    copy.isMine =
-                        String(
-                            copy.senderUserName || ""
-                        ).toLowerCase() ===
-                        String(
-                            currentUser || ""
-                        ).toLowerCase();
+                    const responseText =
+                        await response.text();
 
-                    if (copy.createdAt) {
+                    console.log(
+                        "CHAT HTTP STATUS:",
+                        response.status
+                    );
 
-                        copy.displayTime =
-                            new Date(
-                                copy.createdAt
-                            ).toLocaleTimeString(
-                                "en-IN",
-                                {
-                                    hour: "2-digit",
-                                    minute: "2-digit"
-                                }
-                            );
+                    console.log(
+                        "CHAT RESPONSE:",
+                        responseText
+                    );
 
-                    } else {
+                    if (!response.ok) {
 
-                        copy.displayTime = "";
+                        let errorMessage =
+                            "HTTP " + response.status;
+
+                        try {
+
+                            const errorData =
+                                JSON.parse(responseText);
+
+                            errorMessage =
+                                errorData?.error?.message?.value ||
+                                errorData?.error?.message ||
+                                errorMessage;
+
+                        } catch (e) {
+                            // response was not JSON
+                        }
+
+                        throw new Error(
+                            errorMessage
+                        );
+                    }
+
+                    let data = {};
+
+                    if (responseText) {
+
+                        data =
+                            JSON.parse(responseText);
 
                     }
 
-                    return copy;
+                    const currentUser =
+                        this._getCurrentUser();
+
+                    const messages =
+                        (data.value || []).map(
+                            function (message) {
+
+                                const copy =
+                                    Object.assign(
+                                        {},
+                                        message
+                                    );
+
+                                copy.isMine =
+                                    String(
+                                        copy.senderUserName || ""
+                                    ).toLowerCase() ===
+                                    String(
+                                        currentUser || ""
+                                    ).toLowerCase();
+
+
+                                // ---------------------------------------
+                                // ATTACHMENT
+                                // ---------------------------------------
+
+                                if (message.attachment) {
+
+                                    copy.attachmentId =
+                                        message.attachment.ID;
+
+                                    copy.attachmentName =
+                                        message.attachment.fileName;
+
+                                    copy.attachmentSizeText =
+                                        this._formatFileSize(
+                                            message.attachment.fileSize
+                                        );
+
+                                } else {
+
+                                    copy.attachmentId = null;
+                                    copy.attachmentName = "";
+                                    copy.attachmentSizeText = "";
+
+                                }
+
+
+                                if (copy.createdAt) {
+
+                                    copy.displayTime =
+                                        new Date(
+                                            copy.createdAt
+                                        ).toLocaleTimeString(
+                                            "en-IN",
+                                            {
+                                                hour: "2-digit",
+                                                minute: "2-digit"
+                                            }
+                                        );
+
+                                } else {
+
+                                    copy.displayTime = "";
+
+                                }
+
+                                return copy;
+
+                            }.bind(this)
+                        );
+
+                    console.log(
+                        "CHAT MESSAGES:",
+                        messages
+                    );
+
+                    this.getView()
+                        .getModel("chat")
+                        .setProperty(
+                            "/messages",
+                            messages
+                        );
+
+                    this._scrollToBottom();
+
+                } catch (error) {
+
+                    console.error(
+                        "FAILED TO LOAD CONVERSATION:",
+                        error
+                    );
+
+                    sap.m.MessageBox.error(
+                        error.message ||
+                        "Unable to load conversation."
+                    );
 
                 }
-            );
 
-        console.log(
-            "CHAT MESSAGES:",
-            messages
-        );
-
-        this.getView()
-            .getModel("chat")
-            .setProperty(
-                "/messages",
-                messages
-            );
-
-        this._scrollToBottom();
-
-    } catch (error) {
-
-        console.error(
-            "FAILED TO LOAD CONVERSATION:",
-            error
-        );
-
-        sap.m.MessageBox.error(
-            error.message ||
-            "Unable to load conversation."
-        );
-
-    }
-
-},
+            },
 
             // =====================================================
             // INPUT
@@ -1122,407 +1224,449 @@ try {
                     this.getView()
                         .getModel("chat");
 
+
                 if (!chatModel) {
                     return;
                 }
+
+
+                const fileContent =
+                    chatModel.getProperty(
+                        "/selectedFileContent"
+                    );
+
+
+                const hasAttachment =
+                    !!fileContent;
+
 
                 const chatType =
                     chatModel.getProperty(
                         "/chatType"
                     );
 
-                const selectedGroupId =
-                    chatModel.getProperty(
-                        "/selectedGroupId"
-                    );
+
+                // -------------------------------------------------
+                // ATTACHMENT
+                // -------------------------------------------------
+
+                if (hasAttachment) {
+
+                    if (
+                        chatType === "GROUP"
+                    ) {
+
+                        return this._sendGroupAttachment();
+
+                    }
+
+
+                    return this._sendDirectAttachment();
+
+                }
+
+
+                // -------------------------------------------------
+                // NORMAL MESSAGE
+                // -------------------------------------------------
 
                 if (
                     chatType === "GROUP" &&
-                    selectedGroupId
+                    chatModel.getProperty(
+                        "/selectedGroupId"
+                    )
                 ) {
 
                     return this._sendGroupMessage();
 
                 }
 
+
                 return this._sendDirectMessage();
 
             },
-
-
             // =====================================================
             // SEND DIRECT (1:1) MESSAGE
             // =====================================================
 
             _sendDirectMessage: async function () {
 
-    const input =
-        this.byId("chatInput");
+                const input =
+                    this.byId("chatInput");
 
-    const button =
-        this.byId("sendChatButton");
+                const button =
+                    this.byId("sendChatButton");
 
-    const chatModel =
-        this.getView()
-            .getModel("chat");
+                const chatModel =
+                    this.getView()
+                        .getModel("chat");
 
-    if (!input || !button || !chatModel) {
-        return;
-    }
-
-
-    // =====================================================
-    // READ VALUES
-    // =====================================================
-
-    const message =
-        (
-            input.getValue() ||
-            ""
-        ).trim();
-
-    const sender =
-        this._getCurrentUser();
-
-    const receiver =
-        chatModel.getProperty(
-            "/selectedUserName"
-        );
+                if (!input || !button || !chatModel) {
+                    return;
+                }
 
 
-    console.log(
-        "========== SEND DIRECT MESSAGE =========="
-    );
+                // =====================================================
+                // READ VALUES
+                // =====================================================
 
-    console.log(
-        "Sender:",
-        sender
-    );
+                const message =
+                    (
+                        input.getValue() ||
+                        ""
+                    ).trim();
 
-    console.log(
-        "Receiver:",
-        receiver
-    );
+                const sender =
+                    this._getCurrentUser();
 
-    console.log(
-        "Message:",
-        message
-    );
-
-
-    // =====================================================
-    // VALIDATION
-    // =====================================================
-
-    if (!sender) {
-
-        MessageBox.error(
-            "Unable to identify the logged-in user."
-        );
-
-        return;
-    }
+                const receiver =
+                    chatModel.getProperty(
+                        "/selectedUserName"
+                    );
 
 
-    if (!receiver) {
+                console.log(
+                    "========== SEND DIRECT MESSAGE =========="
+                );
 
-        MessageToast.show(
-            "Please select a user first."
-        );
+                console.log(
+                    "Sender:",
+                    sender
+                );
 
-        return;
-    }
+                console.log(
+                    "Receiver:",
+                    receiver
+                );
 
-
-    if (!message) {
-
-        return;
-    }
-
-
-    // =====================================================
-    // DISABLE BUTTON
-    // =====================================================
-
-    button.setEnabled(false);
+                console.log(
+                    "Message:",
+                    message
+                );
 
 
-    try {
+                // =====================================================
+                // VALIDATION
+                // =====================================================
 
-        // =================================================
-        // GET CSRF TOKEN
-        // =================================================
+                if (!sender) {
 
-        const tokenResponse =
-            await fetch(
-                "/payment-service/",
-                {
-                    method: "GET",
-                    credentials: "same-origin",
-                    cache: "no-store",
-                    headers: {
-                        "X-CSRF-Token": "Fetch",
+                    MessageBox.error(
+                        "Unable to identify the logged-in user."
+                    );
+
+                    return;
+                }
+
+
+                if (!receiver) {
+
+                    MessageToast.show(
+                        "Please select a user first."
+                    );
+
+                    return;
+                }
+
+
+                if (!message) {
+
+                    return;
+                }
+
+
+                // =====================================================
+                // DISABLE BUTTON
+                // =====================================================
+
+                button.setEnabled(false);
+
+
+                try {
+
+                    // =================================================
+                    // GET CSRF TOKEN
+                    // =================================================
+
+                    const tokenResponse =
+                        await fetch(
+                            "/payment-service/",
+                            {
+                                method: "GET",
+                                credentials: "same-origin",
+                                cache: "no-store",
+                                headers: {
+                                    "X-CSRF-Token": "Fetch",
+                                    "Accept":
+                                        "application/json"
+                                }
+                            }
+                        );
+
+
+                    const csrfToken =
+                        tokenResponse.headers.get(
+                            "X-CSRF-Token"
+                        );
+
+
+                    console.log(
+                        "CSRF TOKEN:",
+                        csrfToken
+                            ? "RECEIVED"
+                            : "NOT RECEIVED"
+                    );
+
+
+                    // =================================================
+                    // SEND MESSAGE
+                    // =================================================
+
+                    const headers = {
+
+                        "Content-Type":
+                            "application/json",
+
                         "Accept":
                             "application/json"
+
+                    };
+
+
+                    if (csrfToken) {
+
+                        headers["X-CSRF-Token"] =
+                            csrfToken;
+
                     }
-                }
-            );
 
 
-        const csrfToken =
-            tokenResponse.headers.get(
-                "X-CSRF-Token"
-            );
+                    const response =
+                        await fetch(
+                            "/payment-service/sendChatMessage",
+                            {
+                                method: "POST",
+
+                                credentials:
+                                    "same-origin",
+
+                                headers:
+
+                                    headers,
+
+                                body:
+                                    JSON.stringify({
+
+                                        receiverUserName:
+                                            receiver,
+
+                                        message:
+                                            message,
+
+                                        performedBy:
+                                            sender
+
+                                    })
+
+                            }
+                        );
 
 
-        console.log(
-            "CSRF TOKEN:",
-            csrfToken
-                ? "RECEIVED"
-                : "NOT RECEIVED"
-        );
+                    const responseText =
+                        await response.text();
 
 
-        // =================================================
-        // SEND MESSAGE
-        // =================================================
+                    console.log(
+                        "SEND HTTP STATUS:",
+                        response.status
+                    );
 
-        const headers = {
-
-            "Content-Type":
-                "application/json",
-
-            "Accept":
-                "application/json"
-
-        };
-
-
-        if (csrfToken) {
-
-            headers["X-CSRF-Token"] =
-                csrfToken;
-
-        }
-
-
-        const response =
-            await fetch(
-                "/payment-service/sendChatMessage",
-                {
-                    method: "POST",
-
-                    credentials:
-                        "same-origin",
-
-                    headers:
-
-                        headers,
-
-                    body:
-                        JSON.stringify({
-
-                            receiverUserName:
-                                receiver,
-
-                            message:
-                                message,
-
-                            performedBy:
-                                sender
-
-                        })
-
-                }
-            );
-
-
-        const responseText =
-            await response.text();
-
-
-        console.log(
-            "SEND HTTP STATUS:",
-            response.status
-        );
-
-        console.log(
-            "SEND RESPONSE:",
-            responseText
-        );
-
-
-        let result = {};
-
-
-        if (responseText) {
-
-            try {
-
-                result =
-                    JSON.parse(
+                    console.log(
+                        "SEND RESPONSE:",
                         responseText
                     );
 
-            } catch (e) {
 
-                console.error(
-                    "Invalid JSON response:",
-                    responseText
-                );
-
-            }
-
-        }
+                    let result = {};
 
 
-        // =================================================
-        // ERROR
-        // =================================================
+                    if (responseText) {
 
-        if (!response.ok) {
+                        try {
 
-            const errorMessage =
-                result?.error?.message?.value ||
-                result?.error?.message ||
-                result?.message ||
-                responseText ||
-                (
-                    "Unable to send message. HTTP " +
-                    response.status
-                );
+                            result =
+                                JSON.parse(
+                                    responseText
+                                );
 
+                        } catch (e) {
 
-            throw new Error(
-                errorMessage
-            );
+                            console.error(
+                                "Invalid JSON response:",
+                                responseText
+                            );
 
-        }
+                        }
 
-
-        if (
-            result &&
-            result.success === false
-        ) {
-
-            throw new Error(
-                result.message ||
-                "Unable to send message."
-            );
-
-        }
-
-
-        // =================================================
-        // CLEAR INPUT
-        // =================================================
-
-        input.setValue("");
-
-        button.setEnabled(false);
-
-
-        // =================================================
-        // ADD MESSAGE IMMEDIATELY TO UI
-        // =================================================
-
-        const messages =
-            chatModel.getProperty(
-                "/messages"
-            ) || [];
-
-
-        messages.push({
-
-            ID:
-                "local-" +
-                Date.now(),
-
-            senderUserName:
-                sender,
-
-            receiverUserName:
-                receiver,
-
-            message:
-                message,
-
-            messageType:
-                "CHAT",
-
-            isRead:
-                true,
-
-            isMine:
-                true,
-
-            createdAt:
-                new Date().toISOString(),
-
-            displayTime:
-                new Date().toLocaleTimeString(
-                    "en-IN",
-                    {
-                        hour: "2-digit",
-                        minute: "2-digit"
                     }
-                )
-
-        });
 
 
-        chatModel.setProperty(
-            "/messages",
-            messages
-        );
+                    // =================================================
+                    // ERROR
+                    // =================================================
+
+                    if (!response.ok) {
+
+                        const errorMessage =
+                            result?.error?.message?.value ||
+                            result?.error?.message ||
+                            result?.message ||
+                            responseText ||
+                            (
+                                "Unable to send message. HTTP " +
+                                response.status
+                            );
 
 
-        this._scrollToBottom();
+                        throw new Error(
+                            errorMessage
+                        );
+
+                    }
 
 
-        // =================================================
-        // REFRESH FROM DATABASE
-        // =================================================
+                    if (
+                        result &&
+                        result.success === false
+                    ) {
 
-        await this._loadConversation(
-            sender,
-            receiver
-        );
+                        throw new Error(
+                            result.message ||
+                            "Unable to send message."
+                        );
 
-
-        // =================================================
-        // REFRESH USER LIST
-        // =================================================
-
-        await this._loadUsers();
+                    }
 
 
-        MessageToast.show(
-            "Message sent"
-        );
+                    // =================================================
+                    // CLEAR INPUT
+                    // =================================================
+
+                    input.setValue("");
+
+                    button.setEnabled(false);
 
 
-    } catch (error) {
+                    // =================================================
+                    // ADD MESSAGE IMMEDIATELY TO UI
+                    // =================================================
 
-        console.error(
-            "SEND CHAT ERROR:",
-            error
-        );
-
-
-        MessageBox.error(
-            error.message ||
-            "Unable to send message."
-        );
+                    const messages =
+                        chatModel.getProperty(
+                            "/messages"
+                        ) || [];
 
 
-        button.setEnabled(
-            message.length > 0
-        );
+                    messages.push({
 
-    }
+                        ID:
+                            "local-" +
+                            Date.now(),
 
-},
+                        senderUserName:
+                            sender,
+
+                        receiverUserName:
+                            receiver,
+
+                        message:
+                            message,
+
+                        messageType:
+                            "CHAT",
+
+                        isRead:
+                            true,
+
+                        isMine:
+                            true,
+
+                        attachmentId:
+                            null,
+
+                        attachmentName:
+                            "",
+
+                        attachmentSizeText:
+                            "",
+
+                        createdAt:
+                            new Date().toISOString(),
+
+                        displayTime:
+                            new Date().toLocaleTimeString(
+                                "en-IN",
+                                {
+                                    hour: "2-digit",
+                                    minute: "2-digit"
+                                }
+                            )
+
+                    });
+
+
+                    chatModel.setProperty(
+                        "/messages",
+                        messages
+                    );
+
+
+                    this._scrollToBottom();
+
+
+                    // =================================================
+                    // REFRESH FROM DATABASE
+                    // =================================================
+
+                    await this._loadConversation(
+                        sender,
+                        receiver
+                    );
+
+
+                    // =================================================
+                    // REFRESH USER LIST
+                    // =================================================
+
+                    await this._loadUsers();
+
+
+                    MessageToast.show(
+                        "Message sent"
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "SEND CHAT ERROR:",
+                        error
+                    );
+
+
+                    MessageBox.error(
+                        error.message ||
+                        "Unable to send message."
+                    );
+
+
+                    button.setEnabled(
+                        message.length > 0
+                    );
+
+                }
+
+            },
 
 
             // =====================================================
@@ -1966,610 +2110,610 @@ try {
             },
 
             // =====================================================
-// GET CSRF TOKEN
-// =====================================================
-//
-// NOTE: this must always hit the server for a *fresh* token
-// (cache: "no-store"), otherwise the browser can replay an
-// earlier cached response for the same URL that has no
-// X-CSRF-Token header, which used to surface as:
-// "CSRF token was not returned by Payment Service."
-//
-// Also, mirroring the direct-message / create-group flows,
-// this no longer hard-fails when a token can't be obtained -
-// it just logs a warning and lets the caller proceed without
-// the header, exactly like those two flows already do.
-// =====================================================
+            // GET CSRF TOKEN
+            // =====================================================
+            //
+            // NOTE: this must always hit the server for a *fresh* token
+            // (cache: "no-store"), otherwise the browser can replay an
+            // earlier cached response for the same URL that has no
+            // X-CSRF-Token header, which used to surface as:
+            // "CSRF token was not returned by Payment Service."
+            //
+            // Also, mirroring the direct-message / create-group flows,
+            // this no longer hard-fails when a token can't be obtained -
+            // it just logs a warning and lets the caller proceed without
+            // the header, exactly like those two flows already do.
+            // =====================================================
 
-_getCsrfToken: async function () {
+            _getCsrfToken: async function () {
 
-    try {
+                try {
 
-        const response = await fetch(
-            "/payment-service/",
-            {
-                method: "GET",
-                headers: {
-                    "X-CSRF-Token": "Fetch",
-                    "Accept": "application/json"
-                },
-                credentials: "same-origin",
-                cache: "no-store"
-            }
-        );
+                    const response = await fetch(
+                        "/payment-service/",
+                        {
+                            method: "GET",
+                            headers: {
+                                "X-CSRF-Token": "Fetch",
+                                "Accept": "application/json"
+                            },
+                            credentials: "same-origin",
+                            cache: "no-store"
+                        }
+                    );
 
-        if (!response.ok) {
+                    if (!response.ok) {
 
-            console.warn(
-                "Unable to obtain CSRF token. HTTP " +
-                response.status
-            );
+                        console.warn(
+                            "Unable to obtain CSRF token. HTTP " +
+                            response.status
+                        );
 
-            return null;
+                        return null;
 
-        }
-
-        const token =
-            response.headers.get("X-CSRF-Token");
-
-        if (!token) {
-
-            console.warn(
-                "CSRF token was not returned by Payment Service."
-            );
-
-            return null;
-
-        }
-
-        console.log("CSRF TOKEN RECEIVED");
-
-        return token;
-
-    } catch (error) {
-
-        console.warn(
-            "CSRF token request failed:",
-            error
-        );
-
-        return null;
-
-    }
-
-},
-
-
-          // =====================================================
-// LOAD USERS FOR GROUP
-// =====================================================
-
-_loadUsersForGroup: async function () {
-
-    try {
-
-        console.log(
-            "LOADING USERS FOR GROUP"
-        );
-
-
-        const currentUser =
-            this._getCurrentUser();
-
-
-        const response =
-            await fetch(
-                "/payment-service/Users?" +
-                "$select=userName,fullName,isActive" +
-                "&$filter=isActive eq true" +
-                "&$orderby=fullName asc",
-                {
-                    method: "GET",
-
-                    credentials:
-                        "same-origin",
-
-                    headers: {
-                        "Accept":
-                            "application/json"
                     }
+
+                    const token =
+                        response.headers.get("X-CSRF-Token");
+
+                    if (!token) {
+
+                        console.warn(
+                            "CSRF token was not returned by Payment Service."
+                        );
+
+                        return null;
+
+                    }
+
+                    console.log("CSRF TOKEN RECEIVED");
+
+                    return token;
+
+                } catch (error) {
+
+                    console.warn(
+                        "CSRF token request failed:",
+                        error
+                    );
+
+                    return null;
+
                 }
-            );
+
+            },
 
 
-        const responseText =
-            await response.text();
+            // =====================================================
+            // LOAD USERS FOR GROUP
+            // =====================================================
+
+            _loadUsersForGroup: async function () {
+
+                try {
+
+                    console.log(
+                        "LOADING USERS FOR GROUP"
+                    );
 
 
-        console.log(
-            "GROUP USERS STATUS:",
-            response.status
-        );
+                    const currentUser =
+                        this._getCurrentUser();
 
 
-        if (!response.ok) {
+                    const response =
+                        await fetch(
+                            "/payment-service/Users?" +
+                            "$select=userName,fullName,isActive" +
+                            "&$filter=isActive eq true" +
+                            "&$orderby=fullName asc",
+                            {
+                                method: "GET",
 
-            throw new Error(
-                responseText ||
-                "Unable to load users."
-            );
+                                credentials:
+                                    "same-origin",
 
-        }
-
-
-        const data =
-            responseText
-                ? JSON.parse(
-                    responseText
-                )
-                : {};
+                                headers: {
+                                    "Accept":
+                                        "application/json"
+                                }
+                            }
+                        );
 
 
-        const users =
-            (data.value || [])
-                .filter(
-                    function (user) {
+                    const responseText =
+                        await response.text();
 
-                        return (
-                            String(
-                                user.userName ||
-                                ""
-                            ).toLowerCase() !==
-                            String(
-                                currentUser ||
-                                ""
-                            ).toLowerCase()
+
+                    console.log(
+                        "GROUP USERS STATUS:",
+                        response.status
+                    );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            responseText ||
+                            "Unable to load users."
                         );
 
                     }
-                );
 
 
-        const combo =
-            this._groupUsersSelect;
-
-
-        if (!combo) {
-
-            console.error(
-                "GROUP USER SELECTOR NOT FOUND"
-            );
-
-            return;
-
-        }
-
-
-        combo.removeAllItems();
-
-
-        users.forEach(
-            function (user) {
-
-                combo.addItem(
-
-                    new sap.ui.core.Item({
-
-                        key:
-                            user.userName,
-
-                        text:
-                            user.fullName +
-                            "  @" +
-                            user.userName
-
-                    })
-
-                );
-
-            }
-        );
-
-
-        console.log(
-            "GROUP USERS LOADED:",
-            users
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "LOAD GROUP USERS ERROR:",
-            error
-        );
-
-
-        MessageBox.error(
-            error.message ||
-            "Unable to load users."
-        );
-
-    }
-
-},
-
-          _createGroup: async function () {
-
-    const groupName =
-        this._groupNameInput
-            ?.getValue()
-            ?.trim() || "";
-
-
-    const description =
-        this._groupDescriptionInput
-            ?.getValue()
-            ?.trim() || "";
-
-
-    const selectedUsers =
-        this._groupUsersSelect
-            ?.getSelectedKeys() || [];
-
-
-    const performedBy =
-        this._getCurrentUser();
-
-
-    console.log(
-        "========== CREATE GROUP =========="
-    );
-
-    console.log(
-        "Group:",
-        groupName
-    );
-
-    console.log(
-        "Description:",
-        description
-    );
-
-    console.log(
-        "Members:",
-        selectedUsers
-    );
-
-    console.log(
-        "Created By:",
-        performedBy
-    );
-
-
-    // =====================================================
-    // VALIDATION
-    // =====================================================
-
-    if (!groupName) {
-
-        MessageBox.error(
-            "Please enter a group name."
-        );
-
-        return;
-
-    }
-
-
-    if (!performedBy) {
-
-        MessageBox.error(
-            "Unable to identify logged-in user."
-        );
-
-        return;
-
-    }
-
-
-    try {
-
-        // =================================================
-        // CSRF
-        // =================================================
-
-        const tokenResponse =
-            await fetch(
-                "/payment-service/",
-                {
-                    method: "GET",
-                    credentials: "same-origin",
-                    cache: "no-store",
-                    headers: {
-                        "X-CSRF-Token":
-                            "Fetch"
-                    }
-                }
-            );
-
-
-        const csrfToken =
-            tokenResponse.headers.get(
-                "X-CSRF-Token"
-            );
-
-
-        const headers = {
-
-            "Content-Type":
-                "application/json",
-
-            "Accept":
-                "application/json"
-
-        };
-
-
-        if (csrfToken) {
-
-            headers["X-CSRF-Token"] =
-                csrfToken;
-
-        }
-
-
-        // =================================================
-        // CREATE GROUP
-        // =================================================
-
-        const response =
-            await fetch(
-                "/payment-service/createChatGroup",
-                {
-
-                    method:
-                        "POST",
-
-                    credentials:
-                        "same-origin",
-
-                    headers:
-                        headers,
-
-                    body:
-                        JSON.stringify({
-
-                            groupName:
-                                groupName,
-
-                            description:
-                                description,
-
-                            performedBy:
-                                performedBy
-
-                        })
-
-                }
-            );
-
-
-        const responseText =
-            await response.text();
-
-
-        console.log(
-            "CREATE GROUP STATUS:",
-            response.status
-        );
-
-        console.log(
-            "CREATE GROUP RESPONSE:",
-            responseText
-        );
-
-
-        let result = {};
-
-
-        if (responseText) {
-
-            try {
-
-                result =
-                    JSON.parse(
+                    const data =
                         responseText
-                    );
-
-            } catch (e) {
-
-                throw new Error(
-                    "Invalid server response."
-                );
-
-            }
-
-        }
+                            ? JSON.parse(
+                                responseText
+                            )
+                            : {};
 
 
-        if (!response.ok) {
+                    const users =
+                        (data.value || [])
+                            .filter(
+                                function (user) {
 
-            throw new Error(
+                                    return (
+                                        String(
+                                            user.userName ||
+                                            ""
+                                        ).toLowerCase() !==
+                                        String(
+                                            currentUser ||
+                                            ""
+                                        ).toLowerCase()
+                                    );
 
-                result?.error?.message?.value ||
-                result?.error?.message ||
-                result?.message ||
-                responseText ||
-                "Unable to create group."
-
-            );
-
-        }
-
-
-        if (
-            result.success === false
-        ) {
-
-            throw new Error(
-                result.message ||
-                "Unable to create group."
-            );
-
-        }
+                                }
+                            );
 
 
-        const groupId =
-            result.groupId;
+                    const combo =
+                        this._groupUsersSelect;
 
 
-        if (!groupId) {
+                    if (!combo) {
 
-            throw new Error(
-                "Group was created but no group ID was returned."
-            );
+                        console.error(
+                            "GROUP USER SELECTOR NOT FOUND"
+                        );
 
-        }
+                        return;
 
-
-        // =================================================
-        // ADD MEMBERS
-        // =================================================
-
-        let failedMembers = [];
+                    }
 
 
-        for (
-            const username
-            of selectedUsers
-        ) {
+                    combo.removeAllItems();
 
-            try {
 
-                const memberResponse =
-                    await fetch(
-                        "/payment-service/addChatGroupMember",
-                        {
+                    users.forEach(
+                        function (user) {
 
-                            method:
-                                "POST",
+                            combo.addItem(
 
-                            credentials:
-                                "same-origin",
+                                new sap.ui.core.Item({
 
-                            headers:
-                                headers,
+                                    key:
+                                        user.userName,
 
-                            body:
-                                JSON.stringify({
-
-                                    groupId:
-                                        groupId,
-
-                                    userName:
-                                        username,
-
-                                    performedBy:
-                                        performedBy
+                                    text:
+                                        user.fullName +
+                                        "  @" +
+                                        user.userName
 
                                 })
+
+                            );
 
                         }
                     );
 
 
-                const memberText =
-                    await memberResponse.text();
+                    console.log(
+                        "GROUP USERS LOADED:",
+                        users
+                    );
 
 
-                let memberResult =
-                    {};
+                } catch (error) {
 
-                if (memberText) {
-
-                    try {
-
-                        memberResult =
-                            JSON.parse(
-                                memberText
-                            );
-
-                    } catch (e) {
-
-                        memberResult =
-                            {};
-
-                    }
-
-                }
+                    console.error(
+                        "LOAD GROUP USERS ERROR:",
+                        error
+                    );
 
 
-                if (
-                    !memberResponse.ok ||
-                    memberResult.success === false
-                ) {
-
-                    failedMembers.push(
-                        username
+                    MessageBox.error(
+                        error.message ||
+                        "Unable to load users."
                     );
 
                 }
 
-            } catch (error) {
+            },
 
-                failedMembers.push(
-                    username
+            _createGroup: async function () {
+
+                const groupName =
+                    this._groupNameInput
+                        ?.getValue()
+                        ?.trim() || "";
+
+
+                const description =
+                    this._groupDescriptionInput
+                        ?.getValue()
+                        ?.trim() || "";
+
+
+                const selectedUsers =
+                    this._groupUsersSelect
+                        ?.getSelectedKeys() || [];
+
+
+                const performedBy =
+                    this._getCurrentUser();
+
+
+                console.log(
+                    "========== CREATE GROUP =========="
                 );
 
-            }
+                console.log(
+                    "Group:",
+                    groupName
+                );
 
-        }
+                console.log(
+                    "Description:",
+                    description
+                );
 
+                console.log(
+                    "Members:",
+                    selectedUsers
+                );
 
-        // =================================================
-        // REFRESH GROUPS
-        // =================================================
-
-        await this._loadGroups();
-
-
-        // =================================================
-        // CLOSE
-        // =================================================
-
-        this._groupDialog.close();
-
-
-        this._groupNameInput.setValue("");
-        this._groupDescriptionInput.setValue("");
-        this._groupUsersSelect.removeAllSelectedItems();
+                console.log(
+                    "Created By:",
+                    performedBy
+                );
 
 
-        if (failedMembers.length > 0) {
+                // =====================================================
+                // VALIDATION
+                // =====================================================
 
-            MessageBox.warning(
+                if (!groupName) {
 
-                "Group created, but these users could not be added:\n\n" +
-                failedMembers.join(", ")
+                    MessageBox.error(
+                        "Please enter a group name."
+                    );
 
-            );
+                    return;
 
-        } else {
-
-            MessageToast.show(
-                "Group created successfully."
-            );
-
-        }
+                }
 
 
-    } catch (error) {
+                if (!performedBy) {
 
-        console.error(
-            "CREATE GROUP ERROR:",
-            error
-        );
+                    MessageBox.error(
+                        "Unable to identify logged-in user."
+                    );
+
+                    return;
+
+                }
 
 
-        MessageBox.error(
-            error.message ||
-            "Unable to create group."
-        );
+                try {
 
-    }
+                    // =================================================
+                    // CSRF
+                    // =================================================
 
-},
+                    const tokenResponse =
+                        await fetch(
+                            "/payment-service/",
+                            {
+                                method: "GET",
+                                credentials: "same-origin",
+                                cache: "no-store",
+                                headers: {
+                                    "X-CSRF-Token":
+                                        "Fetch"
+                                }
+                            }
+                        );
+
+
+                    const csrfToken =
+                        tokenResponse.headers.get(
+                            "X-CSRF-Token"
+                        );
+
+
+                    const headers = {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "application/json"
+
+                    };
+
+
+                    if (csrfToken) {
+
+                        headers["X-CSRF-Token"] =
+                            csrfToken;
+
+                    }
+
+
+                    // =================================================
+                    // CREATE GROUP
+                    // =================================================
+
+                    const response =
+                        await fetch(
+                            "/payment-service/createChatGroup",
+                            {
+
+                                method:
+                                    "POST",
+
+                                credentials:
+                                    "same-origin",
+
+                                headers:
+                                    headers,
+
+                                body:
+                                    JSON.stringify({
+
+                                        groupName:
+                                            groupName,
+
+                                        description:
+                                            description,
+
+                                        performedBy:
+                                            performedBy
+
+                                    })
+
+                            }
+                        );
+
+
+                    const responseText =
+                        await response.text();
+
+
+                    console.log(
+                        "CREATE GROUP STATUS:",
+                        response.status
+                    );
+
+                    console.log(
+                        "CREATE GROUP RESPONSE:",
+                        responseText
+                    );
+
+
+                    let result = {};
+
+
+                    if (responseText) {
+
+                        try {
+
+                            result =
+                                JSON.parse(
+                                    responseText
+                                );
+
+                        } catch (e) {
+
+                            throw new Error(
+                                "Invalid server response."
+                            );
+
+                        }
+
+                    }
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+
+                            result?.error?.message?.value ||
+                            result?.error?.message ||
+                            result?.message ||
+                            responseText ||
+                            "Unable to create group."
+
+                        );
+
+                    }
+
+
+                    if (
+                        result.success === false
+                    ) {
+
+                        throw new Error(
+                            result.message ||
+                            "Unable to create group."
+                        );
+
+                    }
+
+
+                    const groupId =
+                        result.groupId;
+
+
+                    if (!groupId) {
+
+                        throw new Error(
+                            "Group was created but no group ID was returned."
+                        );
+
+                    }
+
+
+                    // =================================================
+                    // ADD MEMBERS
+                    // =================================================
+
+                    let failedMembers = [];
+
+
+                    for (
+                        const username
+                        of selectedUsers
+                    ) {
+
+                        try {
+
+                            const memberResponse =
+                                await fetch(
+                                    "/payment-service/addChatGroupMember",
+                                    {
+
+                                        method:
+                                            "POST",
+
+                                        credentials:
+                                            "same-origin",
+
+                                        headers:
+                                            headers,
+
+                                        body:
+                                            JSON.stringify({
+
+                                                groupId:
+                                                    groupId,
+
+                                                userName:
+                                                    username,
+
+                                                performedBy:
+                                                    performedBy
+
+                                            })
+
+                                    }
+                                );
+
+
+                            const memberText =
+                                await memberResponse.text();
+
+
+                            let memberResult =
+                                {};
+
+                            if (memberText) {
+
+                                try {
+
+                                    memberResult =
+                                        JSON.parse(
+                                            memberText
+                                        );
+
+                                } catch (e) {
+
+                                    memberResult =
+                                        {};
+
+                                }
+
+                            }
+
+
+                            if (
+                                !memberResponse.ok ||
+                                memberResult.success === false
+                            ) {
+
+                                failedMembers.push(
+                                    username
+                                );
+
+                            }
+
+                        } catch (error) {
+
+                            failedMembers.push(
+                                username
+                            );
+
+                        }
+
+                    }
+
+
+                    // =================================================
+                    // REFRESH GROUPS
+                    // =================================================
+
+                    await this._loadGroups();
+
+
+                    // =================================================
+                    // CLOSE
+                    // =================================================
+
+                    this._groupDialog.close();
+
+
+                    this._groupNameInput.setValue("");
+                    this._groupDescriptionInput.setValue("");
+                    this._groupUsersSelect.removeAllSelectedItems();
+
+
+                    if (failedMembers.length > 0) {
+
+                        MessageBox.warning(
+
+                            "Group created, but these users could not be added:\n\n" +
+                            failedMembers.join(", ")
+
+                        );
+
+                    } else {
+
+                        MessageToast.show(
+                            "Group created successfully."
+                        );
+
+                    }
+
+
+                } catch (error) {
+
+                    console.error(
+                        "CREATE GROUP ERROR:",
+                        error
+                    );
+
+
+                    MessageBox.error(
+                        error.message ||
+                        "Unable to create group."
+                    );
+
+                }
+
+            },
 
             onGroupSelect: async function (oEvent) {
 
@@ -2639,83 +2783,83 @@ _loadUsersForGroup: async function () {
             },
 
 
-           // =====================================================
-// DELETE GROUP
-// ONLY GROUP CREATOR CAN DELETE
-// =====================================================
+            // =====================================================
+            // DELETE GROUP
+            // ONLY GROUP CREATOR CAN DELETE
+            // =====================================================
 
-onDeleteGroupPress: function (oEvent) {
+            onDeleteGroupPress: function (oEvent) {
 
-    const context =
-        oEvent.getSource()
-            .getBindingContext("groups");
-
-
-    if (!context) {
-        return;
-    }
+                const context =
+                    oEvent.getSource()
+                        .getBindingContext("groups");
 
 
-    const group =
-        context.getObject();
+                if (!context) {
+                    return;
+                }
 
 
-    const currentUser =
-        this._getCurrentUser();
+                const group =
+                    context.getObject();
 
 
-    // -------------------------------------------------
-    // CREATOR CHECK
-    // -------------------------------------------------
-
-    if (
-        String(group.createdBy || "")
-            .toLowerCase() !==
-        String(currentUser || "")
-            .toLowerCase()
-    ) {
-
-        MessageBox.error(
-            "Only the group creator can delete this group."
-        );
-
-        return;
-
-    }
+                const currentUser =
+                    this._getCurrentUser();
 
 
-    MessageBox.confirm(
+                // -------------------------------------------------
+                // CREATOR CHECK
+                // -------------------------------------------------
 
-        'Delete the group "' +
-        group.groupName +
-        '"? This cannot be undone.',
+                if (
+                    String(group.createdBy || "")
+                        .toLowerCase() !==
+                    String(currentUser || "")
+                        .toLowerCase()
+                ) {
 
-        {
+                    MessageBox.error(
+                        "Only the group creator can delete this group."
+                    );
 
-            title:
-                "Delete Group",
+                    return;
 
-            onClose:
-                function (sAction) {
+                }
 
-                    if (
-                        sAction ===
-                        MessageBox.Action.OK
-                    ) {
 
-                        this._deleteGroup(
-                            group
-                        );
+                MessageBox.confirm(
+
+                    'Delete the group "' +
+                    group.groupName +
+                    '"? This cannot be undone.',
+
+                    {
+
+                        title:
+                            "Delete Group",
+
+                        onClose:
+                            function (sAction) {
+
+                                if (
+                                    sAction ===
+                                    MessageBox.Action.OK
+                                ) {
+
+                                    this._deleteGroup(
+                                        group
+                                    );
+
+                                }
+
+                            }.bind(this)
 
                     }
 
-                }.bind(this)
+                );
 
-        }
-
-    );
-
-},
+            },
 
 
             _deleteGroup: async function (group) {
@@ -2974,6 +3118,26 @@ onDeleteGroupPress: function (oEvent) {
                                     )
                                     : "";
 
+
+                            // -------------------------------------
+                            // ATTACHMENT
+                            //
+                            // attachmentId / attachmentName /
+                            // attachmentSizeText are attached
+                            // server-side in getGroupMessages()
+                            // by joining ChatAttachments on
+                            // messageId. Just default them here
+                            // in case they're missing.
+                            // -------------------------------------
+
+                            if (!message.attachmentId) {
+
+                                message.attachmentId = null;
+                                message.attachmentName = "";
+                                message.attachmentSizeText = "";
+
+                            }
+
                         }
                     );
 
@@ -3013,224 +3177,1093 @@ onDeleteGroupPress: function (oEvent) {
 
             },
 
-            onChatInputChange: function (oEvent) {
+            onChatInputChange: function () {
 
-    const input =
-        this.byId("chatInput");
+                this._updateSendButton();
 
-    const button =
-        this.byId("sendChatButton");
+            },
+            onCreateGroup: function () {
 
-    if (!input || !button) {
-        return;
-    }
+                console.log(
+                    "CREATE GROUP BUTTON CLICKED"
+                );
 
-    const value =
-        oEvent.getParameter("value") ||
-        input.getValue() ||
-        "";
 
-    const chatModel =
-        this.getView()
-            .getModel("chat");
+                if (this._groupDialog) {
 
-    const selectedUser =
-        chatModel.getProperty(
-            "/selectedUserName"
-        );
+                    this._loadUsersForGroup();
 
-    const selectedGroup =
-        chatModel.getProperty(
-            "/selectedGroupId"
-        );
+                    this._groupDialog.open();
 
-    button.setEnabled(
-        value.trim().length > 0 &&
-        (
-            !!selectedUser ||
-            !!selectedGroup
-        )
-    );
+                    return;
 
-},
+                }
 
-onCreateGroup: function () {
 
-    console.log(
-        "CREATE GROUP BUTTON CLICKED"
-    );
+                const oGroupNameInput =
+                    new sap.m.Input({
 
+                        placeholder:
+                            "Enter group name",
 
-    if (this._groupDialog) {
+                        width:
+                            "100%"
 
-        this._loadUsersForGroup();
+                    });
 
-        this._groupDialog.open();
 
-        return;
+                const oDescriptionInput =
+                    new sap.m.TextArea({
 
-    }
+                        placeholder:
+                            "Optional description",
 
+                        rows: 3,
 
-    const oGroupNameInput =
-        new sap.m.Input({
+                        growing: true,
 
-            placeholder:
-                "Enter group name",
+                        width:
+                            "100%"
 
-            width:
-                "100%"
+                    });
 
-        });
 
+                const oUsersSelect =
+                    new sap.m.MultiComboBox({
 
-    const oDescriptionInput =
-        new sap.m.TextArea({
+                        width:
+                            "100%",
 
-            placeholder:
-                "Optional description",
+                        placeholder:
+                            "Select users"
 
-            rows: 3,
+                    });
 
-            growing: true,
 
-            width:
-                "100%"
+                this._groupNameInput =
+                    oGroupNameInput;
 
-        });
+                this._groupDescriptionInput =
+                    oDescriptionInput;
 
+                this._groupUsersSelect =
+                    oUsersSelect;
 
-    const oUsersSelect =
-        new sap.m.MultiComboBox({
 
-            width:
-                "100%",
+                const oContent =
+                    new sap.m.VBox({
 
-            placeholder:
-                "Select users"
+                        width:
+                            "100%",
 
-        });
+                        items: [
 
+                            new sap.m.Label({
+                                text:
+                                    "Group name"
+                            }),
 
-    this._groupNameInput =
-        oGroupNameInput;
+                            oGroupNameInput,
 
-    this._groupDescriptionInput =
-        oDescriptionInput;
 
-    this._groupUsersSelect =
-        oUsersSelect;
+                            new sap.m.Label({
+                                text:
+                                    "Description",
+                                class:
+                                    "sapUiSmallMarginTop"
+                            }),
 
+                            oDescriptionInput,
 
-    const oContent =
-        new sap.m.VBox({
 
-            width:
-                "100%",
+                            new sap.m.Label({
+                                text:
+                                    "Members",
+                                class:
+                                    "sapUiSmallMarginTop"
+                            }),
 
-            items: [
+                            oUsersSelect
 
-                new sap.m.Label({
-                    text:
-                        "Group name"
-                }),
+                        ]
 
-                oGroupNameInput,
+                    });
 
 
-                new sap.m.Label({
-                    text:
-                        "Description",
-                    class:
-                        "sapUiSmallMarginTop"
-                }),
+                this._groupDialog =
+                    new sap.m.Dialog({
 
-                oDescriptionInput,
+                        title:
+                            "Create New Group",
 
+                        contentWidth:
+                            "460px",
 
-                new sap.m.Label({
-                    text:
-                        "Members",
-                    class:
-                        "sapUiSmallMarginTop"
-                }),
+                        stretchOnPhone:
+                            true,
 
-                oUsersSelect
+                        content: [
 
-            ]
+                            oContent
 
-        });
+                        ],
 
+                        beginButton:
 
-    this._groupDialog =
-        new sap.m.Dialog({
+                            new sap.m.Button({
 
-            title:
-                "Create New Group",
+                                text:
+                                    "Create",
 
-            contentWidth:
-                "460px",
+                                icon:
+                                    "sap-icon://add",
 
-            stretchOnPhone:
-                true,
+                                type:
+                                    "Emphasized",
 
-            content: [
+                                press:
+                                    this._createGroup.bind(
+                                        this
+                                    )
 
-                oContent
+                            }),
 
-            ],
+                        endButton:
 
-            beginButton:
+                            new sap.m.Button({
 
-                new sap.m.Button({
+                                text:
+                                    "Cancel",
 
-                    text:
-                        "Create",
+                                press:
+                                    function () {
 
-                    icon:
-                        "sap-icon://add",
+                                        this._groupDialog.close();
 
-                    type:
-                        "Emphasized",
+                                    }.bind(this)
 
-                    press:
-                        this._createGroup.bind(
-                            this
-                        )
+                            })
 
-                }),
+                    });
 
-            endButton:
 
-                new sap.m.Button({
+                this.getView()
+                    .addDependent(
+                        this._groupDialog
+                    );
 
-                    text:
-                        "Cancel",
 
-                    press:
-                        function () {
+                this._loadUsersForGroup();
 
-                            this._groupDialog.close();
 
-                        }.bind(this)
+                this._groupDialog.open();
 
-                })
+            },
 
-        });
+            // =====================================================
+            // OPEN FILE PICKER
+            // =====================================================
 
+            onAttachmentPress: function () {
 
-    this.getView()
-        .addDependent(
-            this._groupDialog
-        );
+                const uploader =
+                    this.byId(
+                        "chatFileUploader"
+                    );
 
+                if (!uploader) {
 
-    this._loadUsersForGroup();
+                    MessageBox.error(
+                        "Attachment control not found."
+                    );
 
+                    return;
 
-    this._groupDialog.open();
+                }
 
-},
+                // -------------------------------------------------
+                // sap.ui.unified.FileUploader has no public
+                // "openFilePicker" method. We trigger a click on
+                // the underlying native <input type="file"> that
+                // the control renders instead.
+                //
+                // For this to work, chatFileUploader in the view
+                // MUST use a CSS class to hide it (e.g.
+                // "chatHiddenUploader" with opacity:0 / off-screen
+                // positioning) rather than visible="false" - a
+                // control with visible="false" is not rendered
+                // into the DOM at all, so there is no native
+                // input to click.
+                // -------------------------------------------------
+
+                const nativeInput =
+                    document.getElementById(
+                        uploader.getId() + "-fu"
+                    );
+
+                if (nativeInput) {
+
+                    nativeInput.click();
+
+                    return;
+
+                }
+
+                // Fallback: search within the control's own DOM ref
+                const domRef =
+                    uploader.getDomRef();
+
+                const fallbackInput =
+                    domRef &&
+                    domRef.querySelector(
+                        "input[type='file']"
+                    );
+
+                if (fallbackInput) {
+
+                    fallbackInput.click();
+
+                    return;
+
+                }
+
+                MessageBox.error(
+                    "Unable to open file picker."
+                );
+
+            },
+
+            // =====================================================
+            // FILE SELECTED
+            // =====================================================
+
+            onFileSelected: function (oEvent) {
+
+                const file =
+                    oEvent.getParameter(
+                        "files"
+                    )?.[0];
+
+
+                if (!file) {
+                    return;
+                }
+
+
+                // -------------------------------------------------
+                // MAX 10 MB
+                // -------------------------------------------------
+
+                const maxSize =
+                    10 * 1024 * 1024;
+
+
+                if (file.size > maxSize) {
+
+                    MessageBox.error(
+                        "File size cannot exceed 10 MB."
+                    );
+
+                    return;
+
+                }
+
+
+                // -------------------------------------------------
+                // ALLOWED TYPES
+                // -------------------------------------------------
+
+                const allowedTypes = [
+
+                    "application/pdf",
+
+                    "application/vnd.ms-excel",
+
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+
+                    "application/msword",
+
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+
+                    "text/csv",
+
+                    "image/png",
+
+                    "image/jpeg",
+
+                    "image/jpg"
+
+                ];
+
+
+                if (
+                    file.type &&
+                    !allowedTypes.includes(
+                        file.type
+                    )
+                ) {
+
+                    MessageBox.error(
+                        "This file type is not supported."
+                    );
+
+                    return;
+
+                }
+
+
+                // -------------------------------------------------
+                // READ FILE
+                // -------------------------------------------------
+
+                const reader =
+                    new FileReader();
+
+
+                reader.onload =
+                    function (event) {
+
+                        const dataUrl =
+                            event.target.result;
+
+
+                        // Remove:
+                        // data:application/pdf;base64,
+                        //
+
+                        const base64 =
+                            String(
+                                dataUrl
+                            ).split(
+                                ","
+                            )[1];
+
+
+                        const chatModel =
+                            this.getView()
+                                .getModel("chat");
+
+
+                        chatModel.setProperty(
+                            "/selectedFileName",
+                            file.name
+                        );
+
+
+                        chatModel.setProperty(
+                            "/selectedFileType",
+                            file.type
+                        );
+
+
+                        chatModel.setProperty(
+                            "/selectedFileSize",
+                            file.size
+                        );
+
+
+                        chatModel.setProperty(
+                            "/selectedFileContent",
+                            base64
+                        );
+
+
+                        this._updateSendButton();
+
+                    }.bind(this);
+
+
+                reader.onerror =
+                    function () {
+
+                        MessageBox.error(
+                            "Unable to read the selected file."
+                        );
+
+                    };
+
+
+                reader.readAsDataURL(
+                    file
+                );
+
+            },
+
+            _updateSendButton: function () {
+
+                const chatModel =
+                    this.getView()
+                        .getModel("chat");
+
+                const input =
+                    this.byId(
+                        "chatInput"
+                    );
+
+                const button =
+                    this.byId(
+                        "sendChatButton"
+                    );
+
+
+                if (!chatModel || !input || !button) {
+                    return;
+                }
+
+
+                const text =
+                    (
+                        input.getValue() ||
+                        ""
+                    ).trim();
+
+
+                const fileContent =
+                    chatModel.getProperty(
+                        "/selectedFileContent"
+                    );
+
+
+                const chatType =
+                    chatModel.getProperty(
+                        "/chatType"
+                    );
+
+
+                const selectedUser =
+                    chatModel.getProperty(
+                        "/selectedUserName"
+                    );
+
+
+                const selectedGroup =
+                    chatModel.getProperty(
+                        "/selectedGroupId"
+                    );
+
+
+                const hasTarget =
+                    chatType === "GROUP"
+                        ? !!selectedGroup
+                        : !!selectedUser;
+
+
+                button.setEnabled(
+                    hasTarget &&
+                    (
+                        text.length > 0 ||
+                        !!fileContent
+                    )
+                );
+
+            },
+
+            // =====================================================
+            // SEND DIRECT ATTACHMENT
+            // =====================================================
+
+            _sendDirectAttachment: async function () {
+
+                const chatModel =
+                    this.getView()
+                        .getModel("chat");
+
+
+                const input =
+                    this.byId(
+                        "chatInput"
+                    );
+
+
+                const button =
+                    this.byId(
+                        "sendChatButton"
+                    );
+
+
+                const sender =
+                    this._getCurrentUser();
+
+
+                const receiver =
+                    chatModel.getProperty(
+                        "/selectedUserName"
+                    );
+
+
+                const message =
+                    (
+                        input.getValue() ||
+                        ""
+                    ).trim();
+
+
+                const fileName =
+                    chatModel.getProperty(
+                        "/selectedFileName"
+                    );
+
+
+                const mimeType =
+                    chatModel.getProperty(
+                        "/selectedFileType"
+                    );
+
+
+                const fileSize =
+                    chatModel.getProperty(
+                        "/selectedFileSize"
+                    );
+
+
+                const fileContent =
+                    chatModel.getProperty(
+                        "/selectedFileContent"
+                    );
+
+
+                button.setEnabled(false);
+
+
+                try {
+
+                    const csrfToken =
+                        await this._getCsrfToken();
+
+
+                    const headers = {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "application/json"
+
+                    };
+
+
+                    if (csrfToken) {
+
+                        headers["X-CSRF-Token"] =
+                            csrfToken;
+
+                    }
+
+
+                    const response =
+                        await fetch(
+                            "/payment-service/sendChatMessageWithAttachment",
+                            {
+
+                                method:
+                                    "POST",
+
+                                credentials:
+                                    "same-origin",
+
+                                headers:
+                                    headers,
+
+                                body:
+                                    JSON.stringify({
+
+                                        receiverUserName:
+                                            receiver,
+
+                                        message:
+                                            message,
+
+                                        fileName:
+                                            fileName,
+
+                                        mimeType:
+                                            mimeType,
+
+                                        fileSize:
+                                            fileSize,
+
+                                        fileContent:
+                                            fileContent,
+
+                                        performedBy:
+                                            sender
+
+                                    })
+
+                            }
+                        );
+
+
+                    const text =
+                        await response.text();
+
+
+                    const result =
+                        text
+                            ? JSON.parse(text)
+                            : {};
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            result?.error?.message?.value ||
+                            result?.error?.message ||
+                            result?.message ||
+                            "Unable to send attachment."
+                        );
+
+                    }
+
+
+                    input.setValue("");
+
+
+                    this._clearAttachment();
+
+
+                    await this._loadConversation(
+                        sender,
+                        receiver
+                    );
+
+
+                    MessageToast.show(
+                        "Attachment sent"
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "DIRECT ATTACHMENT ERROR:",
+                        error
+                    );
+
+
+                    MessageBox.error(
+                        error.message ||
+                        "Unable to send attachment."
+                    );
+
+
+                    this._updateSendButton();
+
+                }
+
+            },
+
+
+            // =====================================================
+            // SEND GROUP ATTACHMENT
+            // =====================================================
+
+            _sendGroupAttachment: async function () {
+
+                const chatModel =
+                    this.getView()
+                        .getModel("chat");
+
+
+                const input =
+                    this.byId(
+                        "chatInput"
+                    );
+
+
+                const button =
+                    this.byId(
+                        "sendChatButton"
+                    );
+
+
+                const groupId =
+                    chatModel.getProperty(
+                        "/selectedGroupId"
+                    );
+
+
+                const message =
+                    (
+                        input.getValue() ||
+                        ""
+                    ).trim();
+
+
+                const fileName =
+                    chatModel.getProperty(
+                        "/selectedFileName"
+                    );
+
+
+                const mimeType =
+                    chatModel.getProperty(
+                        "/selectedFileType"
+                    );
+
+
+                const fileSize =
+                    chatModel.getProperty(
+                        "/selectedFileSize"
+                    );
+
+
+                const fileContent =
+                    chatModel.getProperty(
+                        "/selectedFileContent"
+                    );
+
+
+                button.setEnabled(false);
+
+
+                try {
+
+                    const csrfToken =
+                        await this._getCsrfToken();
+
+
+                    const headers = {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "application/json"
+
+                    };
+
+
+                    if (csrfToken) {
+
+                        headers["X-CSRF-Token"] =
+                            csrfToken;
+
+                    }
+
+
+                    const response =
+                        await fetch(
+                            "/payment-service/sendGroupChatMessageWithAttachment",
+                            {
+
+                                method:
+                                    "POST",
+
+                                credentials:
+                                    "same-origin",
+
+                                headers:
+                                    headers,
+
+                                body:
+                                    JSON.stringify({
+
+                                        groupId:
+                                            groupId,
+
+                                        message:
+                                            message,
+
+                                        fileName:
+                                            fileName,
+
+                                        mimeType:
+                                            mimeType,
+
+                                        fileSize:
+                                            fileSize,
+
+                                        fileContent:
+                                            fileContent,
+
+                                        performedBy:
+                                            this._getCurrentUser()
+
+                                    })
+
+                            }
+                        );
+
+
+                    const text =
+                        await response.text();
+
+
+                    const result =
+                        text
+                            ? JSON.parse(text)
+                            : {};
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            result?.error?.message?.value ||
+                            result?.error?.message ||
+                            result?.message ||
+                            "Unable to send attachment."
+                        );
+
+                    }
+
+
+                    input.setValue("");
+
+
+                    this._clearAttachment();
+
+
+                    await this._loadGroupConversation(
+                        groupId
+                    );
+
+
+                    MessageToast.show(
+                        "Attachment sent"
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "GROUP ATTACHMENT ERROR:",
+                        error
+                    );
+
+
+                    MessageBox.error(
+                        error.message ||
+                        "Unable to send attachment."
+                    );
+
+
+                    this._updateSendButton();
+
+                }
+
+            },
+
+            _clearAttachment: function () {
+
+                const chatModel =
+                    this.getView()
+                        .getModel("chat");
+
+
+                chatModel.setProperty(
+                    "/selectedFileName",
+                    ""
+                );
+
+
+                chatModel.setProperty(
+                    "/selectedFileType",
+                    ""
+                );
+
+
+                chatModel.setProperty(
+                    "/selectedFileSize",
+                    0
+                );
+
+
+                chatModel.setProperty(
+                    "/selectedFileContent",
+                    ""
+                );
+
+
+                const uploader =
+                    this.byId(
+                        "chatFileUploader"
+                    );
+
+
+                if (uploader) {
+
+                    uploader.clear();
+
+                }
+
+
+                this._updateSendButton();
+
+            },
+
+            onDownloadAttachment: async function (oEvent) {
+
+                const context =
+                    oEvent.getSource()
+                        .getBindingContext("chat");
+
+
+                if (!context) {
+                    return;
+                }
+
+
+                const message =
+                    context.getObject();
+
+
+                const attachmentId =
+                    message.attachmentId;
+
+
+                if (!attachmentId) {
+                    return;
+                }
+
+
+                try {
+
+                    const csrfToken =
+                        await this._getCsrfToken();
+
+
+                    const response =
+                        await fetch(
+                            "/payment-service/downloadChatAttachment",
+                            {
+
+                                method:
+                                    "POST",
+
+                                credentials:
+                                    "same-origin",
+
+                                headers: {
+
+                                    "Content-Type":
+                                        "application/json",
+
+                                    "Accept":
+                                        "application/json",
+
+                                    "X-CSRF-Token":
+                                        csrfToken
+
+                                },
+
+                                body:
+                                    JSON.stringify({
+
+                                        attachmentId:
+                                            attachmentId
+
+                                    })
+
+                            }
+                        );
+
+
+                    const result =
+                        await response.json();
+
+
+                    if (
+                        !response.ok ||
+                        !result.success
+                    ) {
+
+                        throw new Error(
+                            result.message ||
+                            "Unable to download attachment."
+                        );
+
+                    }
+
+
+                    const binary =
+                        atob(
+                            result.fileContent
+                        );
+
+
+                    const bytes =
+                        new Uint8Array(
+                            binary.length
+                        );
+
+
+                    for (
+                        let i = 0;
+                        i < binary.length;
+                        i++
+                    ) {
+
+                        bytes[i] =
+                            binary.charCodeAt(i);
+
+                    }
+
+
+                    const blob =
+                        new Blob(
+                            [bytes],
+                            {
+                                type:
+                                    result.mimeType ||
+                                    "application/octet-stream"
+                            }
+                        );
+
+
+                    const url =
+                        URL.createObjectURL(
+                            blob
+                        );
+
+
+                    const link =
+                        document.createElement(
+                            "a"
+                        );
+
+
+                    link.href =
+                        url;
+
+                    link.download =
+                        result.fileName;
+
+
+                    document.body.appendChild(
+                        link
+                    );
+
+
+                    link.click();
+
+
+                    document.body.removeChild(
+                        link
+                    );
+
+
+                    URL.revokeObjectURL(
+                        url
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "DOWNLOAD ATTACHMENT ERROR:",
+                        error
+                    );
+
+
+                    MessageBox.error(
+                        error.message ||
+                        "Unable to download attachment."
+                    );
+
+                }
+
+            },
 
         }
 

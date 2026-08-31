@@ -2,7 +2,8 @@
     controllerName="paymentsapp.controller.Chat"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:core="sap.ui.core">
+    xmlns:core="sap.ui.core"
+    xmlns:u="sap.ui.unified">
 
     <Page
         showHeader="false"
@@ -405,10 +406,46 @@
     <!-- MESSAGE -->
     <!-- ================================================= -->
 
-    <Text
-        text="{chat>message}"
-        wrapping="true"
-        class="chatMessageText"/>
+   <Text
+    text="{chat>message}"
+    wrapping="true"
+    visible="{= !!${chat>message} }"
+    class="chatMessageText"/>
+
+
+<!-- ATTACHMENT -->
+
+<HBox
+    visible="{= !!${chat>attachmentId} }"
+    alignItems="Center"
+    class="chatAttachmentBubble">
+
+    <core:Icon
+        src="sap-icon://attachment"
+        size="1.2rem"/>
+
+    <VBox
+        class="chatAttachmentInfo">
+
+        <Text
+            text="{chat>attachmentName}"
+            wrapping="false"
+            class="chatAttachmentName"/>
+
+        <Text
+            text="{chat>attachmentSizeText}"
+            class="chatAttachmentSize"/>
+
+    </VBox>
+
+    <Button
+        icon="sap-icon://download"
+        type="Transparent"
+        tooltip="Download"
+        press=".onDownloadAttachment"
+        class="chatAttachmentDownload"/>
+
+</HBox>
 
 
     <!-- ================================================= -->
@@ -447,31 +484,63 @@
                     <!-- ================================================= -->
 
                     <HBox
-                        width="100%"
-                        visible="{= !!${chat>/selectedUserName} || !!${chat>/selectedGroupId} }"
-                        alignItems="End"
-                        class="chatComposer">
+    width="100%"
+    visible="{= !!${chat>/selectedUserName} || !!${chat>/selectedGroupId} }"
+    alignItems="End"
+    class="chatComposer">
 
-                        <TextArea
-                            id="chatInput"
-                            width="100%"
-                            rows="1"
-                            growing="true"
-                            growingMaxLines="5"
-                            placeholder="Write a message..."
-                            liveChange=".onChatInputChange"
-                            class="chatTextArea"/>
+    <!-- ATTACHMENT BUTTON -->
 
-                        <Button
-                            id="sendChatButton"
-                            icon="sap-icon://paper-plane"
-                            type="Emphasized"
-                            tooltip="Send message"
-                            enabled="false"
-                            press=".onSendMessage"
-                            class="chatSendButton"/>
+    <Button
+        icon="sap-icon://attachment"
+        type="Transparent"
+        tooltip="Attach file"
+        press=".onAttachmentPress"
+        class="chatAttachmentButton"/>
 
-                    </HBox>
+
+    <!-- FILE NAME -->
+
+    <Text
+        text="{chat>/selectedFileName}"
+        visible="{= !!${chat>/selectedFileName} }"
+        wrapping="false"
+        class="chatSelectedFile"/>
+
+
+    <!-- MESSAGE -->
+
+    <TextArea
+        id="chatInput"
+        width="100%"
+        rows="1"
+        growing="true"
+        growingMaxLines="5"
+        placeholder="Write a message..."
+        liveChange=".onChatInputChange"
+        class="chatTextArea"/>
+
+
+    <!-- SEND -->
+
+    <Button
+        id="sendChatButton"
+        icon="sap-icon://paper-plane"
+        type="Emphasized"
+        tooltip="Send message"
+        enabled="false"
+        press=".onSendMessage"
+        class="chatSendButton"/>
+
+
+    <!-- HIDDEN FILE UPLOADER -->
+
+   <u:FileUploader
+    id="chatFileUploader"
+    class="chatHiddenUploader"
+    change=".onFileSelected"/>
+
+</HBox>
 
                 </VBox>
 

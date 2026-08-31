@@ -3388,3 +3388,12 @@
     margin-bottom: 4px;
     color: #0a6ed1;
 }
+
+.chatHiddenUploader {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+}

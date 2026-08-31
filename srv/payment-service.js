@@ -15,13 +15,29 @@ module.exports = cds.service.impl(async function () {
     UserLogs,
     Messages,
     ChatGroups,
-    ChatGroupMembers
+    ChatGroupMembers,
+    ChatAttachments
 } = this.entities;
 
 
     // =========================================================
     // HELPER - GET ACTOR DETAILS
     // =========================================================
+
+    function formatFileSizeServer(bytes) {
+
+    if (!bytes) {
+        return "";
+    }
+
+    const kb = bytes / 1024;
+
+    if (kb < 1024) {
+        return kb.toFixed(1) + " KB";
+    }
+
+    return (kb / 1024).toFixed(1) + " MB";
+}
 
     async function getActorDetails(userName) {
 
@@ -2849,29 +2865,561 @@ this.on("getGroupMessages", async (req) => {
     // LOAD MESSAGES
     // -----------------------------------------------------
 
-    const messages =
-        await SELECT
-            .from(Messages)
+   // -----------------------------------------------------
+// LOAD MESSAGES
+// -----------------------------------------------------
+
+const messages =
+    await SELECT
+        .from(Messages)
+        .where({
+            groupId: groupId,
+            messageType: "GROUP_CHAT"
+        })
+        .orderBy({
+            createdAt: "asc"
+        });
+
+
+// -----------------------------------------------------
+// ATTACH ANY FILE ATTACHMENTS TO THEIR MESSAGES
+// -----------------------------------------------------
+
+const messageIds =
+    messages.map(
+        (m) => m.ID
+    );
+
+const attachments =
+    messageIds.length
+        ? await SELECT
+            .from(ChatAttachments)
             .where({
-                groupId: groupId,
-                messageType: "GROUP_CHAT"
+                messageId: {
+                    in: messageIds
+                }
             })
-            .orderBy({
-                createdAt: "asc"
-            });
+        : [];
 
-    return {
+const attachmentByMessageId = {};
 
-        success: true,
+attachments.forEach(
+    (a) => {
 
-        messages:
-            JSON.stringify(messages),
+        attachmentByMessageId[a.messageId] = a;
 
-        message:
-            "Group messages loaded."
+    }
+);
 
-    };
+messages.forEach(
+    (m) => {
+
+        const attachment =
+            attachmentByMessageId[m.ID];
+
+        m.attachmentId =
+            attachment
+                ? attachment.ID
+                : null;
+
+        m.attachmentName =
+            attachment
+                ? attachment.fileName
+                : "";
+
+        m.attachmentSizeText =
+            attachment
+                ? formatFileSizeServer(attachment.fileSize)
+                : "";
+
+    }
+);
+
+
+return {
+
+    success: true,
+
+    messages:
+        JSON.stringify(messages),
+
+    message:
+        "Group messages loaded."
+
+};
 
 });
+
+// =========================================================
+// SEND DIRECT CHAT MESSAGE + ATTACHMENT
+// =========================================================
+
+this.on(
+    "sendChatMessageWithAttachment",
+    async (req) => {
+
+        const {
+            receiverUserName,
+            message,
+            fileName,
+            mimeType,
+            fileSize,
+            fileContent,
+            performedBy
+        } = req.data;
+
+        console.log("========== SEND CHAT ATTACHMENT ==========");
+        console.log("Sender:", performedBy);
+        console.log("Receiver:", receiverUserName);
+        console.log("File:", fileName);
+        console.log("Mime:", mimeType);
+        console.log("Size:", fileSize);
+        console.log("ATTACHMENT DEBUG - fileContent type:", typeof fileContent);
+        console.log("ATTACHMENT DEBUG - fileContent length:", fileContent ? fileContent.length : 0);
+
+        // -------------------------------------------------
+        // VALIDATION
+        // -------------------------------------------------
+
+        if (!performedBy) {
+            return { success: false, message: "Sender is required." };
+        }
+
+        if (!receiverUserName) {
+            return { success: false, message: "Receiver is required." };
+        }
+
+        if (!fileName || !fileContent) {
+            return { success: false, message: "Attachment is required." };
+        }
+
+        if (
+            String(performedBy).toLowerCase() ===
+            String(receiverUserName).toLowerCase()
+        ) {
+            return { success: false, message: "You cannot send a message to yourself." };
+        }
+
+        // -------------------------------------------------
+        // CHECK RECEIVER
+        // -------------------------------------------------
+
+        const receiver = await SELECT.one
+            .from(Users)
+            .where({ userName: receiverUserName });
+
+        if (!receiver) {
+            return {
+                success: false,
+                message: `User '${receiverUserName}' does not exist.`
+            };
+        }
+
+        if (!receiver.isActive) {
+            return {
+                success: false,
+                message: `User '${receiverUserName}' is inactive.`
+            };
+        }
+
+        // -------------------------------------------------
+        // CREATE THE MESSAGE ROW FIRST
+        // (this was missing — without it there is nothing
+        // for the attachment to attach to, and nothing for
+        // _loadConversation to $expand)
+        // -------------------------------------------------
+
+        const messageId = cds.utils.uuid();
+
+        await INSERT.into(Messages).entries({
+
+            ID: messageId,
+
+            senderUserName: performedBy,
+
+            receiverUserName: receiverUserName,
+
+            subject: "Chat",
+
+            message: String(message || "").trim(),
+
+            messageType: "CHAT",
+
+            isRead: false,
+
+            createdAt: new Date()
+
+        });
+
+        // -------------------------------------------------
+        // CREATE ATTACHMENT, LINKED TO THE MESSAGE
+        // -------------------------------------------------
+
+        await INSERT
+            .into(ChatAttachments)
+            .entries({
+
+                ID: cds.utils.uuid(),
+
+                messageId: messageId,
+
+                fileName: fileName,
+
+                mimeType: mimeType || "application/octet-stream",
+
+                fileSize: Number(fileSize || 0),
+
+                // IMPORTANT: content is LargeBinary. The browser
+                // sends a base64 STRING; decode it into a Buffer
+                // before storing it, otherwise it gets corrupted.
+                content: Buffer.from(fileContent, "base64"),
+
+                createdAt: new Date()
+
+            });
+
+        console.log("CHAT ATTACHMENT MESSAGE CREATED:", messageId);
+
+        return {
+            success: true,
+            message: "Message and attachment sent successfully."
+        };
+
+    }
+);
+// =========================================================
+// SEND GROUP CHAT MESSAGE + ATTACHMENT
+// =========================================================
+
+this.on(
+    "sendGroupChatMessageWithAttachment",
+    async (req) => {
+
+        const {
+            groupId,
+            message,
+            fileName,
+            mimeType,
+            fileSize,
+            fileContent,
+            performedBy
+        } = req.data;
+
+
+        console.log(
+            "========== SEND GROUP ATTACHMENT =========="
+        );
+
+        console.log("Group:", groupId);
+        console.log("Sender:", performedBy);
+        console.log("File:", fileName);
+        console.log(
+            "ATTACHMENT DEBUG - fileContent type:",
+            typeof fileContent
+        );
+
+        console.log(
+            "ATTACHMENT DEBUG - fileContent length:",
+            fileContent ? fileContent.length : 0
+        );
+
+        // -------------------------------------------------
+        // VALIDATION
+        // -------------------------------------------------
+
+        if (!groupId) {
+
+            return {
+                success: false,
+                message: "Group is required."
+            };
+
+        }
+
+
+        if (!performedBy) {
+
+            return {
+                success: false,
+                message: "Sender is required."
+            };
+
+        }
+
+
+        if (!fileName || !fileContent) {
+
+            return {
+                success: false,
+                message:
+                    "Attachment is required."
+            };
+
+        }
+
+
+        // -------------------------------------------------
+        // CHECK GROUP
+        // -------------------------------------------------
+
+        const group =
+            await SELECT.one
+                .from(ChatGroups)
+                .where({
+
+                    ID:
+                        groupId,
+
+                    isActive:
+                        true
+
+                });
+
+
+        if (!group) {
+
+            return {
+                success: false,
+                message:
+                    "Group not found."
+            };
+
+        }
+
+
+        // -------------------------------------------------
+        // CHECK MEMBERSHIP
+        // -------------------------------------------------
+
+        const member =
+            await SELECT.one
+                .from(ChatGroupMembers)
+                .where({
+
+                    group_ID:
+                        groupId,
+
+                    userName:
+                        performedBy,
+
+                    isActive:
+                        true
+
+                });
+
+
+        if (!member) {
+
+            return {
+                success: false,
+                message:
+                    "You are not a member of this group."
+            };
+
+        }
+
+
+        // -------------------------------------------------
+        // CREATE MESSAGE
+        // -------------------------------------------------
+
+        const messageId =
+            cds.utils.uuid();
+
+
+        await INSERT
+            .into(Messages)
+            .entries({
+
+                ID:
+                    messageId,
+
+                senderUserName:
+                    performedBy,
+
+                receiverUserName:
+                    null,
+
+                paymentId:
+                    null,
+
+                groupId:
+                    groupId,
+
+                subject:
+                    group.groupName,
+
+                message:
+                    String(message || "").trim(),
+
+                messageType:
+                    "GROUP_CHAT",
+
+                isRead:
+                    false,
+
+                createdAt:
+                    new Date()
+
+            });
+
+
+        // -------------------------------------------------
+        // CREATE ATTACHMENT
+        // -------------------------------------------------
+
+        await INSERT
+    .into(ChatAttachments)
+    .entries({
+
+        ID:
+            cds.utils.uuid(),
+
+        messageId:
+            messageId,
+
+        fileName:
+            fileName,
+
+        mimeType:
+            mimeType ||
+            "application/octet-stream",
+
+        fileSize:
+            Number(fileSize || 0),
+
+        content:
+            Buffer.from(
+                fileContent,
+                "base64"
+            ),
+
+        createdAt:
+            new Date()
+
+    });
+
+        return {
+
+            success: true,
+
+            message:
+                "Group attachment sent successfully."
+
+        };
+
+    }
+);
+
+
+// =========================================================
+// DOWNLOAD CHAT ATTACHMENT
+// =========================================================
+
+this.on(
+    "downloadChatAttachment",
+    async (req) => {
+
+        const {
+            attachmentId
+        } = req.data;
+
+
+        if (!attachmentId) {
+
+            return {
+
+                success: false,
+
+                fileName: "",
+
+                mimeType: "",
+
+                fileSize: 0,
+
+                fileContent: "",
+
+                message:
+                    "Attachment ID is required."
+
+            };
+
+        }
+
+
+        const attachment =
+            await SELECT.one
+                .from(ChatAttachments)
+                .where({
+
+                    ID:
+                        attachmentId
+
+                });
+
+
+        if (!attachment) {
+
+            return {
+
+                success: false,
+
+                fileName: "",
+
+                mimeType: "",
+
+                fileSize: 0,
+
+                fileContent: "",
+
+                message:
+                    "Attachment not found."
+
+            };
+
+        }
+
+
+        // -------------------------------------------------
+        // IMPORTANT: attachment.content comes back from the
+        // sqlite driver as a Node Buffer (LargeBinary column).
+        // It must be explicitly re-encoded to base64 here -
+        // returning the raw Buffer directly would serialize
+        // it as a JSON object, not a base64 string, and the
+        // browser's atob() would then throw "not correctly
+        // encoded" trying to decode that.
+        // -------------------------------------------------
+
+        const base64Content =
+            Buffer.isBuffer(attachment.content)
+                ? attachment.content.toString("base64")
+                : String(attachment.content || "");
+
+
+        return {
+
+            success: true,
+
+            fileName:
+                attachment.fileName,
+
+            mimeType:
+                attachment.mimeType,
+
+            fileSize:
+                attachment.fileSize,
+
+            fileContent:
+                base64Content,
+
+            message:
+                "Attachment loaded."
+
+        };
+
+    }
+);
+
+
 
 });
