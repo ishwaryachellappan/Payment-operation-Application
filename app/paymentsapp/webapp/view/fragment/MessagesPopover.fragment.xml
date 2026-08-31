@@ -3,7 +3,7 @@
     xmlns:core="sap.ui.core">
 
     <Popover
-        id="messagesPopover"
+       
         title="Messages"
         placement="Bottom"
         contentWidth="380px"
@@ -14,7 +14,7 @@
         <content>
 
             <List
-                id="messagesList"
+               
                 items="{messages>/items}"
                 mode="None"
                 growing="true"
