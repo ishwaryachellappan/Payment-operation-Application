@@ -92,7 +92,14 @@ sap.ui.define([
 
                 try {
 
-                    const response =
+                    const currentUser =
+                        this._getCurrentUser();
+
+                    // -------------------------------------------------
+                    // LOAD ACTIVE USERS
+                    // -------------------------------------------------
+
+                    const usersResponse =
                         await fetch(
                             "/payment-service/Users?" +
                             "$filter=isActive eq true" +
@@ -100,42 +107,22 @@ sap.ui.define([
                             {
                                 method: "GET",
                                 headers: {
-                                    "Accept":
-                                        "application/json"
+                                    "Accept": "application/json"
                                 }
                             }
                         );
 
-
-                    if (!response.ok) {
-
-                        const errorText =
-                            await response.text();
-
-                        console.error(
-                            "Users request failed:",
-                            response.status,
-                            errorText
-                        );
-
+                    if (!usersResponse.ok) {
                         throw new Error(
-                            "HTTP " +
-                            response.status
+                            "Unable to load users."
                         );
-
                     }
 
-
-                    const data =
-                        await response.json();
-
-
-                    const currentUser =
-                        this._getCurrentUser();
-
+                    const usersData =
+                        await usersResponse.json();
 
                     const users =
-                        (data.value || [])
+                        (usersData.value || [])
                             .filter(function (user) {
 
                                 return (
@@ -150,26 +137,234 @@ sap.ui.define([
                             });
 
 
-                   const oUsersModel =
-    this.getView()
-        .getModel("users");
+                    // -------------------------------------------------
+                    // LOAD ALL CHAT MESSAGES FOR CURRENT USER
+                    // -------------------------------------------------
 
-oUsersModel.setProperty(
-    "/allItems",
-    users
-);
+                    const escapedUser =
+                        this._escapeODataValue(
+                            currentUser
+                        );
 
-oUsersModel.setProperty(
-    "/items",
-    users
-);
+                    const chatFilter =
+                        "(" +
+                        "senderUserName eq '" +
+                        escapedUser +
+                        "'" +
+                        " or " +
+                        "receiverUserName eq '" +
+                        escapedUser +
+                        "'" +
+                        ")" +
+                        " and messageType eq 'CHAT'";
 
-                    // Load unread chat counts
-                    await this._loadUnreadCounts();
+
+                    const messagesResponse =
+                        await fetch(
+                            "/payment-service/Messages?" +
+                            "$filter=" +
+                            encodeURIComponent(
+                                chatFilter
+                            ) +
+                            "&$orderby=createdAt desc",
+                            {
+                                method: "GET",
+                                headers: {
+                                    "Accept": "application/json"
+                                }
+                            }
+                        );
+
+
+                    if (!messagesResponse.ok) {
+                        throw new Error(
+                            "Unable to load chat messages."
+                        );
+                    }
+
+
+                    const messagesData =
+                        await messagesResponse.json();
+
+                    const chatMessages =
+                        messagesData.value || [];
+
+
+                    // -------------------------------------------------
+                    // BUILD USER CHAT SUMMARY
+                    // -------------------------------------------------
+
+                    users.forEach(function (user) {
+
+                        const username =
+                            String(
+                                user.userName
+                            ).toLowerCase();
+
+
+                        const conversationMessages =
+                            chatMessages.filter(
+                                function (message) {
+
+                                    const sender =
+                                        String(
+                                            message.senderUserName || ""
+                                        ).toLowerCase();
+
+                                    const receiver =
+                                        String(
+                                            message.receiverUserName || ""
+                                        ).toLowerCase();
+
+                                    return (
+                                        sender === username ||
+                                        receiver === username
+                                    );
+
+                                }
+                            );
+
+
+                        // ---------------------------------------------
+                        // UNREAD COUNT
+                        // ---------------------------------------------
+
+                        const unreadCount =
+                            conversationMessages.filter(
+                                function (message) {
+
+                                    return (
+                                        String(
+                                            message.receiverUserName || ""
+                                        ).toLowerCase() ===
+                                        String(
+                                            currentUser
+                                        ).toLowerCase()
+                                        &&
+                                        message.isRead === false
+                                    );
+
+                                }
+                            ).length;
+
+
+                        // ---------------------------------------------
+                        // LAST MESSAGE
+                        // ---------------------------------------------
+
+                        const lastMessage =
+                            conversationMessages.length > 0
+                                ? conversationMessages[0]
+                                : null;
+
+
+                        user.unreadCount =
+                            unreadCount;
+
+
+                        user.hasUnread =
+                            unreadCount > 0;
+
+
+                        user.lastMessage =
+                            lastMessage
+                                ? String(
+                                    lastMessage.message || ""
+                                )
+                                : "No messages yet";
+
+
+                        user.lastMessageTime =
+                            lastMessage &&
+                                lastMessage.createdAt
+                                ? new Date(
+                                    lastMessage.createdAt
+                                ).toLocaleTimeString(
+                                    "en-IN",
+                                    {
+                                        hour: "2-digit",
+                                        minute: "2-digit"
+                                    }
+                                )
+                                : "";
+
+
+                        user.lastMessageDate =
+                            lastMessage &&
+                                lastMessage.createdAt
+                                ? new Date(
+                                    lastMessage.createdAt
+                                ).toLocaleDateString(
+                                    "en-IN",
+                                    {
+                                        day: "2-digit",
+                                        month: "short"
+                                    }
+                                )
+                                : "";
+
+                    });
+
+
+                    // -------------------------------------------------
+                    // SORT
+                    // USERS WITH UNREAD MESSAGES FIRST
+                    // -------------------------------------------------
+
+                    users.sort(
+                        function (a, b) {
+
+                            if (
+                                a.unreadCount > 0 &&
+                                b.unreadCount === 0
+                            ) {
+                                return -1;
+                            }
+
+                            if (
+                                a.unreadCount === 0 &&
+                                b.unreadCount > 0
+                            ) {
+                                return 1;
+                            }
+
+                            return (
+                                String(
+                                    a.fullName || ""
+                                ).localeCompare(
+                                    String(
+                                        b.fullName || ""
+                                    )
+                                )
+                            );
+
+                        }
+                    );
+
+
+                    // -------------------------------------------------
+                    // SET MODEL
+                    // -------------------------------------------------
+
+                    const oUsersModel =
+                        this.getView()
+                            .getModel("users");
+
+
+                    oUsersModel.setProperty(
+                        "/allItems",
+                        users
+                    );
+
+
+                    oUsersModel.setProperty(
+                        "/items",
+                        users
+                    );
 
 
                     console.log(
-                        "CHAT USERS:",
+                        "CHAT USERS WITH COUNTS:",
                         users
                     );
 
@@ -183,13 +378,13 @@ oUsersModel.setProperty(
 
 
                     MessageBox.error(
-                        "Unable to load users."
+                        error.message ||
+                        "Unable to load chat users."
                     );
 
                 }
 
             },
-
 
             // =====================================================
             // LOAD UNREAD CHAT COUNTS
@@ -353,14 +548,14 @@ oUsersModel.setProperty(
                         .toLowerCase();
 
 
-               const oUsersModel =
-    this.getView()
-        .getModel("users");
+                const oUsersModel =
+                    this.getView()
+                        .getModel("users");
 
-const allUsers =
-    oUsersModel.getProperty(
-        "/allItems"
-    ) || [];
+                const allUsers =
+                    oUsersModel.getProperty(
+                        "/allItems"
+                    ) || [];
 
 
                 const filtered =
@@ -392,10 +587,10 @@ const allUsers =
                         }
                     );
 
-oUsersModel.setProperty(
-    "/items",
-    filtered
-);
+                oUsersModel.setProperty(
+                    "/items",
+                    filtered
+                );
 
             },
 
@@ -410,29 +605,34 @@ oUsersModel.setProperty(
                     oEvent.getSource()
                         .getBindingContext("users");
 
+
                 if (!context) {
                     return;
                 }
 
+
                 const user =
                     context.getObject();
+
 
                 const username =
                     user.userName;
 
 
-                // ---------------------------------------------
-                // Select user
-                // ---------------------------------------------
+                // -------------------------------------------------
+                // SET SELECTED USER
+                // -------------------------------------------------
 
                 const chatModel =
                     this.getView()
                         .getModel("chat");
 
+
                 chatModel.setProperty(
                     "/selectedUserName",
                     username
                 );
+
 
                 chatModel.setProperty(
                     "/selectedFullName",
@@ -440,18 +640,18 @@ oUsersModel.setProperty(
                 );
 
 
-                // ---------------------------------------------
-                // Mark incoming messages as read
-                // ---------------------------------------------
+                // -------------------------------------------------
+                // MARK THIS CONVERSATION AS READ
+                // -------------------------------------------------
 
                 await this._markConversationAsRead(
                     username
                 );
 
 
-                // ---------------------------------------------
-                // Load conversation
-                // ---------------------------------------------
+                // -------------------------------------------------
+                // LOAD CONVERSATION
+                // -------------------------------------------------
 
                 await this._loadConversation(
                     this._getCurrentUser(),
@@ -459,11 +659,11 @@ oUsersModel.setProperty(
                 );
 
 
-                // ---------------------------------------------
-                // Refresh unread counts
-                // ---------------------------------------------
+                // -------------------------------------------------
+                // REFRESH USER LIST
+                // -------------------------------------------------
 
-                await this._loadUnreadCounts();
+                await this._loadUsers();
 
             },
 
@@ -472,7 +672,7 @@ oUsersModel.setProperty(
             // =====================================================
 
             _markConversationAsRead: async function (
-                senderUserName
+                otherUser
             ) {
 
                 try {
@@ -480,16 +680,74 @@ oUsersModel.setProperty(
                     const currentUser =
                         this._getCurrentUser();
 
-                    if (!currentUser || !senderUserName) {
-                        return;
-                    }
+
+                    const escapedCurrentUser =
+                        this._escapeODataValue(
+                            currentUser
+                        );
+
+
+                    const escapedOtherUser =
+                        this._escapeODataValue(
+                            otherUser
+                        );
+
+
+                    const filter =
+                        "senderUserName eq '" +
+                        escapedOtherUser +
+                        "'" +
+                        " and receiverUserName eq '" +
+                        escapedCurrentUser +
+                        "'" +
+                        " and isRead eq false" +
+                        " and messageType eq 'CHAT'";
 
 
                     const response =
                         await fetch(
-                            "/payment-service/markChatMessagesRead",
+                            "/payment-service/Messages?" +
+                            "$filter=" +
+                            encodeURIComponent(
+                                filter
+                            ),
                             {
-                                method: "POST",
+                                method: "GET",
+                                headers: {
+                                    "Accept":
+                                        "application/json"
+                                }
+                            }
+                        );
+
+
+                    if (!response.ok) {
+                        return;
+                    }
+
+
+                    const data =
+                        await response.json();
+
+
+                    const unreadMessages =
+                        data.value || [];
+
+
+                    // -------------------------------------------------
+                    // MARK EACH MESSAGE AS READ
+                    // -------------------------------------------------
+
+                    for (
+                        const message of unreadMessages
+                    ) {
+
+                        await fetch(
+                            "/payment-service/Messages(" +
+                            message.ID +
+                            ")",
+                            {
+                                method: "PATCH",
 
                                 headers: {
                                     "Content-Type":
@@ -501,49 +759,30 @@ oUsersModel.setProperty(
 
                                 body:
                                     JSON.stringify({
-
-                                        senderUserName:
-                                            senderUserName,
-
-                                        receiverUserName:
-                                            currentUser
-
+                                        isRead: true
                                     })
                             }
                         );
 
-
-                    if (!response.ok) {
-
-                        const errorText =
-                            await response.text();
-
-                        console.error(
-                            "MARK READ ERROR:",
-                            errorText
-                        );
-
-                        return;
                     }
 
 
                     console.log(
-                        "CHAT MARKED AS READ:",
-                        senderUserName
+                        "CHAT MESSAGES MARKED READ:",
+                        unreadMessages.length
                     );
 
 
                 } catch (error) {
 
                     console.error(
-                        "Failed to mark chat as read:",
+                        "Unable to mark chat as read:",
                         error
                     );
 
                 }
 
             },
-
             // =====================================================
             // LOAD CONVERSATION
             // =====================================================

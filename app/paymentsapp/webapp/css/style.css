@@ -3351,3 +3351,33 @@
 .chatUserListItem:hover {
     background: #f5f8fa !important;
 }
+
+.chatUserListItem .chatUserFullName {
+    font-weight: 500;
+}
+
+.chatUserListItem:has(.chatUnreadBadge) .chatUserFullName {
+    font-weight: 700;
+}
+
+.chatUnreadBadge {
+    min-width: 24px;
+    margin-left: 8px;
+}
+
+.chatLastMessage {
+    color: #6a6d70;
+    font-size: 0.8rem;
+    margin-top: 3px;
+    max-width: 220px;
+}
+
+.chatLastTime {
+    color: #6a6d70;
+    font-size: 0.72rem;
+}
+
+.chatUserName {
+    color: #6a6d70;
+    font-size: 0.75rem;
+}

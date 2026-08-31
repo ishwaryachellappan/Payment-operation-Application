@@ -44,76 +44,105 @@
                         liveChange=".onUserSearch"
                         class="chatSearch"/>
 
-                    <List
-                        id="userList"
-                        items="{users>/items}"
-                        mode="None"
-                        noDataText="No users found"
-                        growing="true"
-                        growingThreshold="30"
-                        showSeparators="None"
-                        class="chatUserList">
+                   <List
+    id="userList"
+    items="{users>/items}"
+    mode="None"
+    noDataText="No users found"
+    growing="true"
+    growingThreshold="30"
+    showSeparators="Inner"
+    class="chatUserList">
 
-                        <CustomListItem
-                            type="Active"
-                            press=".onUserSelect"
-                            class="chatUserListItem">
+    <CustomListItem
+        type="Active"
+        press=".onUserSelect"
+        class="chatUserListItem">
 
-                            <HBox
-                                width="100%"
-                                alignItems="Center"
-                                class="chatUserRow">
+        <HBox
+            width="100%"
+            alignItems="Center"
+            class="chatUserRow">
 
-                                <HBox
-                                    justifyContent="Center"
-                                    alignItems="Center"
-                                    class="chatAvatar">
 
-                                    <core:Icon
-                                        src="sap-icon://person-placeholder"
-                                        size="1.2rem"/>
+            <!-- AVATAR -->
 
-                                </HBox>
+            <HBox
+                justifyContent="Center"
+                alignItems="Center"
+                class="chatAvatar">
 
-                               <VBox
-    width="100%"
-    class="chatUserInfo">
+                <core:Icon
+                    src="sap-icon://person-placeholder"
+                    size="1.2rem"/>
 
-    <HBox
-        width="100%"
-        alignItems="Center"
-        justifyContent="SpaceBetween">
+            </HBox>
 
-        <Text
-            text="{users>fullName}"
-            wrapping="false"
-            class="{= ${users>hasUnread} ? 'chatUserFullName chatUserUnread' : 'chatUserFullName' }"/>
 
-        <Text
-            text="{users>unreadCount}"
-            visible="{= ${users>unreadCount} > 0 }"
-            class="chatUnreadBadge"/>
+            <!-- USER INFORMATION -->
 
-    </HBox>
+            <VBox
+                width="100%"
+                class="chatUserInfo">
 
-    <Text
-        text="{= '@' + ${users>userName} }"
-        wrapping="false"
-        class="chatUserName"/>
 
-    <Text
-        text="{users>lastMessagePreview}"
-        wrapping="false"
-        maxLines="1"
-        class="chatLastMessage"/>
+                <HBox
+                    width="100%"
+                    justifyContent="SpaceBetween"
+                    alignItems="Center">
 
-</VBox>
 
-                            </HBox>
+                    <Text
+                        text="{users>fullName}"
+                        wrapping="false"
+                        class="chatUserFullName"
+                        renderWhitespace="false"/>
 
-                        </CustomListItem>
 
-                    </List>
+                    <!-- UNREAD COUNT -->
+
+                    <ObjectStatus
+                        text="{users>unreadCount}"
+                        visible="{= ${users>unreadCount} > 0 }"
+                        state="Information"
+                        class="chatUnreadBadge"/>
+
+                </HBox>
+
+
+                <HBox
+                    width="100%"
+                    justifyContent="SpaceBetween"
+                    alignItems="Center">
+
+
+                    <Text
+                        text="{= '@' + ${users>userName} }"
+                        wrapping="false"
+                        class="chatUserName"/>
+
+
+                    <Text
+                        text="{users>lastMessageTime}"
+                        visible="{= !!${users>lastMessageTime} }"
+                        class="chatLastTime"/>
+
+                </HBox>
+
+
+                <Text
+                    text="{users>lastMessage}"
+                    wrapping="false"
+                    maxLines="1"
+                    class="chatLastMessage"/>
+
+            </VBox>
+
+        </HBox>
+
+    </CustomListItem>
+
+</List>
 
                 </VBox>
 
@@ -222,19 +251,35 @@
                                 justifyContent="{= ${chat>senderUserName} === ${chat>/currentUser} ? 'End' : 'Start' }"
                                 class="chatMessageRow">
 
-                                <VBox
-                                    class="{= ${chat>senderUserName} === ${chat>/currentUser} ? 'chatBubble chatBubbleMine' : 'chatBubble chatBubbleOther' }">
+                             <VBox
+    class="{= ${chat>isMine}
+        ? 'chatBubble chatBubbleMine'
+        : 'chatBubble chatBubbleOther' }">
 
-                                    <Text
-                                        text="{chat>message}"
-                                        wrapping="true"
-                                        class="chatMessageText"/>
+    <Text
+        text="{chat>message}"
+        wrapping="true"
+        class="chatMessageText"/>
 
-                                    <Text
-                                        text="{chat>displayTime}"
-                                        class="chatMessageTime"/>
+    <HBox
+        justifyContent="End"
+        alignItems="Center"
+        class="chatMessageFooter">
 
-                                </VBox>
+        <Text
+            text="{chat>displayTime}"
+            class="chatMessageTime"/>
+
+        <Text
+            text="{= ${chat>isMine}
+                ? (${chat>isRead} ? '✓✓' : '✓')
+                : '' }"
+            visible="{chat>isMine}"
+            class="chatReadReceipt"/>
+
+    </HBox>
+
+</VBox>
 
                             </HBox>
 
