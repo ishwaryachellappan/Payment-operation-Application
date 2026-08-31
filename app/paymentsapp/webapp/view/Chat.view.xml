@@ -1,0 +1,285 @@
+<mvc:View
+    controllerName="paymentsapp.controller.Chat"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Page
+        showHeader="false"
+        class="chatPage">
+
+        <content>
+
+            <HBox
+                width="100%"
+                height="100%"
+                class="chatContainer">
+
+                <!-- ================================================= -->
+                <!-- LEFT USER PANEL -->
+                <!-- ================================================= -->
+
+                <VBox
+                    width="300px"
+                    height="100%"
+                    class="chatSidebar">
+
+                    <VBox class="chatSidebarHeader">
+
+                        <Title
+                            text="Chat"
+                            level="H2"
+                            class="chatTitle"/>
+
+                        <Text
+                            text="Start a conversation"
+                            class="chatSubtitle"/>
+
+                    </VBox>
+
+                    <SearchField
+                        id="userSearch1"
+                        width="calc(100% - 24px)"
+                        placeholder="Search users..."
+                        liveChange=".onUserSearch"
+                        class="chatSearch"/>
+
+                    <List
+                        id="userList"
+                        items="{users>/items}"
+                        mode="None"
+                        noDataText="No users found"
+                        growing="true"
+                        growingThreshold="30"
+                        showSeparators="None"
+                        class="chatUserList">
+
+                        <CustomListItem
+                            type="Active"
+                            press=".onUserSelect"
+                            class="chatUserListItem">
+
+                            <HBox
+                                width="100%"
+                                alignItems="Center"
+                                class="chatUserRow">
+
+                                <HBox
+                                    justifyContent="Center"
+                                    alignItems="Center"
+                                    class="chatAvatar">
+
+                                    <core:Icon
+                                        src="sap-icon://person-placeholder"
+                                        size="1.2rem"/>
+
+                                </HBox>
+
+                               <VBox
+    width="100%"
+    class="chatUserInfo">
+
+    <HBox
+        width="100%"
+        alignItems="Center"
+        justifyContent="SpaceBetween">
+
+        <Text
+            text="{users>fullName}"
+            wrapping="false"
+            class="{= ${users>hasUnread} ? 'chatUserFullName chatUserUnread' : 'chatUserFullName' }"/>
+
+        <Text
+            text="{users>unreadCount}"
+            visible="{= ${users>unreadCount} > 0 }"
+            class="chatUnreadBadge"/>
+
+    </HBox>
+
+    <Text
+        text="{= '@' + ${users>userName} }"
+        wrapping="false"
+        class="chatUserName"/>
+
+    <Text
+        text="{users>lastMessagePreview}"
+        wrapping="false"
+        maxLines="1"
+        class="chatLastMessage"/>
+
+</VBox>
+
+                            </HBox>
+
+                        </CustomListItem>
+
+                    </List>
+
+                </VBox>
+
+
+                <!-- ================================================= -->
+                <!-- RIGHT CONVERSATION PANEL -->
+                <!-- ================================================= -->
+
+                <VBox
+                    width="100%"
+                    height="100%"
+                    class="chatMainPanel">
+
+
+                    <!-- Conversation header -->
+
+                    <VBox
+                        visible="{= !!${chat>/selectedUserName} }"
+                        class="chatConversationHeader">
+
+                        <HBox
+                            alignItems="Center">
+
+                            <HBox
+                                justifyContent="Center"
+                                alignItems="Center"
+                                class="chatHeaderAvatar">
+
+                                <core:Icon
+                                    src="sap-icon://person-placeholder"
+                                    size="1.2rem"/>
+
+                            </HBox>
+
+                            <VBox>
+
+                                <Title
+                                    text="{chat>/selectedFullName}"
+                                    level="H3"
+                                    class="chatConversationTitle"/>
+
+                                <Text
+                                    text="{= '@' + ${chat>/selectedUserName} }"
+                                    class="chatConversationUsername"/>
+
+                            </VBox>
+
+                        </HBox>
+
+                    </VBox>
+
+
+                    <!-- Empty state -->
+
+                    <VBox
+                        width="100%"
+                        height="100%"
+                        justifyContent="Center"
+                        alignItems="Center"
+                        visible="{= !${chat>/selectedUserName} }"
+                        class="chatEmptyState">
+
+                        <HBox
+                            justifyContent="Center"
+                            alignItems="Center"
+                            class="chatEmptyIconContainer">
+
+                            <core:Icon
+                                src="sap-icon://discussion-2"
+                                size="2.5rem"/>
+
+                        </HBox>
+
+                        <Title
+                            text="Your conversations"
+                            level="H2"
+                            class="chatEmptyTitle"/>
+
+                        <Text
+                            text="Select a user from the left to start chatting."
+                            class="chatEmptyText"/>
+
+                    </VBox>
+
+
+                    <!-- ================================================= -->
+                    <!-- MESSAGES -->
+                    <!-- ================================================= -->
+
+                    <ScrollContainer
+                        id="chatScroll"
+                        width="100%"
+                        height="100%"
+                        vertical="true"
+                        horizontal="false"
+                        visible="{= !!${chat>/selectedUserName} }"
+                        class="chatMessagesContainer">
+
+                        <VBox
+                            width="100%"
+                            items="{chat>/messages}"
+                            class="chatMessages">
+
+                            <HBox
+                                width="100%"
+                                justifyContent="{= ${chat>senderUserName} === ${chat>/currentUser} ? 'End' : 'Start' }"
+                                class="chatMessageRow">
+
+                                <VBox
+                                    class="{= ${chat>senderUserName} === ${chat>/currentUser} ? 'chatBubble chatBubbleMine' : 'chatBubble chatBubbleOther' }">
+
+                                    <Text
+                                        text="{chat>message}"
+                                        wrapping="true"
+                                        class="chatMessageText"/>
+
+                                    <Text
+                                        text="{chat>displayTime}"
+                                        class="chatMessageTime"/>
+
+                                </VBox>
+
+                            </HBox>
+
+                        </VBox>
+
+                    </ScrollContainer>
+
+
+                    <!-- ================================================= -->
+                    <!-- MESSAGE COMPOSER -->
+                    <!-- ================================================= -->
+
+                    <HBox
+                        width="100%"
+                        visible="{= !!${chat>/selectedUserName} }"
+                        alignItems="End"
+                        class="chatComposer">
+
+                        <TextArea
+                            id="chatInput"
+                            width="100%"
+                            rows="1"
+                            growing="true"
+                            growingMaxLines="5"
+                            placeholder="Write a message..."
+                            liveChange=".onChatInputChange"
+                            class="chatTextArea"/>
+
+                        <Button
+                            id="sendChatButton"
+                            icon="sap-icon://paper-plane"
+                            type="Emphasized"
+                            tooltip="Send message"
+                            enabled="false"
+                            press=".onSendMessage"
+                            class="chatSendButton"/>
+
+                    </HBox>
+
+                </VBox>
+
+            </HBox>
+
+        </content>
+
+    </Page>
+
+</mvc:View>

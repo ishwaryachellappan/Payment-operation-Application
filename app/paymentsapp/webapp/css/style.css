@@ -3042,3 +3042,312 @@
     margin-top: 4px;
     width: 100%;
 }
+
+/* =====================================================
+   CHAT
+   ===================================================== */
+
+.chatPage {
+    background: #f5f7fa;
+}
+
+.chatContainer {
+    height: 100%;
+    overflow: hidden;
+}
+
+
+/* =====================================================
+   LEFT SIDEBAR
+   ===================================================== */
+
+.chatSidebar {
+    background: #ffffff;
+    border-right: 1px solid #d9e0e7;
+    box-sizing: border-box;
+}
+
+.chatSidebarHeader {
+    padding: 20px 18px 14px 18px;
+}
+
+.chatTitle {
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.chatSubtitle {
+    color: #6a7683;
+    font-size: 0.8rem;
+    margin-top: 3px;
+}
+
+.chatSearch {
+    margin: 0 12px 12px 12px;
+}
+
+.chatUserList {
+    background: transparent;
+}
+
+.chatUserListItem {
+    border-bottom: 1px solid #eef1f4;
+}
+
+.chatUserRow {
+    padding: 12px 16px;
+    box-sizing: border-box;
+}
+
+.chatUserRow:hover {
+    background: #f3f7fb;
+}
+
+.chatAvatar,
+.chatHeaderAvatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    background: #e8f1fb;
+}
+
+.chatAvatar .sapUiIcon,
+.chatHeaderAvatar .sapUiIcon {
+    color: #0a6ed1;
+}
+
+.chatUserInfo {
+    margin-left: 12px;
+}
+
+.chatUserFullName {
+    font-weight: 600;
+    color: #172b4d;
+}
+
+.chatUserName {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-top: 2px;
+}
+
+
+/* =====================================================
+   MAIN PANEL
+   ===================================================== */
+
+.chatMainPanel {
+    background: #f7f9fb;
+    position: relative;
+}
+
+.chatConversationHeader {
+    background: #ffffff;
+    border-bottom: 1px solid #dce2e8;
+    padding: 12px 20px;
+}
+
+.chatConversationTitle {
+    margin-left: 12px;
+}
+
+.chatConversationUsername {
+    margin-left: 12px;
+    color: #718096;
+    font-size: 0.78rem;
+}
+
+
+/* =====================================================
+   EMPTY STATE
+   ===================================================== */
+
+.chatEmptyState {
+    background: #f7f9fb;
+}
+
+.chatEmptyIconContainer {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: #eaf3fc;
+}
+
+.chatEmptyIconContainer .sapUiIcon {
+    color: #0a6ed1;
+}
+
+.chatEmptyTitle {
+    margin-top: 18px;
+    color: #243b53;
+}
+
+.chatEmptyText {
+    color: #718096;
+    margin-top: 6px;
+}
+
+
+/* =====================================================
+   MESSAGES
+   ===================================================== */
+
+.chatMessagesContainer {
+    background: #f7f9fb;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.chatMessages {
+    min-height: 100%;
+}
+
+.chatMessageRow {
+    margin-bottom: 10px;
+}
+
+.chatBubble {
+    max-width: 65%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    box-sizing: border-box;
+}
+
+.chatBubbleMine {
+    background: #0a6ed1;
+    border-bottom-right-radius: 4px;
+}
+
+.chatBubbleOther {
+    background: #ffffff;
+    border: 1px solid #e1e6eb;
+    border-bottom-left-radius: 4px;
+}
+
+.chatBubbleMine .chatMessageText {
+    color: #ffffff;
+}
+
+.chatBubbleOther .chatMessageText {
+    color: #172b4d;
+}
+
+.chatMessageText {
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.chatMessageTime {
+    font-size: 0.68rem;
+    margin-top: 4px;
+    text-align: right;
+}
+
+.chatBubbleMine .chatMessageTime {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.chatBubbleOther .chatMessageTime {
+    color: #8995a1;
+}
+
+
+/* =====================================================
+   COMPOSER
+   ===================================================== */
+
+.chatComposer {
+    background: #ffffff;
+    border-top: 1px solid #dce2e8;
+    padding: 12px 16px;
+    box-sizing: border-box;
+}
+
+.chatTextArea {
+    border-radius: 10px;
+}
+
+.chatSendButton {
+    margin-left: 10px;
+    min-width: 44px;
+    height: 44px;
+}
+
+/* =====================================================
+   CHAT USER LIST
+   ===================================================== */
+
+.chatUserListItem {
+    padding: 0 !important;
+}
+
+.chatUserRow {
+    padding: 12px 14px;
+    min-height: 68px;
+}
+
+.chatUserInfo {
+    margin-left: 10px;
+    min-width: 0;
+}
+
+.chatUserFullName {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.chatUserUnread {
+    font-weight: 700 !important;
+}
+
+.chatUserName {
+    font-size: 12px;
+    color: #6a6d70;
+    margin-top: 2px;
+}
+
+.chatLastMessage {
+    font-size: 12px;
+    color: #6a6d70;
+    margin-top: 4px;
+    max-width: 220px;
+}
+
+
+/* =====================================================
+   UNREAD BADGE
+   ===================================================== */
+
+.chatUnreadBadge {
+    min-width: 22px;
+    height: 22px;
+
+    padding: 0 6px;
+
+    border-radius: 11px;
+
+    background: #0a6ed1;
+    color: white;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-align: center;
+    line-height: 22px;
+
+    margin-left: 8px;
+}
+
+
+/* =====================================================
+   SELECTED USER
+   ===================================================== */
+
+.chatUserListItem.sapMLIBSelected {
+    background: #eaf3fa !important;
+}
+
+.chatUserListItem:hover {
+    background: #f5f8fa !important;
+}

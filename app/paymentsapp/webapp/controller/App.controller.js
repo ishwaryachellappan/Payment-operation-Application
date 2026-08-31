@@ -784,49 +784,49 @@ sap.ui.define([
             // OPEN MESSAGES POPUP
             // =====================================================
 
-           onMessageNotificationsPress: async function (oEvent) {
+            onMessageNotificationsPress: async function (oEvent) {
 
-    try {
+                try {
 
-        // Create the popover only once
-        if (!this._messagesPopover) {
+                    // Create the popover only once
+                    if (!this._messagesPopover) {
 
-            this._messagesPopover =
-                await Fragment.load({
+                        this._messagesPopover =
+                            await Fragment.load({
 
-                    name:
-                        "paymentsapp.view.fragment.MessagesPopover",
+                                name:
+                                    "paymentsapp.view.fragment.MessagesPopover",
 
-                    controller:
-                        this
+                                controller:
+                                    this
 
-                });
+                            });
 
-            this.getView().addDependent(
-                this._messagesPopover
-            );
-        }
+                        this.getView().addDependent(
+                            this._messagesPopover
+                        );
+                    }
 
-        // Load messages
-        await this._loadMessages();
+                    // Load messages
+                    await this._loadMessages();
 
-        // Open popup
-        this._messagesPopover.openBy(
-            oEvent.getSource()
-        );
+                    // Open popup
+                    this._messagesPopover.openBy(
+                        oEvent.getSource()
+                    );
 
-    } catch (error) {
+                } catch (error) {
 
-        console.error(
-            "Unable to load messages:",
-            error
-        );
+                    console.error(
+                        "Unable to load messages:",
+                        error
+                    );
 
-        MessageBox.error(
-            "Unable to load messages."
-        );
-    }
-},
+                    MessageBox.error(
+                        "Unable to load messages."
+                    );
+                }
+            },
             // =====================================================
             // LOAD UNREAD MESSAGES
             // =====================================================
@@ -1041,68 +1041,68 @@ sap.ui.define([
 
             onMessageItemPress: async function (oEvent) {
 
-    var oItem = oEvent.getSource();
+                var oItem = oEvent.getSource();
 
-    var oContext =
-        oItem.getBindingContext("messages");
+                var oContext =
+                    oItem.getBindingContext("messages");
 
-    if (!oContext) {
+                if (!oContext) {
 
-        console.error(
-            "Message context not found"
-        );
+                    console.error(
+                        "Message context not found"
+                    );
 
-        return;
-    }
+                    return;
+                }
 
-    var oMessage =
-        oContext.getObject();
+                var oMessage =
+                    oContext.getObject();
 
-    console.log(
-        "Selected message:",
-        oMessage
-    );
-
-
-    // ---------------------------------------------
-    // Mark as read immediately
-    // ---------------------------------------------
-
-    await this._markMessageAsRead(
-        oMessage.ID
-    );
+                console.log(
+                    "Selected message:",
+                    oMessage
+                );
 
 
-    // ---------------------------------------------
-    // Show complete message
-    // ---------------------------------------------
+                // ---------------------------------------------
+                // Mark as read immediately
+                // ---------------------------------------------
 
-    MessageBox.information(
+                await this._markMessageAsRead(
+                    oMessage.ID
+                );
 
-        oMessage.message ||
-        "No message content.",
 
-        {
-            title:
-                oMessage.subject ||
-                "Message",
+                // ---------------------------------------------
+                // Show complete message
+                // ---------------------------------------------
 
-            details:
-                "From: " +
-                (oMessage.senderUserName || "") +
-                "\n\n" +
+                MessageBox.information(
 
-                "To: " +
-                (oMessage.receiverUserName || "") +
-                "\n\n" +
+                    oMessage.message ||
+                    "No message content.",
 
-                "Date: " +
-                (oMessage.createdAt || "")
-        }
+                    {
+                        title:
+                            oMessage.subject ||
+                            "Message",
 
-    );
+                        details:
+                            "From: " +
+                            (oMessage.senderUserName || "") +
+                            "\n\n" +
 
-},
+                            "To: " +
+                            (oMessage.receiverUserName || "") +
+                            "\n\n" +
+
+                            "Date: " +
+                            (oMessage.createdAt || "")
+                    }
+
+                );
+
+            },
             // =====================================================
             // MARK MESSAGE AS READ
             // =====================================================
@@ -1449,6 +1449,24 @@ sap.ui.define([
                     );
             },
 
+
+            // =====================================================
+            // CHAT
+            // =====================================================
+
+            onChat: function () {
+
+    console.log(
+        "CHAT MENU CLICKED"
+    );
+
+    this.getOwnerComponent()
+        .getRouter()
+        .navTo(
+            "Chat"
+        );
+
+},
 
             // =====================================================
             // LOGOUT

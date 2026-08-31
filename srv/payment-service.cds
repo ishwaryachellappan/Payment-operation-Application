@@ -1,4 +1,4 @@
-using { payment.operations as db } from '../db/schema';
+using {payment.operations as db} from '../db/schema';
 
 @path: '/payment-service'
 service PaymentService {
@@ -8,7 +8,7 @@ service PaymentService {
     // =====================================================
 
     @odata.draft.enabled
-    entity Users as projection on db.Users;
+    entity Users    as projection on db.Users;
 
     @odata.draft.enabled
     entity Payments as projection on db.Payments;
@@ -22,97 +22,86 @@ service PaymentService {
     // LOGIN
     // =====================================================
 
-    action login(
-        userName : String,
-        password : String
-    ) returns LoginResponse;
+    action login(userName: String,
+                 password: String)                        returns LoginResponse;
 
 
     // =====================================================
     // USER MANAGEMENT
     // =====================================================
 
-    action createUser(
-        userName    : String,
-        fullName    : String,
-        email       : String,
-        password    : String,
-        role        : db.Role,
-        isActive    : Boolean,
-        performedBy : String
-    ) returns ActionResponse;
+    action createUser(userName: String,
+                      fullName: String,
+                      email: String,
+                      password: String,
+                      role: db.Role,
+                      isActive: Boolean,
+                      performedBy: String)                returns ActionResponse;
 
 
-    action updateUser(
-        userId      : UUID,
-        userName    : String,
-        fullName    : String,
-        email       : String,
-        password    : String,
-        role        : db.Role,
-        isActive    : Boolean,
-        performedBy : String
-    ) returns ActionResponse;
+    action updateUser(userId: UUID,
+                      userName: String,
+                      fullName: String,
+                      email: String,
+                      password: String,
+                      role: db.Role,
+                      isActive: Boolean,
+                      performedBy: String)                returns ActionResponse;
 
 
-    action deleteUser(
-        userId      : UUID,
-        performedBy : String
-    ) returns ActionResponse;
+    action deleteUser(userId: UUID,
+                      performedBy: String)                returns ActionResponse;
 
 
     // =====================================================
     // PAYMENTS
     // =====================================================
 
-    action createPayment(
-        paymentReference : String,
-        companyCode      : String,
-        debtorAccount    : String,
-        creditorAccount  : String,
-        amount           : Decimal(15,2),
-        currency         : String,
-        paymentMethod    : String,
-        paymentDate      : Date,
-        performedBy      : String
-    ) returns PaymentResponse;
+    action createPayment(paymentReference: String,
+                         companyCode: String,
+                         debtorAccount: String,
+                         creditorAccount: String,
+                         amount: Decimal(15, 2),
+                         currency: String,
+                         paymentMethod: String,
+                         paymentDate: Date,
+                         performedBy: String)             returns PaymentResponse;
 
 
     // =====================================================
     // PAYMENT APPROVALS
     // =====================================================
 
-    action approvePayment(
-        paymentId   : UUID,
-        performedBy : String
-    ) returns ActionResponse;
+    action approvePayment(paymentId: UUID,
+                          performedBy: String)            returns ActionResponse;
 
 
-    action rejectPayment(
-        paymentId   : UUID,
-        reason      : String,
-        performedBy : String
-    ) returns ActionResponse;
+    action rejectPayment(paymentId: UUID,
+                         reason: String,
+                         performedBy: String)             returns ActionResponse;
 
 
     // =====================================================
     // BULK APPROVAL
     // =====================================================
 
-    action bulkApprovePayments(
-        paymentIds  : LargeString,
-        performedBy : String
-    ) returns BulkApprovalResponse;
+    action bulkApprovePayments(paymentIds: LargeString,
+                               performedBy: String)       returns BulkApprovalResponse;
 
 
     // =====================================================
     // BULK UPLOAD
     // =====================================================
 
-    action bulkUploadPayments(
-        csvData     : LargeString,
-        performedBy : String
-    ) returns BulkUploadResponse;
+    action bulkUploadPayments(csvData: LargeString,
+                              performedBy: String)        returns BulkUploadResponse;
+
+    action sendChatMessage(receiverUserName: String,
+                           message: LargeString,
+                           performedBy: String)           returns ActionResponse;
+
+    action markChatMessagesRead(senderUserName: String,
+                                receiverUserName: String) returns ActionResponse;
 
 }
 
@@ -127,11 +116,11 @@ type LoginResponse {
 
     username : String;
 
-    fullName  : String;
+    fullName : String;
 
-    role      : String;
+    role     : String;
 
-    message   : String;
+    message  : String;
 
 }
 
@@ -158,31 +147,31 @@ type PaymentResponse {
 
 type BulkUploadResponse {
 
-    success         : Boolean;
+    success        : Boolean;
 
-    totalRows       : Integer;
+    totalRows      : Integer;
 
-    successfulRows  : Integer;
+    successfulRows : Integer;
 
-    failedRows      : Integer;
+    failedRows     : Integer;
 
-    message         : String;
+    message        : String;
 
-    errors          : String;
+    errors         : String;
 
 }
 
 
 type BulkApprovalResponse {
 
-    success         : Boolean;
+    success       : Boolean;
 
-    totalSelected   : Integer;
+    totalSelected : Integer;
 
-    successful      : Integer;
+    successful    : Integer;
 
-    failed          : Integer;
+    failed        : Integer;
 
-    message         : String;
+    message       : String;
 
 };

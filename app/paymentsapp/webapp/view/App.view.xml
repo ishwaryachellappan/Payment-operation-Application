@@ -167,6 +167,12 @@
         visible="{appView>/isAdmin}"
         select=".onUserLogs"/>
 
+       <tnt:NavigationListItem
+    text="Chat"
+    icon="sap-icon://discussion"
+    key="Chat"
+    select=".onChat"/>
+
                     </tnt:NavigationList>
 
                 </tnt:item>

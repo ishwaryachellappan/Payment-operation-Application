@@ -14,6 +14,7 @@ module.exports = cds.service.impl(async function () {
         Payments,
         UserLogs,
         Messages
+
     } = this.entities;
 
 
@@ -1557,6 +1558,259 @@ await createInternalMessage({
         };
     });
 
+
+  // =========================================================
+// SEND CHAT MESSAGE
+// =========================================================
+
+this.on('sendChatMessage', async (req) => {
+
+    const {
+        receiverUserName,
+        message,
+        performedBy
+    } = req.data;
+
+
+    console.log(
+        "========== SEND CHAT MESSAGE =========="
+    );
+
+    console.log(
+        "Sender:",
+        performedBy
+    );
+
+    console.log(
+        "Receiver:",
+        receiverUserName
+    );
+
+    console.log(
+        "Message:",
+        message
+    );
+
+
+    // ---------------------------------------------------------
+    // VALIDATION
+    // ---------------------------------------------------------
+
+    if (!performedBy) {
+
+        return {
+            success: false,
+            message: "Sender is required."
+        };
+
+    }
+
+
+    if (!receiverUserName) {
+
+        return {
+            success: false,
+            message: "Receiver is required."
+        };
+
+    }
+
+
+    if (!message || !String(message).trim()) {
+
+        return {
+            success: false,
+            message: "Message cannot be empty."
+        };
+
+    }
+
+
+    if (
+        String(performedBy).toLowerCase() ===
+        String(receiverUserName).toLowerCase()
+    ) {
+
+        return {
+            success: false,
+            message: "You cannot send a message to yourself."
+        };
+
+    }
+
+
+    // ---------------------------------------------------------
+    // CHECK RECEIVER
+    // ---------------------------------------------------------
+
+    const receiver = await SELECT.one
+        .from(Users)
+        .where({
+            userName: receiverUserName
+        });
+
+
+    if (!receiver) {
+
+        return {
+            success: false,
+            message:
+                `User '${receiverUserName}' does not exist.`
+        };
+
+    }
+
+
+    if (!receiver.isActive) {
+
+        return {
+            success: false,
+            message:
+                `User '${receiverUserName}' is inactive.`
+        };
+
+    }
+
+
+    // ---------------------------------------------------------
+    // CREATE MESSAGE
+    // ---------------------------------------------------------
+
+    const messageId =
+        cds.utils.uuid();
+
+
+    await INSERT.into(Messages).entries({
+
+        ID: messageId,
+
+        senderUserName:
+            performedBy,
+
+        receiverUserName:
+            receiverUserName,
+
+        subject:
+            "Chat",
+
+        message:
+            String(message).trim(),
+
+        messageType:
+            "CHAT",
+
+        isRead:
+            false,
+
+        createdAt:
+            new Date()
+
+    });
+
+
+    console.log(
+        "CHAT MESSAGE CREATED:",
+        messageId
+    );
+
+
+    console.log(
+        `${performedBy} -> ${receiverUserName}`
+    );
+
+
+    // ---------------------------------------------------------
+    // SUCCESS
+    // ---------------------------------------------------------
+
+    return {
+
+        success: true,
+
+        message:
+            "Message sent successfully."
+
+    };
+
+});
+// =========================================================
+// MARK CHAT MESSAGES AS READ
+// =========================================================
+
+this.on(
+    'markChatMessagesRead',
+    async (req) => {
+
+        const {
+            senderUserName,
+            receiverUserName
+        } = req.data;
+
+
+        console.log(
+            "========== MARK CHAT READ =========="
+        );
+
+        console.log(
+            "Sender:",
+            senderUserName
+        );
+
+        console.log(
+            "Receiver:",
+            receiverUserName
+        );
+
+
+        if (
+            !senderUserName ||
+            !receiverUserName
+        ) {
+
+            return {
+                success: false,
+                message:
+                    "Sender and receiver are required."
+            };
+
+        }
+
+
+        await UPDATE(Messages)
+            .set({
+                isRead: true
+            })
+            .where({
+                senderUserName:
+                    senderUserName,
+
+                receiverUserName:
+                    receiverUserName,
+
+                messageType:
+                    "CHAT",
+
+                isRead:
+                    false
+            });
+
+
+        console.log(
+            "CHAT MESSAGES MARKED AS READ"
+        );
+
+
+        return {
+
+            success: true,
+
+            message:
+                "Messages marked as read."
+
+        };
+
+    }
+);
 
     // =========================================================
     // BULK UPLOAD PAYMENTS

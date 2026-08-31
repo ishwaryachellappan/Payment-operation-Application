@@ -103,12 +103,16 @@
           "name": "UserLogs",
           "target": "UserLogs"
         },
-
         {
-    "pattern": "mail",
-    "name": "Mail",
-    "target": "Mail"
-}
+          "pattern": "chat",
+          "name": "Chat",
+          "target": "Chat"
+        },
+        {
+          "pattern": "mail",
+          "name": "Mail",
+          "target": "Mail"
+        }
       ],
       "targets": {
         "Login": {
@@ -135,12 +139,15 @@
           "viewName": "UserLogs",
           "viewType": "XML"
         },
+        "Chat": {
+          "viewName": "Chat"
+        },
         "Mail": {
-    "viewName": "Mail",
-    "viewType": "XML",
-    "viewLevel": 2,
-    "controlAggregation": "pages"
-}
+          "viewName": "Mail",
+          "viewType": "XML",
+          "viewLevel": 2,
+          "controlAggregation": "pages"
+        }
       }
     }
   },
