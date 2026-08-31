@@ -2275,7 +2275,8 @@ this.on("createChatGroup", async (req) => {
 });
 
 // =========================================================
-// DELETE CHAT GROUP (ADMIN ONLY)
+// DELETE CHAT GROUP
+// ONLY GROUP CREATOR CAN DELETE
 // =========================================================
 
 this.on("deleteChatGroup", async (req) => {
@@ -2285,9 +2286,21 @@ this.on("deleteChatGroup", async (req) => {
         performedBy
     } = req.data;
 
-    console.log("========== DELETE CHAT GROUP ==========");
-    console.log("Group:", groupId);
-    console.log("Performed By:", performedBy);
+
+    console.log(
+        "========== DELETE CHAT GROUP =========="
+    );
+
+    console.log(
+        "Group:",
+        groupId
+    );
+
+    console.log(
+        "Performed By:",
+        performedBy
+    );
+
 
     // -----------------------------------------------------
     // VALIDATION
@@ -2297,42 +2310,26 @@ this.on("deleteChatGroup", async (req) => {
 
         return {
             success: false,
-            message: "Group ID is required."
+            message:
+                "Group ID is required."
         };
 
     }
+
 
     if (!performedBy) {
 
         return {
             success: false,
-            message: "Logged-in user is required."
-        };
-
-    }
-
-    // -----------------------------------------------------
-    // ONLY ADMIN CAN DELETE A GROUP
-    // -----------------------------------------------------
-
-    const actor =
-        await getActorDetails(performedBy);
-
-    if (
-        String(actor.role || "").toUpperCase() !==
-        "ADMIN"
-    ) {
-
-        return {
-            success: false,
             message:
-                "Only an administrator can delete a chat group."
+                "Logged-in user is required."
         };
 
     }
 
+
     // -----------------------------------------------------
-    // CHECK GROUP
+    // FIND GROUP
     // -----------------------------------------------------
 
     const group =
@@ -2342,33 +2339,55 @@ this.on("deleteChatGroup", async (req) => {
                 ID: groupId
             });
 
+
     if (!group) {
 
         return {
             success: false,
-            message: "Chat group not found."
+            message:
+                "Chat group not found."
         };
 
     }
+
+
+    // -----------------------------------------------------
+    // ONLY CREATOR CAN DELETE
+    // -----------------------------------------------------
+
+    if (
+        String(group.createdBy || "")
+            .toLowerCase() !==
+        String(performedBy || "")
+            .toLowerCase()
+    ) {
+
+        return {
+            success: false,
+            message:
+                "Only the group creator can delete this group."
+        };
+
+    }
+
+
+    // -----------------------------------------------------
+    // ALREADY DELETED
+    // -----------------------------------------------------
 
     if (!group.isActive) {
 
         return {
             success: true,
-            message: "Group is already deleted."
+            message:
+                "Group is already deleted."
         };
 
     }
 
+
     // -----------------------------------------------------
-    // SOFT-DELETE THE GROUP AND ITS MEMBERSHIPS
-    //
-    // Existing group messages are left untouched so anyone
-    // who still has the conversation open keeps their
-    // history; the group itself simply stops showing up
-    // for members and can no longer be posted to (see
-    // sendGroupChatMessage / addChatGroupMember, which both
-    // require isActive: true).
+    // SOFT DELETE GROUP
     // -----------------------------------------------------
 
     await UPDATE(ChatGroups)
@@ -2379,6 +2398,11 @@ this.on("deleteChatGroup", async (req) => {
             ID: groupId
         });
 
+
+    // -----------------------------------------------------
+    // DISABLE MEMBERS
+    // -----------------------------------------------------
+
     await UPDATE(ChatGroupMembers)
         .set({
             isActive: false
@@ -2387,9 +2411,16 @@ this.on("deleteChatGroup", async (req) => {
             group_ID: groupId
         });
 
+
     // -----------------------------------------------------
-    // CREATE USER LOG
+    // USER LOG
     // -----------------------------------------------------
+
+    const actor =
+        await getActorDetails(
+            performedBy
+        );
+
 
     await writeUserLog({
 
@@ -2403,23 +2434,25 @@ this.on("deleteChatGroup", async (req) => {
             actor.role,
 
         action:
-            'Delete',
+            "Delete",
 
         module:
-            'Chat',
+            "Chat Group",
 
         status:
-            'Success',
+            "Success",
 
         details:
-            `Chat group ${group.groupName} deleted`
+            `Chat group "${group.groupName}" deleted by creator`
 
     });
 
+
     console.log(
         "CHAT GROUP DELETED:",
-        groupId
+        group.groupName
     );
+
 
     return {
 

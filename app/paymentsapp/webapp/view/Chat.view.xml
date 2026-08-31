@@ -230,12 +230,12 @@
                 visible="{= ${groups>unreadCount} > 0 }"/>
 
             <Button
-                icon="sap-icon://delete"
-                type="Transparent"
-                tooltip="Delete group"
-                visible="{chat>/isAdmin}"
-                press=".onDeleteGroupPress"
-                class="chatDeleteGroupButton"/>
+    icon="sap-icon://delete"
+    type="Transparent"
+    tooltip="Delete group"
+    visible="{= ${groups>createdBy} === ${chat>/currentUser} }"
+    press=".onDeleteGroupPress"
+    class="chatDeleteGroupButton"/>
 
         </HBox>
 
@@ -388,10 +388,32 @@
         ? 'chatBubble chatBubbleMine'
         : 'chatBubble chatBubbleOther' }">
 
+    <!-- ================================================= -->
+    <!-- GROUP MESSAGE SENDER -->
+    <!-- ================================================= -->
+
+    <Text
+        text="{= ${chat>senderUserName} === ${chat>/currentUser}
+            ? 'You'
+            : ${chat>senderUserName} }"
+        visible="{= ${chat>/chatType} === 'GROUP' }"
+        wrapping="false"
+        class="chatMessageSender"/>
+
+
+    <!-- ================================================= -->
+    <!-- MESSAGE -->
+    <!-- ================================================= -->
+
     <Text
         text="{chat>message}"
         wrapping="true"
         class="chatMessageText"/>
+
+
+    <!-- ================================================= -->
+    <!-- TIME + READ RECEIPT -->
+    <!-- ================================================= -->
 
     <HBox
         justifyContent="End"

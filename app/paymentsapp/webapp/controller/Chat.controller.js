@@ -2639,57 +2639,83 @@ _loadUsersForGroup: async function () {
             },
 
 
-            // =====================================================
-            // DELETE GROUP (ADMIN ONLY)
-            // =====================================================
+           // =====================================================
+// DELETE GROUP
+// ONLY GROUP CREATOR CAN DELETE
+// =====================================================
 
-            onDeleteGroupPress: function (oEvent) {
+onDeleteGroupPress: function (oEvent) {
 
-                // The delete button lives inside the group's
-                // CustomListItem; sap.m.Button marks the tap as
-                // handled internally, so this does not also
-                // trigger onGroupSelect on the row.
+    const context =
+        oEvent.getSource()
+            .getBindingContext("groups");
 
-                const context =
-                    oEvent.getSource()
-                        .getBindingContext("groups");
 
-                if (!context) {
-                    return;
-                }
+    if (!context) {
+        return;
+    }
 
-                const group =
-                    context.getObject();
 
-                if (!this._isAdmin()) {
+    const group =
+        context.getObject();
 
-                    MessageBox.error(
-                        "Only an administrator can delete a chat group."
-                    );
 
-                    return;
+    const currentUser =
+        this._getCurrentUser();
 
-                }
 
-                MessageBox.confirm(
-                    "Delete the group \"" +
-                    group.groupName +
-                    "\"? This cannot be undone.",
-                    {
-                        title: "Delete Group",
-                        onClose: function (sAction) {
+    // -------------------------------------------------
+    // CREATOR CHECK
+    // -------------------------------------------------
 
-                            if (sAction === MessageBox.Action.OK) {
+    if (
+        String(group.createdBy || "")
+            .toLowerCase() !==
+        String(currentUser || "")
+            .toLowerCase()
+    ) {
 
-                                this._deleteGroup(group);
+        MessageBox.error(
+            "Only the group creator can delete this group."
+        );
 
-                            }
+        return;
 
-                        }.bind(this)
+    }
+
+
+    MessageBox.confirm(
+
+        'Delete the group "' +
+        group.groupName +
+        '"? This cannot be undone.',
+
+        {
+
+            title:
+                "Delete Group",
+
+            onClose:
+                function (sAction) {
+
+                    if (
+                        sAction ===
+                        MessageBox.Action.OK
+                    ) {
+
+                        this._deleteGroup(
+                            group
+                        );
+
                     }
-                );
 
-            },
+                }.bind(this)
+
+        }
+
+    );
+
+},
 
 
             _deleteGroup: async function (group) {
