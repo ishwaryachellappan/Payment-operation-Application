@@ -72,8 +72,8 @@ entity Messages {
     senderUserName   : String(100);
     receiverUserName : String(100);
 
-    // Link message directly to payment
     paymentId        : UUID;
+    groupId          : UUID;
 
     subject          : String(200);
     message          : LargeString;
@@ -83,5 +83,27 @@ entity Messages {
     isRead           : Boolean default false;
 
     createdAt        : Timestamp;
+}
 
+entity ChatGroups {
+    key ID          : UUID;
+
+        groupName   : String(100);
+        description : String(255);
+
+        createdBy   : String(100);
+        createdAt   : Timestamp;
+
+        isActive    : Boolean default true;
+}
+
+entity ChatGroupMembers {
+    key ID : UUID;
+
+        group    : Association to ChatGroups;
+        userName : String(100);
+
+        joinedAt : Timestamp;
+
+        isActive : Boolean default true;
 }

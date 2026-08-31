@@ -9,13 +9,14 @@ const {
 
 module.exports = cds.service.impl(async function () {
 
-    const {
-        Users,
-        Payments,
-        UserLogs,
-        Messages
-
-    } = this.entities;
+  const {
+    Users,
+    Payments,
+    UserLogs,
+    Messages,
+    ChatGroups,
+    ChatGroupMembers
+} = this.entities;
 
 
     // =========================================================
@@ -2129,5 +2130,715 @@ if (!headersValid) {
 
         };
     });
+
+
+    
+
+// =========================================================
+// CREATE CHAT GROUP
+// =========================================================
+
+this.on("createChatGroup", async (req) => {
+
+    const {
+        groupName,
+        description,
+        performedBy
+    } = req.data;
+
+    console.log("========== CREATE CHAT GROUP ==========");
+    console.log("Group:", groupName);
+    console.log("Created By:", performedBy);
+
+    // -----------------------------------------------------
+    // VALIDATION
+    // -----------------------------------------------------
+
+    if (!groupName || !String(groupName).trim()) {
+
+        return {
+            success: false,
+            groupId: null,
+            message: "Group name is required."
+        };
+
+    }
+
+    if (!performedBy) {
+
+        return {
+            success: false,
+            groupId: null,
+            message: "User information is missing."
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // CHECK CREATOR
+    // -----------------------------------------------------
+
+    const creator =
+        await SELECT.one
+            .from(Users)
+            .where({
+                userName: performedBy,
+                isActive: true
+            });
+
+    if (!creator) {
+
+        return {
+            success: false,
+            groupId: null,
+            message:
+                "The logged-in user is inactive or does not exist."
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // CREATE GROUP
+    // -----------------------------------------------------
+
+    const groupId =
+        cds.utils.uuid();
+
+    await INSERT
+        .into(ChatGroups)
+        .entries({
+
+            ID: groupId,
+
+            groupName:
+                String(groupName).trim(),
+
+            description:
+                String(description || "").trim(),
+
+            createdBy:
+                performedBy,
+
+            createdAt:
+                new Date(),
+
+            isActive:
+                true
+
+        });
+
+    // -----------------------------------------------------
+    // ADD CREATOR AS MEMBER
+    // -----------------------------------------------------
+
+    await INSERT
+        .into(ChatGroupMembers)
+        .entries({
+
+            ID:
+                cds.utils.uuid(),
+
+            group_ID:
+                groupId,
+
+            userName:
+                performedBy,
+
+            joinedAt:
+                new Date(),
+
+            isActive:
+                true
+
+        });
+
+    console.log(
+        "CHAT GROUP CREATED:",
+        groupId
+    );
+
+    // -----------------------------------------------------
+    // RETURN RESULT
+    // -----------------------------------------------------
+
+    return {
+
+        success: true,
+
+        groupId: groupId,
+
+        message:
+            "Group created successfully."
+
+    };
+
+});
+
+// =========================================================
+// DELETE CHAT GROUP (ADMIN ONLY)
+// =========================================================
+
+this.on("deleteChatGroup", async (req) => {
+
+    const {
+        groupId,
+        performedBy
+    } = req.data;
+
+    console.log("========== DELETE CHAT GROUP ==========");
+    console.log("Group:", groupId);
+    console.log("Performed By:", performedBy);
+
+    // -----------------------------------------------------
+    // VALIDATION
+    // -----------------------------------------------------
+
+    if (!groupId) {
+
+        return {
+            success: false,
+            message: "Group ID is required."
+        };
+
+    }
+
+    if (!performedBy) {
+
+        return {
+            success: false,
+            message: "Logged-in user is required."
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // ONLY ADMIN CAN DELETE A GROUP
+    // -----------------------------------------------------
+
+    const actor =
+        await getActorDetails(performedBy);
+
+    if (
+        String(actor.role || "").toUpperCase() !==
+        "ADMIN"
+    ) {
+
+        return {
+            success: false,
+            message:
+                "Only an administrator can delete a chat group."
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // CHECK GROUP
+    // -----------------------------------------------------
+
+    const group =
+        await SELECT.one
+            .from(ChatGroups)
+            .where({
+                ID: groupId
+            });
+
+    if (!group) {
+
+        return {
+            success: false,
+            message: "Chat group not found."
+        };
+
+    }
+
+    if (!group.isActive) {
+
+        return {
+            success: true,
+            message: "Group is already deleted."
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // SOFT-DELETE THE GROUP AND ITS MEMBERSHIPS
+    //
+    // Existing group messages are left untouched so anyone
+    // who still has the conversation open keeps their
+    // history; the group itself simply stops showing up
+    // for members and can no longer be posted to (see
+    // sendGroupChatMessage / addChatGroupMember, which both
+    // require isActive: true).
+    // -----------------------------------------------------
+
+    await UPDATE(ChatGroups)
+        .set({
+            isActive: false
+        })
+        .where({
+            ID: groupId
+        });
+
+    await UPDATE(ChatGroupMembers)
+        .set({
+            isActive: false
+        })
+        .where({
+            group_ID: groupId
+        });
+
+    // -----------------------------------------------------
+    // CREATE USER LOG
+    // -----------------------------------------------------
+
+    await writeUserLog({
+
+        userName:
+            actor.userName,
+
+        fullName:
+            actor.fullName,
+
+        role:
+            actor.role,
+
+        action:
+            'Delete',
+
+        module:
+            'Chat',
+
+        status:
+            'Success',
+
+        details:
+            `Chat group ${group.groupName} deleted`
+
+    });
+
+    console.log(
+        "CHAT GROUP DELETED:",
+        groupId
+    );
+
+    return {
+
+        success: true,
+
+        message:
+            "Group deleted successfully."
+
+    };
+
+});
+
+// =========================================================
+// ADD USER TO CHAT GROUP
+// =========================================================
+
+this.on("addChatGroupMember", async (req) => {
+
+    const {
+        groupId,
+        userName,
+        performedBy
+    } = req.data;
+
+    console.log("========== ADD GROUP MEMBER ==========");
+    console.log("Group:", groupId);
+    console.log("User:", userName);
+    console.log("Performed By:", performedBy);
+
+    // -----------------------------------------------------
+    // VALIDATION
+    // -----------------------------------------------------
+
+    if (!groupId) {
+
+        return {
+            success: false,
+            message: "Group ID is required."
+        };
+
+    }
+
+    if (!userName) {
+
+        return {
+            success: false,
+            message: "User name is required."
+        };
+
+    }
+
+    if (!performedBy) {
+
+        return {
+            success: false,
+            message: "Logged-in user is required."
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // CHECK GROUP
+    // -----------------------------------------------------
+
+    const group =
+        await SELECT.one
+            .from(ChatGroups)
+            .where({
+                ID: groupId,
+                isActive: true
+            });
+
+    if (!group) {
+
+        return {
+            success: false,
+            message: "Chat group not found."
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // CHECK USER
+    // -----------------------------------------------------
+
+    const user =
+        await SELECT.one
+            .from(Users)
+            .where({
+                userName: userName,
+                isActive: true
+            });
+
+    if (!user) {
+
+        return {
+            success: false,
+            message:
+                `User '${userName}' does not exist or is inactive.`
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // CHECK EXISTING MEMBER
+    // -----------------------------------------------------
+
+    const existingMember =
+        await SELECT.one
+            .from(ChatGroupMembers)
+            .where({
+                group_ID: groupId,
+                userName: userName
+            });
+
+    if (existingMember) {
+
+        if (!existingMember.isActive) {
+
+            await UPDATE(ChatGroupMembers)
+                .set({
+                    isActive: true,
+                    joinedAt: new Date()
+                })
+                .where({
+                    ID: existingMember.ID
+                });
+
+        }
+
+        return {
+            success: true,
+            message: "User is already a group member."
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // ADD MEMBER
+    // -----------------------------------------------------
+
+    await INSERT
+        .into(ChatGroupMembers)
+        .entries({
+
+            ID:
+                cds.utils.uuid(),
+
+            group_ID:
+                groupId,
+
+            userName:
+                userName,
+
+            joinedAt:
+                new Date(),
+
+            isActive:
+                true
+
+        });
+
+    console.log(
+        `GROUP MEMBER ADDED: ${userName} -> ${groupId}`
+    );
+
+    return {
+
+        success: true,
+
+        message:
+            `${userName} added to the group.`
+
+    };
+
+});
+
+// =========================================================
+// SEND GROUP CHAT MESSAGE
+// =========================================================
+
+this.on("sendGroupChatMessage", async (req) => {
+
+    const {
+        groupId,
+        message,
+        performedBy
+    } = req.data;
+
+    console.log("========== SEND GROUP MESSAGE ==========");
+    console.log("Group:", groupId);
+    console.log("Sender:", performedBy);
+
+    // -----------------------------------------------------
+    // VALIDATION
+    // -----------------------------------------------------
+
+    if (!groupId) {
+
+        return {
+            success: false,
+            message: "Group ID is required."
+        };
+
+    }
+
+    if (!performedBy) {
+
+        return {
+            success: false,
+            message: "Sender is required."
+        };
+
+    }
+
+    if (!message || !String(message).trim()) {
+
+        return {
+            success: false,
+            message: "Message cannot be empty."
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // CHECK MEMBERSHIP
+    // -----------------------------------------------------
+
+    const membership =
+        await SELECT.one
+            .from(ChatGroupMembers)
+            .where({
+                group_ID: groupId,
+                userName: performedBy,
+                isActive: true
+            });
+
+    if (!membership) {
+
+        return {
+            success: false,
+            message:
+                "You are not a member of this group."
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // CHECK GROUP
+    // -----------------------------------------------------
+
+    const group =
+        await SELECT.one
+            .from(ChatGroups)
+            .where({
+                ID: groupId,
+                isActive: true
+            });
+
+    if (!group) {
+
+        return {
+            success: false,
+            message: "Group not found."
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // CREATE THE GROUP MESSAGE
+    //
+    // IMPORTANT: a group message is stored as a SINGLE row,
+    // shared by every member of the group (like WhatsApp).
+    // The previous implementation inserted one row per
+    // recipient (and skipped the sender entirely), which
+    // caused the same message to be duplicated once per
+    // member and never appear for the person who sent it.
+    //
+    // receiverUserName is not meaningful for a group message
+    // (there are many recipients), so it is set to the
+    // sender just to satisfy the field; getGroupMessages()
+    // below always looks the conversation up by groupId.
+    // -----------------------------------------------------
+
+    await INSERT
+        .into(Messages)
+        .entries({
+
+            ID:
+                cds.utils.uuid(),
+
+            senderUserName:
+                performedBy,
+
+            receiverUserName:
+                performedBy,
+
+            groupId:
+                groupId,
+
+            subject:
+                group.groupName,
+
+            message:
+                String(message).trim(),
+
+            messageType:
+                "GROUP_CHAT",
+
+            isRead:
+                false,
+
+            createdAt:
+                new Date()
+
+        });
+
+    console.log(
+        "GROUP MESSAGE CREATED:",
+        groupId
+    );
+
+    return {
+
+        success: true,
+
+        message:
+            "Group message sent successfully."
+
+    };
+
+});
+
+// =========================================================
+// GET GROUP MESSAGES
+// =========================================================
+
+this.on("getGroupMessages", async (req) => {
+
+    const {
+        groupId,
+        performedBy
+    } = req.data;
+
+    console.log("========== GET GROUP MESSAGES ==========");
+    console.log("Group:", groupId);
+    console.log("User:", performedBy);
+
+    if (!groupId) {
+
+        return {
+            success: false,
+            messages: "[]",
+            message: "Group ID is required."
+        };
+
+    }
+
+    if (!performedBy) {
+
+        return {
+            success: false,
+            messages: "[]",
+            message: "User is required."
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // CHECK MEMBERSHIP
+    // -----------------------------------------------------
+
+    const membership =
+        await SELECT.one
+            .from(ChatGroupMembers)
+            .where({
+                group_ID: groupId,
+                userName: performedBy,
+                isActive: true
+            });
+
+    if (!membership) {
+
+        return {
+            success: false,
+            messages: "[]",
+            message:
+                "You are not a member of this group."
+        };
+
+    }
+
+    // -----------------------------------------------------
+    // LOAD MESSAGES
+    // -----------------------------------------------------
+
+    const messages =
+        await SELECT
+            .from(Messages)
+            .where({
+                groupId: groupId,
+                messageType: "GROUP_CHAT"
+            })
+            .orderBy({
+                createdAt: "asc"
+            });
+
+    return {
+
+        success: true,
+
+        messages:
+            JSON.stringify(messages),
+
+        message:
+            "Group messages loaded."
+
+    };
+
+});
 
 });

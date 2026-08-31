@@ -167,10 +167,11 @@
         visible="{appView>/isAdmin}"
         select=".onUserLogs"/>
 
-       <tnt:NavigationListItem
+     <tnt:NavigationListItem
     text="Chat"
     icon="sap-icon://discussion"
     key="Chat"
+    visible="{appView>/isLoggedIn}"
     select=".onChat"/>
 
                     </tnt:NavigationList>

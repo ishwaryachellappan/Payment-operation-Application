@@ -8,14 +8,18 @@ service PaymentService {
     // =====================================================
 
     @odata.draft.enabled
-    entity Users    as projection on db.Users;
+    entity Users            as projection on db.Users;
 
     @odata.draft.enabled
-    entity Payments as projection on db.Payments;
+    entity Payments         as projection on db.Payments;
 
-    entity UserLogs as projection on db.UserLogs;
+    entity UserLogs         as projection on db.UserLogs;
 
-    entity Messages as projection on db.Messages;
+    entity Messages         as projection on db.Messages;
+
+    entity ChatGroups       as projection on db.ChatGroups;
+
+    entity ChatGroupMembers as projection on db.ChatGroupMembers;
 
 
     // =====================================================
@@ -103,6 +107,32 @@ service PaymentService {
     action markChatMessagesRead(senderUserName: String,
                                 receiverUserName: String) returns ActionResponse;
 
+    // =====================================================
+    // GROUP CHAT
+    // =====================================================
+
+    action createChatGroup(groupName: String,
+                           description: String,
+                           performedBy: String)           returns ChatGroupResponse;
+
+
+    action deleteChatGroup(groupId: UUID,
+                           performedBy: String)           returns ActionResponse;
+
+
+    action addChatGroupMember(groupId: UUID,
+                              userName: String,
+                              performedBy: String)        returns ActionResponse;
+
+
+    action sendGroupChatMessage(groupId: UUID,
+                                message: LargeString,
+                                performedBy: String)      returns ActionResponse;
+
+
+    action getGroupMessages(groupId: UUID,
+                            performedBy: String)          returns GroupMessagesResponse;
+
 }
 
 
@@ -175,3 +205,25 @@ type BulkApprovalResponse {
     message       : String;
 
 };
+
+type ChatGroupResponse {
+
+    success : Boolean;
+
+    groupId : UUID;
+
+    message : String;
+
+};
+
+
+type GroupMessagesResponse {
+
+    success  : Boolean;
+
+    messages : LargeString;
+
+    message  : String;
+
+};
+

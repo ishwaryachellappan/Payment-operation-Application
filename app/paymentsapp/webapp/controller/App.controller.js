@@ -44,22 +44,26 @@ sap.ui.define([
             onInit: function () {
 
                 const appViewModel =
-                    new JSONModel({
+    new JSONModel({
+        sideExpanded: true,
 
-                        sideExpanded: true,
+        currentRoute: "",
 
-                        currentRoute: "",
+        // ---------------------------------------------
+        // LOGIN STATUS
+        // ---------------------------------------------
+        isLoggedIn:
+            !!this._getCurrentUser(),
 
-                        isAdmin:
-                            this._getNormalizedRole() === "ADMIN",
+        isAdmin:
+            this._getNormalizedRole() === "ADMIN",
 
-                        pendingApprovalCount: 0,
+        pendingApprovalCount: 0,
 
-                        unreadMessageCount: 0,
+        unreadMessageCount: 0,
 
-                        mailCount: 0
-
-                    });
+        mailCount: 0
+    });
 
 
                 this.getView().setModel(
@@ -191,43 +195,90 @@ sap.ui.define([
             // ROUTE
             // =====================================================
 
-            _onRouteMatched: function (
-                oEvent
-            ) {
+           _onRouteMatched: function (
+    oEvent
+) {
 
-                const sRouteName =
-                    oEvent.getParameter(
-                        "name"
-                    );
-
-
-                const oModel =
-                    this.getView()
-                        .getModel(
-                            "appView"
-                        );
+    const sRouteName =
+        oEvent.getParameter(
+            "name"
+        );
 
 
-                oModel.setProperty(
-                    "/currentRoute",
-                    sRouteName
-                );
+    const oModel =
+        this.getView()
+            .getModel(
+                "appView"
+            );
 
 
-                const bAdmin =
-                    this._getNormalizedRole()
-                    === "ADMIN";
+    // ---------------------------------------------
+    // CURRENT ROUTE
+    // ---------------------------------------------
+
+    oModel.setProperty(
+        "/currentRoute",
+        sRouteName
+    );
 
 
-                oModel.setProperty(
-                    "/isAdmin",
-                    bAdmin
-                );
+    // ---------------------------------------------
+    // LOGIN STATUS
+    // ---------------------------------------------
+
+    const bLoggedIn =
+        !!this._getCurrentUser();
 
 
-                this._loadNotifications();
-            },
+    oModel.setProperty(
+        "/isLoggedIn",
+        bLoggedIn
+    );
 
+
+    // ---------------------------------------------
+    // ADMIN STATUS
+    // ---------------------------------------------
+
+    const bAdmin =
+        this._getNormalizedRole()
+        === "ADMIN";
+
+
+    oModel.setProperty(
+        "/isAdmin",
+        bAdmin
+    );
+
+
+    // ---------------------------------------------
+    // PREVENT DIRECT CHAT ACCESS
+    // ---------------------------------------------
+
+    if (
+        sRouteName === "Chat" &&
+        !bLoggedIn
+    ) {
+
+        this.getOwnerComponent()
+            .getRouter()
+            .navTo(
+                "Login",
+                {},
+                true
+            );
+
+        return;
+    }
+
+
+    // ---------------------------------------------
+    // NOTIFICATIONS
+    // ---------------------------------------------
+
+    this._loadNotifications();
+
+},
 
             // =====================================================
             // LOAD BOTH NOTIFICATIONS

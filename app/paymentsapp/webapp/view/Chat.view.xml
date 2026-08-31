@@ -19,53 +19,184 @@
                 <!-- LEFT USER PANEL -->
                 <!-- ================================================= -->
 
+                                <VBox
+    width="300px"
+    height="100%"
+    class="chatSidebar">
+
+    <!-- HEADER -->
+
+    <VBox class="chatSidebarHeader">
+
+        <Title
+            text="Chat"
+            level="H2"
+            class="chatTitle"/>
+
+        <Text
+            text="Messages &amp; conversations"
+            class="chatSubtitle"/>
+
+    </VBox>
+
+
+    <!-- SEARCH -->
+
+    <SearchField
+        id="userSearch1"
+        width="calc(100% - 24px)"
+        placeholder="Search users..."
+        liveChange=".onUserSearch"
+        class="chatSearch"/>
+
+
+    <!-- ================================================= -->
+    <!-- DIRECT MESSAGES -->
+    <!-- ================================================= -->
+
+    <Title
+        text="DIRECT MESSAGES"
+        level="H5"
+        class="chatSectionTitle"/>
+
+
+    <List
+        id="userList"
+        items="{users>/items}"
+        mode="None"
+        noDataText="No users found"
+        growing="true"
+        growingThreshold="30"
+        showSeparators="None"
+        class="chatUserList">
+
+        <CustomListItem
+            type="Active"
+            press=".onUserSelect"
+            class="chatUserListItem">
+
+            <HBox
+                width="100%"
+                alignItems="Center"
+                class="chatUserRow">
+
+                <!-- Avatar -->
+
+                <HBox
+                    justifyContent="Center"
+                    alignItems="Center"
+                    class="chatAvatar">
+
+                    <core:Icon
+                        src="sap-icon://person-placeholder"
+                        size="1.1rem"/>
+
+                </HBox>
+
+
+                <!-- User -->
+
                 <VBox
-                    width="300px"
-                    height="100%"
-                    class="chatSidebar">
+                    width="100%"
+                    class="chatUserInfo">
 
-                    <VBox class="chatSidebarHeader">
-
-                        <Title
-                            text="Chat"
-                            level="H2"
-                            class="chatTitle"/>
+                    <HBox
+                        width="100%"
+                        justifyContent="SpaceBetween"
+                        alignItems="Center">
 
                         <Text
-                            text="Start a conversation"
-                            class="chatSubtitle"/>
+                            text="{users>fullName}"
+                            wrapping="false"
+                            class="{= ${users>hasUnread}
+                                ? 'chatUserFullName chatUserUnread'
+                                : 'chatUserFullName'}"/>
 
-                    </VBox>
+                        <ObjectStatus
+                            text="{users>unreadCount}"
+                            visible="{= ${users>unreadCount} > 0 }"
+                            state="Information"
+                            class="chatUnreadBadge"/>
 
-                    <SearchField
-                        id="userSearch1"
-                        width="calc(100% - 24px)"
-                        placeholder="Search users..."
-                        liveChange=".onUserSearch"
-                        class="chatSearch"/>
+                    </HBox>
 
-                   <List
-    id="userList"
-    items="{users>/items}"
+
+                    <HBox
+                        width="100%"
+                        justifyContent="SpaceBetween">
+
+                        <Text
+                            text="{= '@' + ${users>userName} }"
+                            wrapping="false"
+                            class="chatUserName"/>
+
+                        <Text
+                            text="{users>lastMessageTime}"
+                            visible="{= !!${users>lastMessageTime} }"
+                            class="chatLastTime"/>
+
+                    </HBox>
+
+
+                    <Text
+                        text="{users>lastMessage}"
+                        wrapping="false"
+                        maxLines="1"
+                        class="chatLastMessage"/>
+
+                </VBox>
+
+            </HBox>
+
+        </CustomListItem>
+
+    </List>
+
+
+    <!-- ================================================= -->
+    <!-- GROUPS HEADER -->
+    <!-- ================================================= -->
+
+    <HBox
+        width="100%"
+        justifyContent="SpaceBetween"
+        alignItems="Center"
+        class="chatGroupHeader">
+
+        <Title
+            text="GROUPS"
+            level="H5"
+            class="chatSectionTitle"/>
+
+       <Button
+        icon="sap-icon://add"
+        type="Transparent"
+        tooltip="Create Group"
+        press=".onCreateGroup"
+        class="chatAddGroupButton"/>
+
+    </HBox>
+
+
+    <!-- ================================================= -->
+    <!-- GROUP LIST -->
+    <!-- ================================================= -->
+
+   <List
+    id="groupList"
+    items="{groups>/items}"
     mode="None"
-    noDataText="No users found"
-    growing="true"
-    growingThreshold="30"
-    showSeparators="Inner"
-    class="chatUserList">
+    showSeparators="None"
+    noDataText="No groups yet">
 
     <CustomListItem
         type="Active"
-        press=".onUserSelect"
-        class="chatUserListItem">
+        press=".onGroupSelect">
 
         <HBox
             width="100%"
             alignItems="Center"
             class="chatUserRow">
-
-
-            <!-- AVATAR -->
 
             <HBox
                 justifyContent="Center"
@@ -73,78 +204,45 @@
                 class="chatAvatar">
 
                 <core:Icon
-                    src="sap-icon://person-placeholder"
-                    size="1.2rem"/>
+                    src="sap-icon://group"
+                    size="1.1rem"/>
 
             </HBox>
-
-
-            <!-- USER INFORMATION -->
 
             <VBox
                 width="100%"
                 class="chatUserInfo">
 
-
-                <HBox
-                    width="100%"
-                    justifyContent="SpaceBetween"
-                    alignItems="Center">
-
-
-                    <Text
-                        text="{users>fullName}"
-                        wrapping="false"
-                        class="chatUserFullName"
-                        renderWhitespace="false"/>
-
-
-                    <!-- UNREAD COUNT -->
-
-                    <ObjectStatus
-                        text="{users>unreadCount}"
-                        visible="{= ${users>unreadCount} > 0 }"
-                        state="Information"
-                        class="chatUnreadBadge"/>
-
-                </HBox>
-
-
-                <HBox
-                    width="100%"
-                    justifyContent="SpaceBetween"
-                    alignItems="Center">
-
-
-                    <Text
-                        text="{= '@' + ${users>userName} }"
-                        wrapping="false"
-                        class="chatUserName"/>
-
-
-                    <Text
-                        text="{users>lastMessageTime}"
-                        visible="{= !!${users>lastMessageTime} }"
-                        class="chatLastTime"/>
-
-                </HBox>
-
+                <Text
+                    text="{groups>groupName}"
+                    wrapping="false"
+                    class="chatUserFullName"/>
 
                 <Text
-                    text="{users>lastMessage}"
+                    text="{groups>description}"
                     wrapping="false"
-                    maxLines="1"
-                    class="chatLastMessage"/>
+                    class="chatUserName"/>
 
             </VBox>
+
+            <ObjectNumber
+                number="{groups>unreadCount}"
+                visible="{= ${groups>unreadCount} > 0 }"/>
+
+            <Button
+                icon="sap-icon://delete"
+                type="Transparent"
+                tooltip="Delete group"
+                visible="{chat>/isAdmin}"
+                press=".onDeleteGroupPress"
+                class="chatDeleteGroupButton"/>
 
         </HBox>
 
     </CustomListItem>
 
 </List>
-
-                </VBox>
+</VBox>
 
 
                 <!-- ================================================= -->
@@ -160,39 +258,73 @@
                     <!-- Conversation header -->
 
                     <VBox
-                        visible="{= !!${chat>/selectedUserName} }"
-                        class="chatConversationHeader">
+    visible="{= !!${chat>/selectedUserName} || !!${chat>/selectedGroupId} }"
+    class="chatConversationHeader">
 
-                        <HBox
-                            alignItems="Center">
+    <HBox
+        alignItems="Center">
 
-                            <HBox
-                                justifyContent="Center"
-                                alignItems="Center"
-                                class="chatHeaderAvatar">
+        <!-- DIRECT CHAT AVATAR -->
 
-                                <core:Icon
-                                    src="sap-icon://person-placeholder"
-                                    size="1.2rem"/>
+        <HBox
+            visible="{= ${chat>/chatType} === 'DIRECT' }"
+            justifyContent="Center"
+            alignItems="Center"
+            class="chatHeaderAvatar">
 
-                            </HBox>
+            <core:Icon
+                src="sap-icon://person-placeholder"
+                size="1.2rem"/>
 
-                            <VBox>
+        </HBox>
 
-                                <Title
-                                    text="{chat>/selectedFullName}"
-                                    level="H3"
-                                    class="chatConversationTitle"/>
 
-                                <Text
-                                    text="{= '@' + ${chat>/selectedUserName} }"
-                                    class="chatConversationUsername"/>
+        <!-- GROUP CHAT AVATAR -->
 
-                            </VBox>
+        <HBox
+            visible="{= ${chat>/chatType} === 'GROUP' }"
+            justifyContent="Center"
+            alignItems="Center"
+            class="chatHeaderAvatar chatGroupHeaderAvatar">
 
-                        </HBox>
+            <core:Icon
+                src="sap-icon://group"
+                size="1.2rem"/>
 
-                    </VBox>
+        </HBox>
+
+
+        <VBox>
+
+            <!-- Direct -->
+
+            <Title
+                text="{chat>/selectedFullName}"
+                visible="{= ${chat>/chatType} === 'DIRECT' }"
+                level="H3"
+                class="chatConversationTitle"/>
+
+
+            <!-- Group -->
+
+            <Title
+                text="{chat>/selectedGroupName}"
+                visible="{= ${chat>/chatType} === 'GROUP' }"
+                level="H3"
+                class="chatConversationTitle"/>
+
+
+            <Text
+                text="{= ${chat>/chatType} === 'GROUP'
+                    ? 'Group conversation'
+                    : '@' + ${chat>/selectedUserName} }"
+                class="chatConversationUsername"/>
+
+        </VBox>
+
+    </HBox>
+
+</VBox>
 
 
                     <!-- Empty state -->
@@ -202,7 +334,7 @@
                         height="100%"
                         justifyContent="Center"
                         alignItems="Center"
-                        visible="{= !${chat>/selectedUserName} }"
+                        visible="{= !${chat>/selectedUserName} &amp;&amp; !${chat>/selectedGroupId} }"
                         class="chatEmptyState">
 
                         <HBox
@@ -238,7 +370,7 @@
                         height="100%"
                         vertical="true"
                         horizontal="false"
-                        visible="{= !!${chat>/selectedUserName} }"
+                        visible="{= !!${chat>/selectedUserName} || !!${chat>/selectedGroupId} }"
                         class="chatMessagesContainer">
 
                         <VBox
@@ -248,7 +380,7 @@
 
                             <HBox
                                 width="100%"
-                                justifyContent="{= ${chat>senderUserName} === ${chat>/currentUser} ? 'End' : 'Start' }"
+                                justifyContent="{= ${chat>isMine} ? 'End' : 'Start' }"
                                 class="chatMessageRow">
 
                              <VBox
@@ -294,7 +426,7 @@
 
                     <HBox
                         width="100%"
-                        visible="{= !!${chat>/selectedUserName} }"
+                        visible="{= !!${chat>/selectedUserName} || !!${chat>/selectedGroupId} }"
                         alignItems="End"
                         class="chatComposer">
 
