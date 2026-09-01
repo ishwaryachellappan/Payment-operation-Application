@@ -651,6 +651,7 @@ if (!performedBy) {
                                             this._currentStatus ||
                                             "ALL"
                                         );
+                                        this._loadSummaryCounts();
 
                                     } catch (error) {
 
@@ -704,44 +705,193 @@ if (!performedBy) {
 
 
         // =====================================================
-        // PAYMENT SELECTION
-        // =====================================================
+// PAYMENT SELECTION — OPEN DETAIL DIALOG
+// =====================================================
 
-        onPaymentPress: function (oEvent) {
+onPaymentPress: function (oEvent) {
 
-            const context =
-                oEvent
-                    .getSource()
-                    .getBindingContext("payments");
+    const context =
+        oEvent
+            .getSource()
+            .getBindingContext("payments");
 
-            if (!context) {
-                return;
-            }
+    if (!context) {
+        return;
+    }
 
-            const payment =
-                context.getObject();
+    const payment =
+        context.getObject();
 
-            console.log(
-                "Selected payment:",
-                payment
-            );
+    console.log(
+        "Selected payment:",
+        payment
+    );
 
-            /*
-             * We will use this later to open
-             * the Payment Details page.
-             */
+    this._openPaymentDetailDialog(payment);
 
-        },
+},
 
-        onLogout: function () {
 
-    console.log("Logout clicked from Payments");
+// =====================================================
+// PAYMENT DETAIL DIALOG
+// =====================================================
+_openPaymentDetailDialog: function (payment) {
 
-    sessionStorage.clear();
+    const detailRow =
+        function (label, value) {
 
-    this.getOwnerComponent()
-        .getRouter()
-        .navTo("Login", {}, true);
+            return new sap.m.HBox({
+
+                width: "100%",
+
+                justifyContent: "SpaceBetween",
+
+                alignItems: "Center",
+
+                class: "sapUiTinyMarginBottom",
+
+                items: [
+
+                    new sap.m.Label({
+                        text: label,
+                        design: "Bold"
+                    }),
+
+                    new sap.m.Text({
+                        text: value || "-",
+                        textAlign: "End"
+                    })
+
+                ]
+
+            });
+
+        };
+
+
+    // -------------------------------------------------
+    // TOP SUMMARY (reference + amount)
+    // -------------------------------------------------
+
+    const topBox =
+        new sap.m.VBox({
+
+            width: "100%",
+
+            class: "sapUiSmallMarginBottom sapUiResponsivePadding--content",
+
+            items: [
+
+                new sap.m.Title({
+                    text: payment.paymentReference,
+                    level: "H3"
+                }),
+
+                new sap.m.ObjectNumber({
+                    number: payment.amount,
+                    unit: payment.currency,
+                    emphasized: true,
+                    state: "Information"
+                })
+
+            ]
+
+        });
+
+
+    const bodyItems = [
+
+        topBox,
+
+        new sap.ui.core.HTML({
+            content: "<hr style='border:none;border-top:1px solid #e5e9ec;margin:0 0 12px 0;'/>"
+        }),
+
+        detailRow("Company Code", payment.companyCode),
+        detailRow("Debtor Account", payment.debtorAccount),
+        detailRow("Creditor Account", payment.creditorAccount),
+        detailRow("Payment Method", payment.paymentMethod),
+        detailRow("Payment Date", payment.paymentDate),
+        detailRow("Created By", payment.createdByUserName),
+        detailRow("Status", this.formatStatusLabel(payment.status))
+
+    ];
+
+
+    // -------------------------------------------------
+    // REJECTION REASON (only if rejected)
+    // -------------------------------------------------
+
+    if (
+        payment.status === "REJECTED" &&
+        payment.rejectionReason
+    ) {
+
+        bodyItems.push(
+
+            new sap.m.MessageStrip({
+
+                text: payment.rejectionReason,
+
+                type: "Error",
+
+                showIcon: true,
+
+                class: "sapUiSmallMarginTop"
+
+            })
+
+        );
+
+    }
+
+
+    // -------------------------------------------------
+    // DIALOG
+    // -------------------------------------------------
+
+    const dialog =
+        new sap.m.Dialog({
+
+            title: "Payment Details",
+
+            contentWidth: "420px",
+
+            content: [
+
+                new sap.m.VBox({
+
+                    class: "sapUiMediumMargin",
+
+                    items: bodyItems
+
+                })
+
+            ],
+
+            endButton:
+
+                new sap.m.Button({
+
+                    text: "Close",
+
+                    press:
+                        function () {
+                            dialog.close();
+                        }
+
+                }),
+
+            afterClose:
+
+                function () {
+                    dialog.destroy();
+                }
+
+        });
+
+
+    dialog.open();
 
 },
 
@@ -1250,6 +1400,8 @@ const payload = {
             this._currentStatus || "ALL"
         );
 
+        this._loadSummaryCounts();
+
 
     } catch (error) {
 
@@ -1716,6 +1868,8 @@ _uploadBulkPayments: async function (
                 "ALL"
             );
 
+            this._loadSummaryCounts();
+
         } else {
 
             MessageBox.warning(
@@ -1936,6 +2090,166 @@ onExportPayments: function () {
         aPayments.length +
         " payment(s) exported successfully."
     );
+},
+
+// =====================================================
+// STATUS LABEL FORMATTER
+// Converts PENDING_APPROVAL -> "Pending Approval"
+// =====================================================
+
+formatStatusLabel: function (status) {
+
+    if (!status) {
+        return "";
+    }
+
+    return String(status)
+        .toLowerCase()
+        .split("_")
+        .map(function (word) {
+
+            return (
+                word.charAt(0).toUpperCase() +
+                word.slice(1)
+            );
+
+        })
+        .join(" ");
+
+},
+
+// =====================================================
+// LOAD SUMMARY COUNTS
+// Always loads the FULL unfiltered payment list so the
+// summary cards stay accurate even when the table itself
+// is filtered by status (e.g. via Dashboard KPI links).
+// =====================================================
+
+_loadSummaryCounts: async function () {
+
+    try {
+
+        const response =
+            await fetch(
+                "/payment-service/Payments",
+                {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                "HTTP " + response.status
+            );
+        }
+
+        const result =
+            await response.json();
+
+        const payments =
+            result.value || [];
+
+        const total =
+            payments.length;
+
+        const pending =
+            payments.filter(
+                function (p) {
+                    return p.status === "PENDING_APPROVAL";
+                }
+            ).length;
+
+        const approved =
+            payments.filter(
+                function (p) {
+                    return p.status === "APPROVED";
+                }
+            ).length;
+
+        const rejected =
+            payments.filter(
+                function (p) {
+                    return p.status === "REJECTED";
+                }
+            ).length;
+
+        this.byId("summaryTotal")
+            .setText(String(total));
+
+        this.byId("summaryPending")
+            .setText(String(pending));
+
+        this.byId("summaryApproved")
+            .setText(String(approved));
+
+        this.byId("summaryRejected")
+            .setText(String(rejected));
+
+    } catch (error) {
+
+        console.error(
+            "Unable to load payment summary counts:",
+            error
+        );
+
+    }
+
+},
+
+_onPaymentsRouteMatched: function (oEvent) {
+
+    const routeArguments =
+        oEvent.getParameter("arguments");
+
+    let status = "ALL";
+
+    if (
+        routeArguments &&
+        routeArguments["?query"] &&
+        routeArguments["?query"].status
+    ) {
+        status =
+            routeArguments["?query"].status;
+    }
+
+    this._currentStatus = status;
+
+    console.log(
+        "Payments route status:",
+        status
+    );
+
+    const searchField =
+        this.byId("paymentSearch");
+
+    if (searchField) {
+        searchField.setValue("");
+    }
+
+    this._loadPayments(status);
+
+    // NEW: keep summary cards in sync
+    this._loadSummaryCounts();
+
+},
+
+// controller
+formatStatusPillClass: function (status) {
+
+    if (status === "APPROVED") {
+        return "statusPill statusPillApproved";
+    }
+
+    if (status === "REJECTED") {
+        return "statusPill statusPillRejected";
+    }
+
+    return "statusPill statusPillPending";
+
 },
 
     });

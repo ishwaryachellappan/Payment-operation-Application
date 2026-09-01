@@ -69,6 +69,75 @@
                 </VBox>
 
 
+<!-- ========================================= -->
+<!-- SUMMARY CARDS -->
+<!-- ========================================= -->
+
+<HBox
+    class="paymentsSummaryRow"
+    width="100%"
+    wrap="Wrap">
+
+    <VBox class="paymentsSummaryCard paymentsSummaryTotal">
+
+        <Text
+            text="Total Payments"
+            class="paymentsSummaryLabel"/>
+
+        <Title
+            id="summaryTotal"
+            text="0"
+            level="H2"
+            class="paymentsSummaryValue"/>
+
+    </VBox>
+
+
+    <VBox class="paymentsSummaryCard paymentsSummaryPending">
+
+        <Text
+            text="Pending Approval"
+            class="paymentsSummaryLabel"/>
+
+        <Title
+            id="summaryPending"
+            text="0"
+            level="H2"
+            class="paymentsSummaryValue paymentsSummaryValuePending"/>
+
+    </VBox>
+
+
+    <VBox class="paymentsSummaryCard paymentsSummaryApproved">
+
+        <Text
+            text="Approved"
+            class="paymentsSummaryLabel"/>
+
+        <Title
+            id="summaryApproved"
+            text="0"
+            level="H2"
+            class="paymentsSummaryValue paymentsSummaryValueApproved"/>
+
+    </VBox>
+
+
+    <VBox class="paymentsSummaryCard paymentsSummaryRejected">
+
+        <Text
+            text="Rejected"
+            class="paymentsSummaryLabel"/>
+
+        <Title
+            id="summaryRejected"
+            text="0"
+            level="H2"
+            class="paymentsSummaryValue paymentsSummaryValueRejected"/>
+
+    </VBox>
+
+</HBox>
                 <!-- ========================================= -->
                 <!-- ACTION BAR -->
                 <!-- ========================================= -->
@@ -240,12 +309,15 @@
                                         text="{payments>paymentDate}"/>
 
 
-                                    <ObjectStatus
-                                        text="{payments>status}"
-                                        state="{
-                                            path: 'payments>status',
-                                            formatter: '.formatPaymentStatusState'
-                                        }"/>
+    <Text
+    text="{
+        path: 'payments>status',
+        formatter: '.formatStatusLabel'
+    }"
+    class="{
+        path: 'payments>status',
+        formatter: '.formatStatusPillClass'
+    }"/>
 
                                 </cells>
 

@@ -207,9 +207,25 @@
 
     <columns>
 
-        <Column>
-            <Text text="Date &amp; Time"/>
-        </Column>
+       <Column
+    id="dateTimeColumn"
+    sortIndicator="None"
+    width="14%">
+
+    <HBox alignItems="Center">
+
+        <Text text="Date &amp; Time"/>
+
+        <Button
+            icon="sap-icon://sort"
+            type="Transparent"
+            tooltip="Sort by date &amp; time"
+            press=".onSortDateTime"
+            class="sapUiTinyMarginBegin"/>
+
+    </HBox>
+
+</Column>
 
         <Column>
             <Text text="User"/>

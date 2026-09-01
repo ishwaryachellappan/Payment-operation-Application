@@ -3397,3 +3397,186 @@
     overflow: hidden;
     pointer-events: none;
 }
+
+/* =========================================================
+   PAYMENTS SUMMARY CARDS
+   ========================================================= */
+
+.paymentsSummaryRow {
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.paymentsSummaryCard {
+    width: 24%;
+    min-height: 90px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border: 1px solid #dce3eb;
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.04);
+}
+
+.paymentsSummaryLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: #687887;
+}
+
+.paymentsSummaryValue {
+    margin-top: 8px;
+    font-size: 26px !important;
+    font-weight: 700 !important;
+    color: #17212b !important;
+}
+
+.paymentsSummaryPending {
+    border-left: 4px solid #e9730c;
+}
+
+.paymentsSummaryApproved {
+    border-left: 4px solid #18864b;
+}
+
+.paymentsSummaryRejected {
+    border-left: 4px solid #bb0000;
+}
+
+.paymentsSummaryTotal {
+    border-left: 4px solid #0a6ed1;
+}
+
+.paymentsSummaryValuePending {
+    color: #e9730c !important;
+}
+
+.paymentsSummaryValueApproved {
+    color: #18864b !important;
+}
+
+.paymentsSummaryValueRejected {
+    color: #bb0000 !important;
+}
+
+
+/* =========================================================
+   STATUS PILLS
+   ========================================================= */
+
+.statusPill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.statusPillPending {
+    background: #fff3e8;
+    color: #e9730c;
+}
+
+.statusPillApproved {
+    background: #e5f7ec;
+    color: #18864b;
+}
+
+.statusPillRejected {
+    background: #ffe9e9;
+    color: #bb0000;
+}
+
+@media (max-width: 900px) {
+
+    .paymentsSummaryRow {
+        flex-direction: column;
+    }
+
+    .paymentsSummaryCard {
+        width: 100%;
+    }
+
+}
+
+/* =========================================================
+   PAYMENT DETAIL DIALOG
+   ========================================================= */
+
+.paymentDetailDialog {
+    border-radius: 12px !important;
+}
+
+.paymentDetailBody {
+    padding: 20px 22px;
+    box-sizing: border-box;
+}
+
+.paymentDetailTopBox {
+    width: 100%;
+    padding: 14px 16px;
+    box-sizing: border-box;
+    background: #f7f9fb;
+    border: 1px solid #e5e9ec;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.paymentDetailReference {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: #17212b !important;
+}
+
+.paymentDetailAmount {
+    margin-top: 4px;
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: #0a6ed1 !important;
+}
+
+.paymentDetailRow {
+    width: 100%;
+    justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid #f0f2f4;
+    box-sizing: border-box;
+}
+
+.paymentDetailLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: #687887;
+    min-width: 140px;
+}
+
+.paymentDetailValue {
+    font-size: 13px;
+    color: #17212b;
+    font-weight: 500;
+    text-align: right;
+}
+
+.paymentDetailRejectionBox {
+    margin-top: 14px;
+    padding: 12px 14px;
+    box-sizing: border-box;
+    background: #fff5f5;
+    border: 1px solid #f1c7c7;
+    border-left: 4px solid #bb0000;
+    border-radius: 8px;
+}
+
+.paymentDetailRejectionLabel {
+    font-size: 11px;
+    font-weight: 700;
+    color: #bb0000;
+    letter-spacing: 0.3px;
+}
+
+.paymentDetailRejectionText {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #452020;
+}

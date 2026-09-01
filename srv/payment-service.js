@@ -2000,7 +2000,9 @@ module.exports = cds.service.impl(async function () {
                         .split(',')
                         .map(
                             value =>
-                                value.trim()
+                                value
+                                    .trim()
+                                    .replace(/^"|"$/g, '')   // strip surrounding quotes, same as headers
                         );
 
 
@@ -3318,125 +3320,125 @@ module.exports = cds.service.impl(async function () {
         }
     );
 
-// =========================================================
-// HELPER - STREAM TO BUFFER
-// =========================================================
+    // =========================================================
+    // HELPER - STREAM TO BUFFER
+    // =========================================================
 
-async function streamToBuffer(stream) {
+    async function streamToBuffer(stream) {
 
-    const chunks = [];
+        const chunks = [];
 
-    for await (const chunk of stream) {
-        chunks.push(chunk);
+        for await (const chunk of stream) {
+            chunks.push(chunk);
+        }
+
+        return Buffer.concat(chunks);
     }
 
-    return Buffer.concat(chunks);
-}
 
+    // =========================================================
+    // DOWNLOAD CHAT ATTACHMENT
+    // =========================================================
 
-// =========================================================
-// DOWNLOAD CHAT ATTACHMENT
-// =========================================================
+    this.on(
+        "downloadChatAttachment",
+        async (req) => {
 
-this.on(
-    "downloadChatAttachment",
-    async (req) => {
+            const { attachmentId } = req.data;
 
-        const { attachmentId } = req.data;
+            if (!attachmentId) {
+                return {
+                    success: false,
+                    fileName: "",
+                    mimeType: "",
+                    fileSize: 0,
+                    fileContent: "",
+                    message: "Attachment ID is required."
+                };
+            }
 
-        if (!attachmentId) {
+            const attachment =
+                await SELECT.one
+                    .from(ChatAttachments)
+                    .columns(
+                        'ID',
+                        'fileName',
+                        'mimeType',
+                        'fileSize',
+                        'content',
+                        'createdAt'
+                    )
+                    .where({ ID: attachmentId });
+
+            if (!attachment) {
+                return {
+                    success: false,
+                    fileName: "",
+                    mimeType: "",
+                    fileSize: 0,
+                    fileContent: "",
+                    message: "Attachment not found."
+                };
+            }
+
+            // -------------------------------------------------
+            // NORMALIZE content INTO A REAL BUFFER
+            //
+            // Depending on the DB driver, LargeBinary columns
+            // can come back as:
+            //   - a Buffer (ideal case)
+            //   - a Readable stream (must be drained first)
+            //   - occasionally a plain string
+            // -------------------------------------------------
+
+            let contentBuffer;
+
+            if (Buffer.isBuffer(attachment.content)) {
+
+                contentBuffer = attachment.content;
+
+            } else if (
+                attachment.content &&
+                typeof attachment.content.pipe === "function"
+            ) {
+
+                contentBuffer = await streamToBuffer(attachment.content);
+
+            } else if (
+                attachment.content &&
+                typeof attachment.content[Symbol.asyncIterator] === "function"
+            ) {
+
+                contentBuffer = await streamToBuffer(attachment.content);
+
+            } else {
+
+                contentBuffer = Buffer.from(String(attachment.content || ""));
+
+            }
+
+            console.log("ATTACHMENT ROW:", {
+                ID: attachment.ID,
+                fileName: attachment.fileName,
+                fileSize: attachment.fileSize,
+                rawContentType: typeof attachment.content,
+                wasStream: !Buffer.isBuffer(attachment.content),
+                resolvedBufferLength: contentBuffer.length
+            });
+
+            const base64Content = contentBuffer.toString("base64");
+
             return {
-                success: false,
-                fileName: "",
-                mimeType: "",
-                fileSize: 0,
-                fileContent: "",
-                message: "Attachment ID is required."
+                success: true,
+                fileName: attachment.fileName,
+                mimeType: attachment.mimeType,
+                fileSize: attachment.fileSize,
+                fileContent: base64Content,
+                message: "Attachment loaded."
             };
-        }
-
-        const attachment =
-            await SELECT.one
-                .from(ChatAttachments)
-                .columns(
-                    'ID',
-                    'fileName',
-                    'mimeType',
-                    'fileSize',
-                    'content',
-                    'createdAt'
-                )
-                .where({ ID: attachmentId });
-
-        if (!attachment) {
-            return {
-                success: false,
-                fileName: "",
-                mimeType: "",
-                fileSize: 0,
-                fileContent: "",
-                message: "Attachment not found."
-            };
-        }
-
-        // -------------------------------------------------
-        // NORMALIZE content INTO A REAL BUFFER
-        //
-        // Depending on the DB driver, LargeBinary columns
-        // can come back as:
-        //   - a Buffer (ideal case)
-        //   - a Readable stream (must be drained first)
-        //   - occasionally a plain string
-        // -------------------------------------------------
-
-        let contentBuffer;
-
-        if (Buffer.isBuffer(attachment.content)) {
-
-            contentBuffer = attachment.content;
-
-        } else if (
-            attachment.content &&
-            typeof attachment.content.pipe === "function"
-        ) {
-
-            contentBuffer = await streamToBuffer(attachment.content);
-
-        } else if (
-            attachment.content &&
-            typeof attachment.content[Symbol.asyncIterator] === "function"
-        ) {
-
-            contentBuffer = await streamToBuffer(attachment.content);
-
-        } else {
-
-            contentBuffer = Buffer.from(String(attachment.content || ""));
 
         }
-
-        console.log("ATTACHMENT ROW:", {
-            ID: attachment.ID,
-            fileName: attachment.fileName,
-            fileSize: attachment.fileSize,
-            rawContentType: typeof attachment.content,
-            wasStream: !Buffer.isBuffer(attachment.content),
-            resolvedBufferLength: contentBuffer.length
-        });
-
-        const base64Content = contentBuffer.toString("base64");
-
-        return {
-            success: true,
-            fileName: attachment.fileName,
-            mimeType: attachment.mimeType,
-            fileSize: attachment.fileSize,
-            fileContent: base64Content,
-            message: "Attachment loaded."
-        };
-
-    }
-);
+    );
 
 
 

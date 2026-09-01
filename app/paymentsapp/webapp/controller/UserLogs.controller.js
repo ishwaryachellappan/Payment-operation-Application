@@ -100,6 +100,8 @@ sap.ui.define([
 
                                     ID:
                                         oLog.ID,
+                                    rawDate:
+                                        oLog.createdAt || null,
 
                                     dateTime:
                                         this._formatDate(
@@ -134,7 +136,7 @@ sap.ui.define([
                                         String(
                                             oLog.status || ""
                                         ).toLowerCase() ===
-                                        "success"
+                                            "success"
                                             ? "Success"
                                             : "Error",
 
@@ -267,26 +269,36 @@ sap.ui.define([
                     ).length;
 
 
-                // Today's logs
+                // -----------------------------------------------------
+                // TODAY'S ACTIVITIES
+                // Compare each log's actual date (not the formatted
+                // display string) against today's calendar date.
+                // -----------------------------------------------------
 
-                const today =
+                const now =
                     new Date();
-
-
-                const todayString =
-                    today.toISOString()
-                        .substring(0, 10);
 
 
                 const todayCount =
                     aLogs.filter(
                         function (log) {
 
-                            if (!log.ID) {
+                            if (!log.rawDate) {
                                 return false;
                             }
 
-                            return true;
+                            const logDate =
+                                new Date(log.rawDate);
+
+                            if (isNaN(logDate.getTime())) {
+                                return false;
+                            }
+
+                            return (
+                                logDate.getFullYear() === now.getFullYear() &&
+                                logDate.getMonth() === now.getMonth() &&
+                                logDate.getDate() === now.getDate()
+                            );
 
                         }
                     ).length;
@@ -307,7 +319,6 @@ sap.ui.define([
                 this.byId("todayLogs")
                     .setText(String(todayCount));
             },
-
 
             // =====================================================
             // REFRESH
@@ -455,7 +466,78 @@ sap.ui.define([
                 oBinding.filter(
                     aFilters
                 );
-            }
+            },
+
+            // =====================================================
+            // SORT BY DATE & TIME
+            // =====================================================
+
+            onSortDateTime: function () {
+
+                const column =
+                    this.byId("dateTimeColumn");
+
+                if (!column) {
+                    return;
+                }
+
+                const currentIndicator =
+                    column.getSortIndicator();
+
+                const newIndicator =
+                    currentIndicator === "Ascending"
+                        ? "Descending"
+                        : "Ascending";
+
+
+                // -------------------------------------------------
+                // Clear any other column's indicator, set this one
+                // -------------------------------------------------
+
+                column.setSortIndicator(
+                    newIndicator
+                );
+
+
+                const model =
+                    this.getView()
+                        .getModel("logs");
+
+                if (!model) {
+                    return;
+                }
+
+                const logs =
+                    model.getProperty("/Logs") || [];
+
+
+                logs.sort(
+                    function (a, b) {
+
+                        const timeA =
+                            a.rawDate
+                                ? new Date(a.rawDate).getTime()
+                                : 0;
+
+                        const timeB =
+                            b.rawDate
+                                ? new Date(b.rawDate).getTime()
+                                : 0;
+
+                        return newIndicator === "Ascending"
+                            ? timeA - timeB
+                            : timeB - timeA;
+
+                    }
+                );
+
+
+                model.setProperty(
+                    "/Logs",
+                    logs
+                );
+
+            },
 
         }
     );
